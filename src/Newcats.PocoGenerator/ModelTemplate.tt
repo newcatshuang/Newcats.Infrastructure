@@ -1,0 +1,73 @@
+﻿<#@ template language="C#" debug="True" hostspecific="True" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Data" #>
+<#@ assembly name="System.xml" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ import namespace="System.Data" #>
+<#@ include file="ModelAuto.ttinclude"#>
+<# var manager = new Manager(Host, GenerationEnvironment, true) { OutputPath = Path.GetDirectoryName(Host.TemplateFile)}; #>
+<# 
+	string connectionString = "Data Source=127.0.0.1;Initial Catalog=NewcatsDB;User ID=sa;Password=123456;"; 
+    SqlConnection conn = new SqlConnection(connectionString); 
+    conn.Open(); 
+    System.Data.DataTable schema = conn.GetSchema("TABLES"); 
+    string selectQuery = "select * from @tableName"; 
+    SqlCommand command = new SqlCommand(selectQuery,conn); 
+    SqlDataAdapter ad = new SqlDataAdapter(command); 
+    System.Data.DataSet ds = new DataSet();
+ 
+    string propQuery = "select 表名=tab.name,字段名=col.name,字段说明=ep.value from sys.columns as col left join sys.extended_properties as ep on col.object_id=ep.major_id and col.column_id=ep.minor_id left join sys.tables as tab on col.object_id=tab.object_id where tab.name='@tableName' and col.name='@columnName'"; 
+    SqlCommand command2 = new SqlCommand(propQuery,conn); 
+    SqlDataAdapter ad2 = new SqlDataAdapter(command2); 
+    System.Data.DataSet ds2 = new DataSet();
+ #>
+<# 
+    foreach(System.Data.DataRow row in schema.Rows) 
+    {  #>
+	<#
+	   if(row["TABLE_NAME"].ToString()=="UserPermission")
+	 { #>  
+     <# 
+		manager.StartBlock(row["TABLE_NAME"]+"Entity.cs");
+	 #>
+	using System;
+	using System.ComponentModel.DataAnnotations;
+	using System.ComponentModel.DataAnnotations.Schema;
+
+	namespace AcadsocHR.Entity.Entities
+	{
+        /// <summary>
+        /// 数据库表实体类：<#= row["TABLE_NAME"].ToString() #>
+        /// </summary>
+        [Table("<#= row["TABLE_NAME"].ToString() #>")]
+		public class <#= row["TABLE_NAME"].ToString()+"Entity" #>
+        {
+		    <#
+            ds.Tables.Clear();
+            command.CommandText = selectQuery.Replace("@tableName",row["TABLE_NAME"].ToString());
+            ad.FillSchema(ds, SchemaType.Mapped, row["TABLE_NAME"].ToString());
+            foreach (DataColumn dc in ds.Tables[0].Columns)
+            {
+            #>
+            <#
+             ds2.Tables.Clear();
+             command2.CommandText = propQuery.Replace("@tableName",row["TABLE_NAME"].ToString()); 
+             command2.CommandText = command2.CommandText.Replace("@columnName",dc.ColumnName); 
+             ad2.Fill(ds2);
+            #> 
+			/// <summary>
+			/// <#= ds2.Tables[0].Rows[0]["字段说明"] #>
+			/// </summary>
+			public <#= manager.MyCSToProcType(dc) #> <#= dc.ColumnName #> {get;set;}
+            <# }  #>
+        }
+     }
+	<# manager.EndBlock(); #>
+	<#
+	} #>
+<# 
+    } #> 
+<#
+    manager.Process(true);
+#>
