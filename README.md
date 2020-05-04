@@ -1,4 +1,10 @@
 # Newcats.Infrastructure
+[![Net Core](https://img.shields.io/badge/.NET%20Core-3.1-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
+[![GitHub license](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
+
+README: [中文](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/README.md) | [English](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/README-en.md)
+
+---
 The new infrastructure to launch a new era of the great .NET Core.
 
 ---
