@@ -1,0 +1,68 @@
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
+using Newcats.AspNetCore.Interfaces;
+using Newcats.AspNetCore.Models;
+
+namespace Newcats.AspNetCore.Filters
+{
+    /// <summary>
+    /// 启用审计日志
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class AuditableAttribute : Attribute, IAsyncActionFilter
+    {
+        /// <summary>
+        /// 是否忽略
+        /// </summary>
+        public bool Ignore { get; set; }
+
+        /// <summary>
+        /// 启用审计日志
+        /// </summary>
+        /// <param name="ignore">是否忽略</param>
+        public AuditableAttribute(bool ignore = false)
+        {
+            Ignore = ignore;
+        }
+
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            // do something before the action executes
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            ActionExecutedContext resultContext = await next();//执行Action
+
+            // do something after the action executes; resultContext.Result will be set
+            stopwatch.Stop();
+            if (!Ignore)
+            {
+                try
+                {
+                    AuditLogModel model = new AuditLogModel
+                    {
+                        CurrentUserId = context.HttpContext.User.Identity.IsAuthenticated ? int.Parse(context.HttpContext.User.FindFirst("sub").Value) : 0,
+                        Action = context.ActionDescriptor.DisplayName.ToSubstring(127),
+                        HttpMethod = context.HttpContext.Request.Method,
+                        IP = HttpHelper.GetIP(context.HttpContext),
+                        ExecuteDuration = (int)stopwatch.ElapsedMilliseconds,
+                        ExecuteTime = DateTime.Now,
+                        Arguments = context.ActionArguments.Count > 0 ? context.ActionArguments.ToJson().ToSubstring(1023) : string.Empty,
+                        Exception = resultContext.Exception?.Message.ToSubstring(127),
+                        Result = (resultContext.Result is JsonResult) ? (resultContext.Result as JsonResult).Value?.ToJson().ToSubstring(2047) : string.Empty
+                    };
+                    IAuditLogStore store = context.HttpContext.RequestServices.GetService<IAuditLogStore>();
+                    await store.SaveAsync(model);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+    }
+}

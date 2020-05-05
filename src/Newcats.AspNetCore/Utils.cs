@@ -115,7 +115,7 @@ namespace Newcats.AspNetCore
         /// 获取当前页面客户端的IP地址
         /// </summary>
         /// <returns></returns>
-        public static string GetIP(IHttpContextAccessor accessor, bool tryUseXForwardHeader = true)
+        public static string GetIP(HttpContext context, bool tryUseXForwardHeader = true)
         {
             string ip = null;
 
@@ -128,16 +128,16 @@ namespace Newcats.AspNetCore
             //
             if (tryUseXForwardHeader)
             {
-                ip = GetHeaderValueAs<string>(accessor.HttpContext, "X-Forwarded-For");//.TrimEnd(',').Split(',').AsEnumerable().Select(s => s.Trim()).ToList().FirstOrDefault();
+                ip = GetHeaderValueAs<string>(context, "X-Forwarded-For");//.TrimEnd(',').Split(',').AsEnumerable().Select(s => s.Trim()).ToList().FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(ip))
                     ip = ip.TrimEnd(',').Split(',').AsEnumerable().Select(s => s.Trim()).ToList().FirstOrDefault();
             }
 
-            if (string.IsNullOrWhiteSpace(ip) && accessor.HttpContext?.Connection?.RemoteIpAddress != null)
-                ip = accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            if (string.IsNullOrWhiteSpace(ip) && context.Connection?.RemoteIpAddress != null)
+                ip = context.Connection.RemoteIpAddress.ToString();
 
             if (string.IsNullOrWhiteSpace(ip))
-                ip = GetHeaderValueAs<string>(accessor.HttpContext, "REMOTE_ADDR");
+                ip = GetHeaderValueAs<string>(context, "REMOTE_ADDR");
 
             if (string.IsNullOrWhiteSpace(ip))
                 ip = "0.0.0.0";

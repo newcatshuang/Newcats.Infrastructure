@@ -6,6 +6,9 @@ namespace Newcats.AspNetCore.Interfaces
 {
     /// <summary>
     /// 审计日志对象持久化接口
+    /// 默认实现为输出到Microsoft.Extensions.Logging日志
+    /// 可以重写此方法，实现自定义持久化
+    /// 建议使用消息队列，避免出现性能问题
     /// </summary>
     public interface IAuditLogStore : IScopedDependency
     {

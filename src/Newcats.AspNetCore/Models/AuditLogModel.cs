@@ -14,9 +14,9 @@ namespace Newcats.AspNetCore.Models
         public long Id { get; set; }
 
         /// <summary>
-        /// 当前操作人Id
+        /// 当前操作人Id(未登录时则为0)
         /// </summary>
-        public int? CurrentUserId { get; set; }
+        public int CurrentUserId { get; set; }
 
         /// <summary>
         /// 完整的方法名(控制器+方法)

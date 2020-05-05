@@ -4,5 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Newcats.AspNetCore\Newcats.AspNetCore.csproj" />
+  </ItemGroup>
+
 
 </Project>

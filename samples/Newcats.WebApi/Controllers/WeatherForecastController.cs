@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newcats.AspNetCore.Filters;
 
 namespace Newcats.WebApi.Controllers
 {
@@ -23,6 +24,7 @@ namespace Newcats.WebApi.Controllers
             _logger = logger;
         }
 
+        [Auditable]
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
