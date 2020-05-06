@@ -26,6 +26,7 @@ namespace Newcats.WebApi.Controllers
 
         [Auditable]
         [HttpGet]
+        [Permission("testCode")]
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
@@ -36,6 +37,12 @@ namespace Newcats.WebApi.Controllers
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpGet("/WeatherForecast/Hello")]
+        public string Hello()
+        {
+            return "hello";
         }
     }
 }
