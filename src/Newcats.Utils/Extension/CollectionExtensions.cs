@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Newcats.Utils.Extension
@@ -122,7 +123,7 @@ namespace Newcats.Utils.Extension
         /// <param name="item">要加入的元素</param>
         /// <param name="condition">是否加入集合</param>
         /// <returns>加入了元素的集合</returns>
-        public static List<T> AddIf<T>(this List<T> list, T item, bool condition)
+        public static IList<T> AddIf<T>(this IList<T> list, T item, bool condition)
         {
             if (item == null)
                 return list;
@@ -131,5 +132,91 @@ namespace Newcats.Utils.Extension
             list.Add(item);
             return list;
         }
+
+        #region WhereIf
+        /// <summary>
+        /// Filters a <see cref="IEnumerable{T}"/> by given predicate if given condition is true.
+        /// </summary>
+        /// <param name="source">Enumerable to apply filtering</param>
+        /// <param name="predicate">Predicate to filter the enumerable</param>
+        /// <param name="condition">A boolean value</param>
+        /// <returns>Filtered or not filtered enumerable based on <paramref name="condition"/></returns>
+        public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> source, Func<T, bool> predicate, bool condition)
+        {
+            return condition ? source.Where(predicate) : source;
+        }
+
+        /// <summary>
+        /// Filters a <see cref="IEnumerable{T}"/> by given predicate if given condition is true.
+        /// </summary>
+        /// <param name="source">Enumerable to apply filtering</param>
+        /// <param name="predicate">Predicate to filter the enumerable</param>
+        /// <param name="condition">A boolean value</param>
+        /// <returns>Filtered or not filtered enumerable based on <paramref name="condition"/></returns>
+        public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> source, Func<T, int, bool> predicate, bool condition)
+        {
+            return condition ? source.Where(predicate) : source;
+        }
+
+        /// <summary>
+        /// Filters a <see cref="IQueryable{T}"/> by given predicate if given condition is true.
+        /// </summary>
+        /// <param name="query">Queryable to apply filtering</param>
+        /// <param name="predicate">Predicate to filter the query</param>
+        /// <param name="condition">A boolean value</param>
+        /// <returns>Filtered or not filtered query based on <paramref name="condition"/></returns>
+        public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, Expression<Func<T, bool>> predicate, bool condition)
+        {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            return condition ? query.Where(predicate) : query;
+        }
+
+        /// <summary>
+        /// Filters a <see cref="IQueryable{T}"/> by given predicate if given condition is true.
+        /// </summary>
+        /// <param name="query">Queryable to apply filtering</param>
+        /// <param name="predicate">Predicate to filter the query</param>
+        /// <param name="condition">A boolean value</param>
+        /// <returns>Filtered or not filtered query based on <paramref name="condition"/></returns>
+        public static TQueryable WhereIf<T, TQueryable>(this TQueryable query, Expression<Func<T, bool>> predicate, bool condition) where TQueryable : IQueryable<T>
+        {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            return condition ? (TQueryable)query.Where(predicate) : query;
+        }
+
+        /// <summary>
+        /// Filters a <see cref="IQueryable{T}"/> by given predicate if given condition is true.
+        /// </summary>
+        /// <param name="query">Queryable to apply filtering</param>
+        /// <param name="predicate">Predicate to filter the query</param>
+        /// <param name="condition">A boolean value</param>
+        /// <returns>Filtered or not filtered query based on <paramref name="condition"/></returns>
+        public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, Expression<Func<T, int, bool>> predicate, bool condition)
+        {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            return condition ? query.Where(predicate) : query;
+        }
+
+        /// <summary>
+        /// Filters a <see cref="IQueryable{T}"/> by given predicate if given condition is true.
+        /// </summary>
+        /// <param name="query">Queryable to apply filtering</param>
+        /// <param name="predicate">Predicate to filter the query</param>
+        /// <param name="condition">A boolean value</param>
+        /// <returns>Filtered or not filtered query based on <paramref name="condition"/></returns>
+        public static TQueryable WhereIf<T, TQueryable>(this TQueryable query, Expression<Func<T, int, bool>> predicate, bool condition) where TQueryable : IQueryable<T>
+        {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            return condition ? (TQueryable)query.Where(predicate) : query;
+        }
+        #endregion
     }
 }
