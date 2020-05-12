@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers;
 using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Newcats.Utils.Extension
 {
@@ -136,336 +138,127 @@ namespace Newcats.Utils.Extension
 
         #region System.Text.Json
         /// <summary>
-        /// Serializes the specified object to a JSON string.
+        /// Parses the text representing a single JSON value into an instance of a specified type.
         /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <returns>A JSON string representation of the object.</returns>
-        public static string ToJson(this object value)
+        /// <param name="json">The JSON text to parse.</param>
+        /// <param name="returnType">The type of the object to convert to and return.</param>
+        /// <param name="options">Options to control the behavior during parsing.</param>
+        /// <returns>A returnType representation of the JSON value.</returns>
+        /// <exception cref="System.ArgumentNullException">json or returnType is null.</exception>
+        /// <exception cref="System.Text.Json.JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
+        public static object Deserialize(string json, Type returnType, JsonSerializerOptions options = null)
         {
-            return JsonSerializer.Serialize(value);
+            throw null;
         }
 
         /// <summary>
-        /// Serializes the specified object to a JSON string.
+        /// Parses the text representing a single JSON value into an instance of the type specified by a generic type parameter.
         /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="options">Json Serializer options</param>
-        /// <returns>A JSON string representation of the object.</returns>
+        /// <param name="json">The JSON text to parse.</param>
+        /// <param name="options">Options to control the behavior during parsing.</param>
+        /// <returns>A TValue representation of the JSON value.</returns>
+        /// <exception cref="System.ArgumentNullException">json is null.</exception>
+        /// <exception cref="System.Text.Json.JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
+        public static TValue Deserialize<TValue>(string json, JsonSerializerOptions options = null)
+        {
+            throw null;
+        }
+
+        /// <summary>
+        /// Converts the value of a specified type into a JSON string.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>The JSON string representation of the value.</returns>
+        public static string ToJson(this object value)
+        {
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+            };
+            opt.Converters.Add(new DateTimeConverter());
+            opt.Converters.Add(new DateTimeNullConverter());
+            return JsonSerializer.Serialize(value, value?.GetType(), opt);
+        }
+
+        /// <summary>
+        /// Converts the value of a specified type into a JSON string.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <param name="options">Options to control the conversion behavior.</param>
+        /// <returns>The JSON string representation of the value.</returns>
         public static string ToJson(this object value, JsonSerializerOptions options)
         {
-            return JsonSerializer.Serialize(value, options);
+            return JsonSerializer.Serialize(value, value?.GetType(), options);
         }
 
         /// <summary>
-        /// Deserializes the JSON to a .NET object.
+        /// Converts the value of a specified type into a JSON string.
         /// </summary>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <param name="returnType">return type</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string json, Type returnType)
+        /// <param name="value">The value to convert.</param>
+        /// <param name="inputType">The type of the value to convert.</param>
+        /// <returns>The JSON string representation of the value.</returns>
+        public static string ToJson(this object value, Type inputType)
         {
-            return JsonSerializer.Deserialize(json, returnType);
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+            };
+            opt.Converters.Add(new DateTimeConverter());
+            opt.Converters.Add(new DateTimeNullConverter());
+            return JsonSerializer.Serialize(value, inputType, opt);
         }
 
         /// <summary>
-        /// Deserializes the JSON to a .NET object.
+        /// Converts the value of a specified type into a JSON string.
         /// </summary>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <param name="returnType">return type</param>
-        /// <param name="options">Json Serializer options</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string json, Type returnType, JsonSerializerOptions options)
+        /// <param name="value">The value to convert.</param>
+        /// <param name="inputType">The type of the value to convert.</param>
+        /// <param name="options">Options to control the conversion behavior.</param>
+        /// <returns>The JSON string representation of the value.</returns>
+        public static string ToJson(this object value, Type inputType, JsonSerializerOptions options)
         {
-            return JsonSerializer.Deserialize(json, returnType, options);
+            return JsonSerializer.Serialize(value, inputType, options);
         }
 
         /// <summary>
-        /// Deserializes the JSON to a .NET object.
+        /// Converts the value of a type specified by a generic type parameter into a JSON string.
         /// </summary>
-        /// <typeparam name="T">object type</typeparam>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string json)
+        /// <typeparam name="TValue">The value to convert.</typeparam>
+        /// <param name="value">Options to control serialization behavior.</param>
+        /// <returns>A JSON string representation of the value.</returns>
+        public static string ToJson<TValue>(this TValue value)
         {
-            return JsonSerializer.Deserialize<T>(json);
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+            };
+            opt.Converters.Add(new DateTimeConverter());
+            opt.Converters.Add(new DateTimeNullConverter());
+            return JsonSerializer.Serialize<TValue>(value, opt);
         }
 
         /// <summary>
-        /// Deserializes the JSON to a .NET object.
+        /// Converts the value of a type specified by a generic type parameter into a JSON string.
         /// </summary>
-        /// <typeparam name="T">object type</typeparam>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <param name="options">Json Serializer options</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string json, JsonSerializerOptions options)
+        /// <typeparam name="TValue">The value to convert.</typeparam>
+        /// <param name="value">Options to control serialization behavior.</param>
+        /// <param name="options">The type of the value to serialize.</param>
+        /// <returns>A JSON string representation of the value.</returns>
+        public static string ToJson<TValue>(this TValue value, JsonSerializerOptions options)
         {
-            return JsonSerializer.Deserialize<T>(json, options);
+            return JsonSerializer.Serialize<TValue>(value, options);
         }
-        #endregion
-
-        #region Newtonsoft.Json
-        /*
-            /// <summary>
-        /// Serializes the specified object to a JSON string.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <returns>A JSON string representation of the object.</returns>
-        public static string ToJson(this object value)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value);
-        }
-
-        /// <summary>
-        /// Serializes the specified object to a JSON string using formatting.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="formatting">Indicates how the output should be formatted.</param>
-        /// <returns>
-        /// A JSON string representation of the object.
-        /// </returns>
-        public static string ToJson(this object value, Formatting formatting)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, formatting);
-        }
-
-        /// <summary>
-        /// Serializes the specified object to a JSON string using a collection of <see cref="T:Newtonsoft.Json.JsonConverter" />.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="converters">A collection of converters used while serializing.</param>
-        /// <returns>A JSON string representation of the object.</returns>
-        public static string ToJson(this object value, params JsonConverter[] converters)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, converters);
-        }
-
-        /// <summary>
-        /// Serializes the specified object to a JSON string using formatting and a collection of <see cref="T:Newtonsoft.Json.JsonConverter" />.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="formatting">Indicates how the output should be formatted.</param>
-        /// <param name="converters">A collection of converters used while serializing.</param>
-        /// <returns>A JSON string representation of the object.</returns>
-        public static string ToJson(this object value, Formatting formatting, params JsonConverter[] converters)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, formatting, converters);
-        }
-
-        /// <summary>
-        /// Serializes the specified object to a JSON string using <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="settings">The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to serialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.</param>
-        /// <returns>
-        /// A JSON string representation of the object.
-        /// </returns>
-        public static string ToJson(this object value, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, settings);
-        }
-
-        /// <summary>
-        /// Serializes the specified object to a JSON string using a type, formatting and <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="settings">The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to serialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.</param>
-        /// <param name="type">
-        /// The type of the value being serialized.
-        /// This parameter is used when <see cref="P:Newtonsoft.Json.JsonSerializer.TypeNameHandling" /> is <see cref="F:Newtonsoft.Json.TypeNameHandling.Auto" /> to write out the type name if the type of the value does not match.
-        /// Specifying the type is optional.
-        /// </param>
-        /// <returns>
-        /// A JSON string representation of the object.
-        /// </returns>
-        public static string ToJson(this object value, Type type, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, type, settings);
-        }
-
-        /// <summary>
-        /// Serializes the specified object to a JSON string using formatting and <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="formatting">Indicates how the output should be formatted.</param>
-        /// <param name="settings">The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to serialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.</param>
-        /// <returns>
-        /// A JSON string representation of the object.
-        /// </returns>
-        public static string ToJson(this object value, Formatting formatting, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, formatting, settings);
-        }
-
-        /// <summary>
-        /// Serializes the specified object to a JSON string using a type, formatting and <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="formatting">Indicates how the output should be formatted.</param>
-        /// <param name="settings">The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to serialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.</param>
-        /// <param name="type">
-        /// The type of the value being serialized.
-        /// This parameter is used when <see cref="P:Newtonsoft.Json.JsonSerializer.TypeNameHandling" /> is <see cref="F:Newtonsoft.Json.TypeNameHandling.Auto" /> to write out the type name if the type of the value does not match.
-        /// Specifying the type is optional.
-        /// </param>
-        /// <returns>
-        /// A JSON string representation of the object.
-        /// </returns>
-        public static string ToJson(this object value, Type type, Formatting formatting, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(value, type, formatting, settings);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to a .NET object.
-        /// </summary>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string value)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(value);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to a .NET object using <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <param name="settings">
-        /// The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to deserialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.
-        /// </param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string value, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(value, settings);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the specified .NET type.
-        /// </summary>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <param name="type">The <see cref="T:System.Type" /> of object being deserialized.</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string value, Type type)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(value, type);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the specified .NET type.
-        /// </summary>
-        /// <typeparam name="T">The type of the object to deserialize to.</typeparam>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string value)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(value);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the given anonymous type.
-        /// </summary>
-        /// <typeparam name="T">
-        /// The anonymous type to deserialize to. This can't be specified
-        /// traditionally and must be inferred from the anonymous type passed
-        /// as a parameter.
-        /// </typeparam>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <param name="anonymousTypeObject">The anonymous type object.</param>
-        /// <returns>The deserialized anonymous type from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string value, T anonymousTypeObject)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeAnonymousType<T>(value, anonymousTypeObject);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the given anonymous type using <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <typeparam name="T">
-        /// The anonymous type to deserialize to. This can't be specified
-        /// traditionally and must be inferred from the anonymous type passed
-        /// as a parameter.
-        /// </typeparam>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <param name="anonymousTypeObject">The anonymous type object.</param>
-        /// <param name="settings">
-        /// The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to deserialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.
-        /// </param>
-        /// <returns>The deserialized anonymous type from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string value, T anonymousTypeObject, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeAnonymousType<T>(value, anonymousTypeObject, settings);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the specified .NET type using a collection of <see cref="T:Newtonsoft.Json.JsonConverter" />.
-        /// </summary>
-        /// <typeparam name="T">The type of the object to deserialize to.</typeparam>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <param name="converters">Converters to use while deserializing.</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string value, params JsonConverter[] converters)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(value, converters);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the specified .NET type using <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <typeparam name="T">The type of the object to deserialize to.</typeparam>
-        /// <param name="value">The object to deserialize.</param>
-        /// <param name="settings">
-        /// The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to deserialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.
-        /// </param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string value, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(value, settings);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the specified .NET type using a collection of <see cref="T:Newtonsoft.Json.JsonConverter" />.
-        /// </summary>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <param name="type">The type of the object to deserialize.</param>
-        /// <param name="converters">Converters to use while deserializing.</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string value, Type type, params JsonConverter[] converters)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(value, type, converters);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to the specified .NET type using <see cref="T:Newtonsoft.Json.JsonSerializerSettings" />.
-        /// </summary>
-        /// <param name="value">The JSON to deserialize.</param>
-        /// <param name="type">The type of the object to deserialize to.</param>
-        /// <param name="settings">
-        /// The <see cref="T:Newtonsoft.Json.JsonSerializerSettings" /> used to deserialize the object.
-        /// If this is <c>null</c>, default serialization settings will be used.
-        /// </param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string value, Type type, JsonSerializerSettings settings)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(value, type, settings);
-        }
-        */
         #endregion
 
         #region DateTime
         /// <summary>
-        /// Converts the value of the current System.DateTime object to a default Chinese format string (yyyy-MM-dd HH:mm:ss).
+        /// Converts the value of the current System.DateTime object to a default Chinese format string (yyyy-MM-dd HH:mm:ss.fff).
         /// </summary>
         /// <param name="value">The date and time value</param>
-        /// <returns>A string representation of value of the current System.DateTime object as specified by format (yyyy-MM-dd HH:mm:ss).</returns>
+        /// <returns>A string representation of value of the current System.DateTime object as specified by format (yyyy-MM-dd HH:mm:ss.fff).</returns>
         public static string ToChinaString(this DateTime value)
         {
-            return value.ToString("yyyy-MM-dd HH:mm:ss");
+            return value.ToString("yyyy-MM-dd HH:mm:ss.fff");
         }
         #endregion
 
@@ -500,4 +293,123 @@ namespace Newcats.Utils.Extension
         }
         #endregion
     }
+
+    #region System.Text.Json的自定义转换器
+    /// <summary>
+    /// System.Text.Json的自定义DateTime转换器(序列号和反序列化)
+    /// </summary>
+    public class DateTimeConverter : JsonConverter<DateTime>
+    {
+        public string DateTimeFormat { get; set; }
+
+        public DateTimeConverter(string dateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff")
+        {
+            DateTimeFormat = dateTimeFormat;
+        }
+
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return DateTime.Parse(reader.GetString());
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString(DateTimeFormat));
+        }
+    }
+
+    /// <summary>
+    /// System.Text.Json的自定义DateTime?转换器(序列号和反序列化)
+    /// </summary>
+    public class DateTimeNullConverter : JsonConverter<DateTime?>
+    {
+        public string DateTimeFormat { get; set; }
+
+        public DateTimeNullConverter(string dateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff")
+        {
+            DateTimeFormat = dateTimeFormat;
+        }
+
+        public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return string.IsNullOrWhiteSpace(reader.GetString()) ? default(DateTime?) : DateTime.Parse(reader.GetString());
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value?.ToString(DateTimeFormat));
+        }
+    }
+
+    /// <summary>
+    /// System.Text.Json的自定义long转换器(反序列化)
+    /// </summary>
+    public class LongToStringConverter : JsonConverter<long>
+    {
+        public override long Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                ReadOnlySpan<byte> span = reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan;
+                if (System.Buffers.Text.Utf8Parser.TryParse(span, out long number, out int bytesConsumed) && span.Length == bytesConsumed)
+                    return number;
+
+                if (Int64.TryParse(reader.GetString(), out number))
+                    return number;
+            }
+
+            return reader.GetInt64();
+        }
+
+        public override void Write(Utf8JsonWriter writer, long longValue, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(longValue.ToString());
+        }
+    }
+
+    /// <summary>
+    /// System.Text.Json的自定义int转换器(反序列化)
+    /// </summary>
+    public class IntToStringConverter : JsonConverter<int>
+    {
+        public override int Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                ReadOnlySpan<byte> span = reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan;
+                if (System.Buffers.Text.Utf8Parser.TryParse(span, out int number, out int bytesConsumed) && span.Length == bytesConsumed)
+                    return number;
+
+                if (Int32.TryParse(reader.GetString(), out number))
+                    return number;
+            }
+
+            return reader.GetInt32();
+        }
+
+        public override void Write(Utf8JsonWriter writer, int intValue, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(intValue.ToString());
+        }
+    }
+
+    /// <summary>
+    /// System.Text.Json的自定义bool转换器(反序列化)
+    /// </summary>
+    public class BoolConverter : JsonConverter<bool>
+    {
+        public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.True || reader.TokenType == JsonTokenType.False)
+                return reader.GetBoolean();
+
+            return bool.Parse(reader.GetString());
+        }
+
+        public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+        {
+            writer.WriteBooleanValue(value);
+        }
+    }
+    #endregion
 }

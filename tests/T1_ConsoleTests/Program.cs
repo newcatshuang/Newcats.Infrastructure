@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Newcats.Utils.Extension;
 
 namespace T1_ConsoleTests
 {
@@ -12,40 +13,47 @@ namespace T1_ConsoleTests
         {
             //Console.WriteLine("Hello World!");
 
-            //User u = new User()
-            //{
-            //    Id = 1,
-            //    Name = "newcats",
-            //    CN = "皇权特许",
-            //    CreateTime = DateTime.Now,
-            //    UpdateTime = DateTime.Now.AddHours(3),
-            //    Season = Season.Summer
-            //};
+            User u = new User()
+            {
+                Id = 1,
+                Name = "newcats",
+                CN = "皇权特许",
+                CreateTime = DateTime.Now,
+                UpdateTime = DateTime.Now.AddHours(3),
+                Season = Season.Summer,
+                IsMan = true
+            };
 
-            //string rawJson = "{\"Id\":1,\"Name\":\"newcats\",\"CN\":\"皇权特许\",\"CreateTime\":\"2020-05-10 23:36:03\",\"UpdateTime\":\"2020-05-11 02:36:03\",\"Season\":1}";
+            string rawJson = "{\"Id\":1,\"Name\":\"newcats\",\"CN\":\"皇权特许\",\"CreateTime\":\"2020-05-10 23:36:03\",\"UpdateTime\":\"2020-05-11 02:36:03\",\"Season\":1,\"IsMan\":\"true\"}";
 
-            JsonSerializerOptions opt = new JsonSerializerOptions();
-            //{
-            //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All),
-            //PropertyNameCaseInsensitive = true//反序列化
-            //};
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All),
+                PropertyNameCaseInsensitive = true//反序列化
+            };
             opt.Converters.Add(new DateTimeConverter());
             opt.Converters.Add(new DateTimeNullConverter());
-            //opt.Converters.Add(new LongToStringConverter());//反序列化
-            //opt.Converters.Add(new IntToStringConverter());//反序列化
-            //string json = JsonSerializer.Serialize<User>(u, opt);
+            opt.Converters.Add(new LongToStringConverter());//反序列化
+            opt.Converters.Add(new IntToStringConverter());//反序列化
+            opt.Converters.Add(new BoolConverter());//反序列化
+            string json = JsonSerializer.Serialize<User>(u, opt);
             //Console.WriteLine(json + "\r\n");
 
-            string time = "2020-05-11";
-            var ss = DateTime.Parse(time);
+            //string time = "\"2020-05-11 23:36:03\"";
+            //var ss = DateTime.Parse(time);
 
             //Console.WriteLine(DateTime.Now.ToShortDateString());
 
-            DateTime d = JsonSerializer.Deserialize<DateTime>(time, opt);
+            //DateTime d = JsonSerializer.Deserialize<DateTime>(time, opt);
 
-            Console.WriteLine(d.ToShortDateString());
+            //Console.WriteLine(d.ToString());
 
-            //User n = JsonSerializer.Deserialize<User>(rawJson);
+            //User n = JsonSerializer.Deserialize<User>(rawJson, opt);
+
+            //Console.WriteLine(n.CreateTime.ToString());
+
+
+            Console.WriteLine(u.ToJson());
 
         }
     }
@@ -63,6 +71,8 @@ namespace T1_ConsoleTests
         public DateTime? UpdateTime { get; set; }
 
         public Season Season { get; set; }
+
+        public bool IsMan { get; set; }
     }
 
     public enum Season
@@ -76,6 +86,7 @@ namespace T1_ConsoleTests
         Winter = 3
     }
 
+
     public class DateTimeConverter : JsonConverter<DateTime>
     {
         public string DateTimeFormat { get; set; }
@@ -87,12 +98,7 @@ namespace T1_ConsoleTests
 
         public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                if (DateTime.TryParse(reader.GetString(), out DateTime date))
-                    return date;
-            }
-            return reader.GetDateTime();
+            return DateTime.Parse(reader.GetString());
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
@@ -112,7 +118,7 @@ namespace T1_ConsoleTests
 
         public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return string.IsNullOrEmpty(reader.GetString()) ? default(DateTime?) : DateTime.Parse(reader.GetString());
+            return string.IsNullOrWhiteSpace(reader.GetString()) ? default(DateTime?) : DateTime.Parse(reader.GetString());
         }
 
         public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
