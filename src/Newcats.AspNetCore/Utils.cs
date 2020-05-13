@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
@@ -10,70 +13,36 @@ namespace Newcats.AspNetCore
     {
         #region System.Text.Json
         /// <summary>
-        /// Serializes the specified object to a JSON string.
+        /// Converts the value of a specified type into a JSON string.
         /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <returns>A JSON string representation of the object.</returns>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>The JSON string representation of the value.</returns>
         public static string ToJson(this object value)
         {
-            return JsonSerializer.Serialize(value);
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
+            };
+            opt.Converters.Add(new DateTimeConverter());
+            opt.Converters.Add(new DateTimeNullConverter());
+            return JsonSerializer.Serialize(value, value?.GetType(), opt);
         }
 
         /// <summary>
-        /// Serializes the specified object to a JSON string.
+        /// Converts the value of a type specified by a generic type parameter into a JSON string.
         /// </summary>
-        /// <param name="value">The object to serialize.</param>
-        /// <param name="options">Json Serializer options</param>
-        /// <returns>A JSON string representation of the object.</returns>
-        public static string ToJson(this object value, JsonSerializerOptions options)
+        /// <typeparam name="TValue">The type of the value to serialize.</typeparam>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>A JSON string representation of the value.</returns>
+        public static string ToJson<TValue>(this TValue value)
         {
-            return JsonSerializer.Serialize(value, options);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to a .NET object.
-        /// </summary>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <param name="returnType">return type</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string json, Type returnType)
-        {
-            return JsonSerializer.Deserialize(json, returnType);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to a .NET object.
-        /// </summary>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <param name="returnType">return type</param>
-        /// <param name="options">Json Serializer options</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static object DeserializeJson(this string json, Type returnType, JsonSerializerOptions options)
-        {
-            return JsonSerializer.Deserialize(json, returnType, options);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to a .NET object.
-        /// </summary>
-        /// <typeparam name="T">object type</typeparam>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string json)
-        {
-            return JsonSerializer.Deserialize<T>(json);
-        }
-
-        /// <summary>
-        /// Deserializes the JSON to a .NET object.
-        /// </summary>
-        /// <typeparam name="T">object type</typeparam>
-        /// <param name="json">The JSON to deserialize.</param>
-        /// <param name="options">Json Serializer options</param>
-        /// <returns>The deserialized object from the JSON string.</returns>
-        public static T DeserializeJson<T>(this string json, JsonSerializerOptions options)
-        {
-            return JsonSerializer.Deserialize<T>(json, options);
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
+            };
+            opt.Converters.Add(new DateTimeConverter());
+            opt.Converters.Add(new DateTimeNullConverter());
+            return JsonSerializer.Serialize<TValue>(value, opt);
         }
         #endregion
 
@@ -108,6 +77,54 @@ namespace Newcats.AspNetCore
         }
         #endregion
     }
+
+    #region System.Text.Json的自定义转换器
+    /// <summary>
+    /// System.Text.Json的自定义DateTime转换器(序列号和反序列化)
+    /// </summary>
+    public class DateTimeConverter : JsonConverter<DateTime>
+    {
+        public string DateTimeFormat { get; set; }
+
+        public DateTimeConverter(string dateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff")
+        {
+            DateTimeFormat = dateTimeFormat;
+        }
+
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return DateTime.Parse(reader.GetString());
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString(DateTimeFormat));
+        }
+    }
+
+    /// <summary>
+    /// System.Text.Json的自定义DateTime?转换器(序列号和反序列化)
+    /// </summary>
+    public class DateTimeNullConverter : JsonConverter<DateTime?>
+    {
+        public string DateTimeFormat { get; set; }
+
+        public DateTimeNullConverter(string dateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff")
+        {
+            DateTimeFormat = dateTimeFormat;
+        }
+
+        public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return string.IsNullOrWhiteSpace(reader.GetString()) ? default(DateTime?) : DateTime.Parse(reader.GetString());
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value?.ToString(DateTimeFormat));
+        }
+    }
+    #endregion
 
     public class HttpHelper
     {
