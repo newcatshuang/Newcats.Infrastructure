@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
-namespace Newcats.Utils.Extension
+namespace Newcats.Utils.Extensions
 {
     public enum SpanColor
     {

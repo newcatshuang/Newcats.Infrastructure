@@ -13,7 +13,7 @@ namespace Newcats.AspNetCore.Filters
     /// 启用审计日志
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class AuditableAttribute : Attribute, IAsyncActionFilter
+    public class AuditAttribute : Attribute, IAsyncActionFilter
     {
         /// <summary>
         /// 是否忽略
@@ -24,7 +24,7 @@ namespace Newcats.AspNetCore.Filters
         /// 启用审计日志
         /// </summary>
         /// <param name="ignore">是否忽略</param>
-        public AuditableAttribute(bool ignore = false)
+        public AuditAttribute(bool ignore = false)
         {
             Ignore = ignore;
         }

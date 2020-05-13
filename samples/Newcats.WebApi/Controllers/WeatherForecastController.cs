@@ -24,7 +24,7 @@ namespace Newcats.WebApi.Controllers
             _logger = logger;
         }
 
-        [Auditable]
+        [Audit]
         [HttpGet]
         [Permission("testCode")]
         public IEnumerable<WeatherForecast> Get()

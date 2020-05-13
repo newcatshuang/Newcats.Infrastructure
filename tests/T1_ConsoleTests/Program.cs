@@ -1,5 +1,5 @@
 ﻿using System;
-using Newcats.Utils.Extension;
+using Newcats.Utils.Extensions;
 
 namespace T1_ConsoleTests
 {
