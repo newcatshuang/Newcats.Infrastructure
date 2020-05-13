@@ -2,8 +2,10 @@
 using System.Buffers;
 using System.ComponentModel;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Unicode;
 
 namespace Newcats.Utils.Extension
 {
@@ -138,33 +140,6 @@ namespace Newcats.Utils.Extension
 
         #region System.Text.Json
         /// <summary>
-        /// Parses the text representing a single JSON value into an instance of a specified type.
-        /// </summary>
-        /// <param name="json">The JSON text to parse.</param>
-        /// <param name="returnType">The type of the object to convert to and return.</param>
-        /// <param name="options">Options to control the behavior during parsing.</param>
-        /// <returns>A returnType representation of the JSON value.</returns>
-        /// <exception cref="System.ArgumentNullException">json or returnType is null.</exception>
-        /// <exception cref="System.Text.Json.JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
-        public static object Deserialize(string json, Type returnType, JsonSerializerOptions options = null)
-        {
-            throw null;
-        }
-
-        /// <summary>
-        /// Parses the text representing a single JSON value into an instance of the type specified by a generic type parameter.
-        /// </summary>
-        /// <param name="json">The JSON text to parse.</param>
-        /// <param name="options">Options to control the behavior during parsing.</param>
-        /// <returns>A TValue representation of the JSON value.</returns>
-        /// <exception cref="System.ArgumentNullException">json is null.</exception>
-        /// <exception cref="System.Text.Json.JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
-        public static TValue Deserialize<TValue>(string json, JsonSerializerOptions options = null)
-        {
-            throw null;
-        }
-
-        /// <summary>
         /// Converts the value of a specified type into a JSON string.
         /// </summary>
         /// <param name="value">The value to convert.</param>
@@ -173,7 +148,7 @@ namespace Newcats.Utils.Extension
         {
             JsonSerializerOptions opt = new JsonSerializerOptions()
             {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };
             opt.Converters.Add(new DateTimeConverter());
             opt.Converters.Add(new DateTimeNullConverter());
@@ -201,7 +176,7 @@ namespace Newcats.Utils.Extension
         {
             JsonSerializerOptions opt = new JsonSerializerOptions()
             {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };
             opt.Converters.Add(new DateTimeConverter());
             opt.Converters.Add(new DateTimeNullConverter());
@@ -223,14 +198,14 @@ namespace Newcats.Utils.Extension
         /// <summary>
         /// Converts the value of a type specified by a generic type parameter into a JSON string.
         /// </summary>
-        /// <typeparam name="TValue">The value to convert.</typeparam>
-        /// <param name="value">Options to control serialization behavior.</param>
+        /// <typeparam name="TValue">The type of the value to serialize.</typeparam>
+        /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the value.</returns>
         public static string ToJson<TValue>(this TValue value)
         {
             JsonSerializerOptions opt = new JsonSerializerOptions()
             {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };
             opt.Converters.Add(new DateTimeConverter());
             opt.Converters.Add(new DateTimeNullConverter());
@@ -240,13 +215,85 @@ namespace Newcats.Utils.Extension
         /// <summary>
         /// Converts the value of a type specified by a generic type parameter into a JSON string.
         /// </summary>
-        /// <typeparam name="TValue">The value to convert.</typeparam>
-        /// <param name="value">Options to control serialization behavior.</param>
-        /// <param name="options">The type of the value to serialize.</param>
+        /// <typeparam name="TValue">The type of the value to serialize.</typeparam>
+        /// <param name="value">The value to convert.</param>
+        /// <param name="options">Options to control serialization behavior.</param>
         /// <returns>A JSON string representation of the value.</returns>
         public static string ToJson<TValue>(this TValue value, JsonSerializerOptions options)
         {
             return JsonSerializer.Serialize<TValue>(value, options);
+        }
+
+        /// <summary>
+        /// Parses the text representing a single JSON value into an instance of a specified type.
+        /// </summary>
+        /// <param name="json">The JSON text to parse.</param>
+        /// <param name="returnType">The type of the object to convert to and return.</param>
+        /// <returns>A returnType representation of the JSON value.</returns>
+        /// <exception cref="ArgumentNullException">json or returnType is null.</exception>
+        /// <exception cref="JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
+        public static object Deserialize(this string json, Type returnType)
+        {
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true//大小写不敏感
+            };
+            opt.Converters.Add(new DateTimeConverter());
+            opt.Converters.Add(new DateTimeNullConverter());
+            opt.Converters.Add(new LongToStringConverter());//反序列化
+            opt.Converters.Add(new IntToStringConverter());//反序列化
+            opt.Converters.Add(new BoolConverter());//反序列化
+
+            return JsonSerializer.Deserialize(json, returnType, opt);
+        }
+
+        /// <summary>
+        /// Parses the text representing a single JSON value into an instance of a specified type.
+        /// </summary>
+        /// <param name="json">The JSON text to parse.</param>
+        /// <param name="returnType">The type of the object to convert to and return.</param>
+        /// <param name="options">Options to control the behavior during parsing.</param>
+        /// <returns>A returnType representation of the JSON value.</returns>
+        /// <exception cref="ArgumentNullException">json or returnType is null.</exception>
+        /// <exception cref="JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
+        public static object Deserialize(this string json, Type returnType, JsonSerializerOptions options)
+        {
+            return JsonSerializer.Deserialize(json, returnType, options);
+        }
+
+        /// <summary>
+        /// Parses the text representing a single JSON value into an instance of the type specified by a generic type parameter.
+        /// </summary>
+        /// <param name="json">The JSON text to parse.</param>
+        /// <returns>A TValue representation of the JSON value.</returns>
+        /// <exception cref="ArgumentNullException">json is null.</exception>
+        /// <exception cref="JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
+        public static TValue Deserialize<TValue>(this string json)
+        {
+            JsonSerializerOptions opt = new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true//大小写不敏感
+            };
+            opt.Converters.Add(new DateTimeConverter());
+            opt.Converters.Add(new DateTimeNullConverter());
+            opt.Converters.Add(new LongToStringConverter());//反序列化
+            opt.Converters.Add(new IntToStringConverter());//反序列化
+            opt.Converters.Add(new BoolConverter());//反序列化
+
+            return JsonSerializer.Deserialize<TValue>(json, opt);
+        }
+
+        /// <summary>
+        /// Parses the text representing a single JSON value into an instance of the type specified by a generic type parameter.
+        /// </summary>
+        /// <param name="json">The JSON text to parse.</param>
+        /// <param name="options">Options to control the behavior during parsing.</param>
+        /// <returns>A TValue representation of the JSON value.</returns>
+        /// <exception cref="ArgumentNullException">json is null.</exception>
+        /// <exception cref="JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
+        public static TValue Deserialize<TValue>(this string json, JsonSerializerOptions options)
+        {
+            return JsonSerializer.Deserialize<TValue>(json, options);
         }
         #endregion
 
