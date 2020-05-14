@@ -9,7 +9,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Newcats.AspNetCore
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         #region System.Text.Json
         /// <summary>
@@ -17,7 +17,7 @@ namespace Newcats.AspNetCore
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>The JSON string representation of the value.</returns>
-        public static string ToJson(this object value)
+        internal static string ToJson(this object value)
         {
             JsonSerializerOptions opt = new JsonSerializerOptions()
             {
@@ -34,7 +34,7 @@ namespace Newcats.AspNetCore
         /// <typeparam name="TValue">The type of the value to serialize.</typeparam>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the value.</returns>
-        public static string ToJson<TValue>(this TValue value)
+        internal static string ToJson<TValue>(this TValue value)
         {
             JsonSerializerOptions opt = new JsonSerializerOptions()
             {
@@ -53,7 +53,7 @@ namespace Newcats.AspNetCore
         /// <param name="str">The string</param>
         /// <param name="length">The number of characters in the substring.</param>
         /// <returns>A string that is equivalent to the substring of length length that begins at startIndex in this instance, or System.String.Empty if startIndex is equal to the length of this instance and length is zero.</returns>
-        public static string ToSubstring(this string str, int length)
+        internal static string ToSubstring(this string str, int length)
         {
             return str.ToSubstring(0, length);
         }
@@ -65,7 +65,7 @@ namespace Newcats.AspNetCore
         /// <param name="startIndex">The zero-based starting character position of a substring in this instance.</param>
         /// <param name="length">The number of characters in the substring.</param>
         /// <returns>A string that is equivalent to the substring of length length that begins at startIndex in this instance, or System.String.Empty if startIndex is equal to the length of this instance and length is zero.</returns>
-        public static string ToSubstring(this string str, int startIndex, int length)
+        internal static string ToSubstring(this string str, int startIndex, int length)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return string.Empty;
@@ -82,7 +82,7 @@ namespace Newcats.AspNetCore
     /// <summary>
     /// System.Text.Json的自定义DateTime转换器(序列号和反序列化)
     /// </summary>
-    public class DateTimeConverter : JsonConverter<DateTime>
+    internal class DateTimeConverter : JsonConverter<DateTime>
     {
         public string DateTimeFormat { get; set; }
 
@@ -105,7 +105,7 @@ namespace Newcats.AspNetCore
     /// <summary>
     /// System.Text.Json的自定义DateTime?转换器(序列号和反序列化)
     /// </summary>
-    public class DateTimeNullConverter : JsonConverter<DateTime?>
+    internal class DateTimeNullConverter : JsonConverter<DateTime?>
     {
         public string DateTimeFormat { get; set; }
 
@@ -126,13 +126,13 @@ namespace Newcats.AspNetCore
     }
     #endregion
 
-    public class HttpHelper
+    internal class HttpHelper
     {
         /// <summary>
         /// 获取当前页面客户端的IP地址
         /// </summary>
         /// <returns></returns>
-        public static string GetIP(HttpContext context, bool tryUseXForwardHeader = true)
+        internal static string GetIP(HttpContext context, bool tryUseXForwardHeader = true)
         {
             string ip = null;
 
