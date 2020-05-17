@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using Newcats.Utils.Extension;
+using Newcats.Utils.Extensions;
 using Microsoft.AspNetCore.Http;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
-namespace Newcats.Utils.Helper
+namespace Newcats.Utils.Helpers
 {
     public enum ExcelFormat
     {

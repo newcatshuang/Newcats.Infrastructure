@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-namespace Newcats.Utils.Extension
+namespace Newcats.Utils.Extensions
 {
     public static class EnumExtensions
     {

@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-namespace Newcats.Utils.Helper
+namespace Newcats.Utils.Helpers
 {
     public class EnumHelper
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newcats.Utils.Helper
+namespace Newcats.Utils.Helpers
 {
     public class ConvertHelper
     {

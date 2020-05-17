@@ -168,7 +168,7 @@ namespace Newcats.AspNetCore
             {
                 string rawValues = values.ToString();   // writes out as Csv when there are multiple.
 
-                if (!string.IsNullOrEmpty(rawValues))
+                if (!string.IsNullOrWhiteSpace(rawValues))
                     return (T)Convert.ChangeType(values.ToString(), typeof(T));
             }
             return default(T);

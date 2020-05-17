@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Newcats.Utils.Extension
+namespace Newcats.Utils.Extensions
 {
     /// <summary>
     /// 集合类型扩展方法
