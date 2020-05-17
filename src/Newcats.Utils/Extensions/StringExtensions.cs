@@ -117,13 +117,76 @@ namespace Newcats.Utils.Extensions
 
         #region Encrypt
         /// <summary>
+        /// Md5加密，返回16位结果
+        /// </summary>
+        /// <param name="value">字符串</param>
+        /// <returns>16位Md5加密结果</returns>
+        public static string MD5By16(this string value)
+        {
+            return Helpers.EncryptHelper.MD5By16(value);
+        }
+
+        /// <summary>
+        /// Md5加密，返回16位结果
+        /// </summary>
+        /// <param name="value">字符串</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>16位Md5加密结果</returns>
+        public static string MD5By16(this string value, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.MD5By16(value, encoding);
+        }
+
+        /// <summary>
+        /// Md5加密，返回32位结果
+        /// </summary>
+        /// <param name="value">字符串</param>
+        /// <returns>32位Md5加密结果</returns>
+        public static string MD5By32(this string value)
+        {
+            return Helpers.EncryptHelper.MD5By32(value);
+        }
+
+        /// <summary>
+        /// Md5加密，返回32位结果
+        /// </summary>
+        /// <param name="value">字符串</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>32位Md5加密结果</returns>
+        public static string MD5By32(this string value, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.MD5By32(value, encoding);
+        }
+
+        /// <summary>
+        /// 获取此字符串的Sha1值
+        /// </summary>
+        /// <param name="value">字符串</param>
+        /// <returns>此字符串的Sha1值</returns>
+        public static string Sha1(this string value)
+        {
+            return Helpers.EncryptHelper.Sha1(value);
+        }
+
+        /// <summary>
+        /// 获取此字符串的Sha1值
+        /// </summary>
+        /// <param name="value">字符串</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>此字符串的Sha1值</returns>
+        public static string Sha1(this string value, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.Sha1(value, encoding);
+        }
+
+        /// <summary>
         /// 获取此字符串的Sha256值
         /// </summary>
         /// <param name="str">字符串</param>
         /// <returns>此字符串的Sha256值</returns>
         public static string Sha256(this string str)
         {
-            return Encrypt.EncryptHelper.Sha256(str);
+            return Helpers.EncryptHelper.Sha256(str);
         }
 
         /// <summary>
@@ -134,7 +197,53 @@ namespace Newcats.Utils.Extensions
         /// <returns>此字符串的Sha256值</returns>
         public static string Sha256(this string str, Encoding encoding)
         {
-            return Encrypt.EncryptHelper.Sha256(str, encoding);
+            return Helpers.EncryptHelper.Sha256(str, encoding);
+        }
+
+        /// <summary>
+        /// 获取此字符串的DES加密结果
+        /// </summary>
+        /// <param name="value">字符串(明文)</param>
+        /// <param name="key">密钥(24位)</param>
+        /// <returns>DES加密结果</returns>
+        public static string DesEncrypt(this string value, string key)
+        {
+            return Helpers.EncryptHelper.DESEncrypt(value, key);
+        }
+
+        /// <summary>
+        /// 获取此字符串的DES加密结果
+        /// </summary>
+        /// <param name="value">字符串(明文)</param>
+        /// <param name="key">密钥(24位)</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>DES加密结果</returns>
+        public static string DesEncrypt(this string value, string key, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.DESEncrypt(value, key, encoding);
+        }
+
+        /// <summary>
+        /// 获取此字符串的DES解密结果
+        /// </summary>
+        /// <param name="value">字符串(密文)</param>
+        /// <param name="key">密钥(24位)</param>
+        /// <returns>DES解密结果</returns>
+        public static string DesDecrypt(this string value, string key)
+        {
+            return Helpers.EncryptHelper.DESDecrypt(value, key);
+        }
+
+        /// <summary>
+        /// 获取此字符串的DES解密结果
+        /// </summary>
+        /// <param name="value">字符串(密文)</param>
+        /// <param name="key">密钥(24位)</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>DES解密结果</returns>
+        public static string DesDecrypt(this string value, string key, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.DESDecrypt(value, key, encoding);
         }
         #endregion
 

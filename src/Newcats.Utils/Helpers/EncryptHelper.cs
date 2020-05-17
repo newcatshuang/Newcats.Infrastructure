@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Newcats.Utils.Encrypt
+namespace Newcats.Utils.Helpers
 {
     /// <summary>
     /// 加密操作
@@ -569,12 +569,12 @@ namespace Newcats.Utils.Encrypt
         {
             if (hexString == null)
             {
-                throw new ArgumentNullException("hexString");
+                throw new ArgumentNullException(nameof(hexString));
             }
 
             if ((hexString.Length & 1) != 0)
             {
-                throw new ArgumentOutOfRangeException("hexString", hexString, "hexString must contain an even number of characters.");
+                throw new ArgumentOutOfRangeException(nameof(hexString), hexString, "hexString must contain an even number of characters.");
             }
 
             byte[] result = new byte[hexString.Length / 2];

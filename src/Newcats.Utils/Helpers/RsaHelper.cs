@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Newcats.Utils.Encrypt
+namespace Newcats.Utils.Helpers
 {
     /// <summary>
     /// RSA加解密 使用OpenSSL的公钥加密/私钥解密
@@ -28,7 +28,7 @@ namespace Newcats.Utils.Encrypt
         /// <param name="encoding">编码类型</param>
         /// <param name="privateKey">私钥</param>
         /// <param name="publicKey">公钥</param>
-        public RsaHelper(RSAType rsaType, Encoding encoding, string privateKey, string publicKey = null)
+        internal RsaHelper(RSAType rsaType, Encoding encoding, string privateKey, string publicKey = null)
         {
             _encoding = encoding;
             if (!string.IsNullOrEmpty(privateKey))
@@ -51,7 +51,7 @@ namespace Newcats.Utils.Encrypt
         /// </summary>
         /// <param name="data">原始数据</param>
         /// <returns></returns>
-        public string Sign(string data)
+        internal string Sign(string data)
         {
             byte[] dataBytes = _encoding.GetBytes(data);
 
@@ -70,7 +70,7 @@ namespace Newcats.Utils.Encrypt
         /// <param name="data">原始数据</param>
         /// <param name="sign">签名</param>
         /// <returns></returns>
-        public bool Verify(string data, string sign)
+        internal bool Verify(string data, string sign)
         {
             byte[] dataBytes = _encoding.GetBytes(data);
             byte[] signBytes = System.Convert.FromBase64String(sign);
@@ -84,7 +84,7 @@ namespace Newcats.Utils.Encrypt
 
         #region 解密
 
-        public string Decrypt(string cipherText)
+        internal string Decrypt(string cipherText)
         {
             if (_privateKeyRsaProvider == null)
             {
@@ -97,7 +97,7 @@ namespace Newcats.Utils.Encrypt
 
         #region 加密
 
-        public string Encrypt(string text)
+        internal string Encrypt(string text)
         {
             if (_publicKeyRsaProvider == null)
             {
@@ -110,7 +110,7 @@ namespace Newcats.Utils.Encrypt
 
         #region 使用私钥创建RSA实例
 
-        public RSA CreateRsaProviderFromPrivateKey(string privateKey)
+        internal RSA CreateRsaProviderFromPrivateKey(string privateKey)
         {
             var privateKeyBits = System.Convert.FromBase64String(privateKey);
 
@@ -155,7 +155,7 @@ namespace Newcats.Utils.Encrypt
 
         #region 使用公钥创建RSA实例
 
-        public RSA CreateRsaProviderFromPublicKey(string publicKeyString)
+        internal RSA CreateRsaProviderFromPublicKey(string publicKeyString)
         {
             // encoded OID sequence for  PKCS #1 rsaEncryption szOID_RSA_RSA = "1.2.840.113549.1.1.1"
             byte[] seqOid = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
