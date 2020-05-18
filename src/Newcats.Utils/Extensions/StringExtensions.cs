@@ -60,6 +60,9 @@ namespace Newcats.Utils.Extensions
         Focus = 7
     }
 
+    /// <summary>
+    /// 字符串类型扩展方法
+    /// </summary>
     public static class StringExtensions
     {
         #region Html
