@@ -10,7 +10,7 @@ namespace Newcats.DenpendencyInjection
     /// 作者:何镇汐
     /// https://github.com/dotnetcore/Util/blob/master/src/Util/Reflections/IFind.cs
     /// </summary>
-    public interface IFind
+    internal interface IFind
     {
         /// <summary>
         /// 获取程序集列表

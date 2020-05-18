@@ -11,7 +11,7 @@ namespace Newcats.DenpendencyInjection
     /// <summary>
     /// 类型查找器
     /// </summary>
-    public class Finder : IFind
+    internal class Finder : IFind
     {
         /// <summary>
         /// 跳过的程序集
@@ -23,6 +23,7 @@ namespace Newcats.DenpendencyInjection
         /// </summary>
         public virtual List<Assembly> GetAssemblies()
         {
+            LoadAssemblies(PlatformServices.Default.Application.ApplicationBasePath);
             return GetAssembliesFromCurrentAppDomain();
         }
 

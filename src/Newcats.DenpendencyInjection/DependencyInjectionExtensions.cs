@@ -21,7 +21,7 @@ namespace Newcats.DenpendencyInjection
             //要排除的接口类型
             Type[] exceptTypes = new Type[] { typeof(ISingletonDependency), typeof(IScopedDependency), typeof(ITransientDependency), typeof(IDisposable) };
 
-            IFind finder = new WebFinder();
+            IFind finder = new Finder();
             List<Assembly> assList = finder.GetAssemblies();//所有的程序集
 
             #region 注册单例依赖
@@ -69,7 +69,46 @@ namespace Newcats.DenpendencyInjection
             }
             #endregion
 
+            #region 解析依赖注册器
+            List<Type> registrarTypes = finder.Find<IDependencyRegistrar>(assList);
+            if (registrarTypes != null && registrarTypes.Count > 0)
+            {
+                var registrars = registrarTypes.Select(t => CreateInstance<IDependencyRegistrar>(t));
+                foreach (var item in registrars)
+                {
+                    item.Register(services);
+                }
+            }
+            #endregion
+
             return services;
+        }
+
+        /// <summary>
+        /// 动态创建实例
+        /// </summary>
+        /// <typeparam name="T">目标类型</typeparam>
+        /// <param name="type">类型</param>
+        /// <param name="parameters">传递给构造函数的参数</param>
+        /// <returns>目标实例</returns>
+        private static T CreateInstance<T>(Type type, params object[] parameters)
+        {
+            var obj = Activator.CreateInstance(type, parameters);
+            if (obj == null)
+                return default(T);
+            if (obj is string && string.IsNullOrWhiteSpace(obj.ToString()))
+                return default(T);
+            Type tType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            try
+            {
+                if (obj is IConvertible)
+                    return (T)Convert.ChangeType(obj, tType);
+                return (T)obj;
+            }
+            catch
+            {
+                return default(T);
+            }
         }
     }
 }
