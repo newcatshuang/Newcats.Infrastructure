@@ -2,7 +2,7 @@
 using Newcats.AspNetCore.Models;
 using Newcats.DependencyInjection;
 
-namespace Newcats.AspNetCore.Interfaces
+namespace Newcats.AspNetCore.Abstractions
 {
     /// <summary>
     /// 审计日志对象持久化接口

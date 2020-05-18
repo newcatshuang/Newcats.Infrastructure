@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newcats.AspNetCore.Interfaces;
+using Newcats.AspNetCore.Abstractions;
 using Newcats.AspNetCore.Models;
 
 namespace Newcats.AspNetCore.Defaults

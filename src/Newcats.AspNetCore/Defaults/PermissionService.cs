@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Newcats.AspNetCore.Interfaces;
+using Newcats.AspNetCore.Abstractions;
 
 namespace Newcats.AspNetCore.Defaults
 {

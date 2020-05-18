@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using Newcats.AspNetCore.Interfaces;
+using Newcats.AspNetCore.Abstractions;
 
 namespace Newcats.AspNetCore.Filters
 {

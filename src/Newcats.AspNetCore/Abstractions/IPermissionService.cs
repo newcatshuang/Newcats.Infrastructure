@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Newcats.DependencyInjection;
 
-namespace Newcats.AspNetCore.Interfaces
+namespace Newcats.AspNetCore.Abstractions
 {
     /// <summary>
     /// 权限校验服务接口
