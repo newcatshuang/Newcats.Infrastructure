@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Newcats.AspNetCore.Models;
-using Newcats.DenpendencyInjection;
+using Newcats.DependencyInjection;
 
 namespace Newcats.AspNetCore.Interfaces
 {

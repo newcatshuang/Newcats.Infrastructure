@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Newcats.DenpendencyInjection
+namespace Newcats.DependencyInjection
 {
     /// <summary>
     /// Microsoft.Extensions.DependencyInjection依赖注入扩展

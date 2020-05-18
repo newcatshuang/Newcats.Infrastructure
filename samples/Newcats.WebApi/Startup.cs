@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newcats.DenpendencyInjection;
+using Newcats.DependencyInjection;
 
 namespace Newcats.WebApi
 {

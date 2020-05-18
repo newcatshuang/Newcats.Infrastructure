@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{D2E1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess", "src\Newcats.DataAccess\Newcats.DataAccess.csproj", "{18ED7D3E-DDDF-4DB2-8FE2-177DE7987B16}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DenpendencyInjection", "src\Newcats.DenpendencyInjection\Newcats.DenpendencyInjection.csproj", "{FF6CDA58-7B10-41AB-85F4-B449A38C9CAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DependencyInjection", "src\Newcats.DependencyInjection\Newcats.DependencyInjection.csproj", "{FF6CDA58-7B10-41AB-85F4-B449A38C9CAB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.Utils", "src\Newcats.Utils\Newcats.Utils.csproj", "{949DDE1C-EB80-4ECF-A31A-02F401D15756}"
 EndProject
@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T1_ConsoleTests", "tests\T1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.WebApi", "samples\Newcats.WebApi\Newcats.WebApi.csproj", "{3E9B68D9-4FDB-45E1-B421-A5F336801DEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newcats.AspNetCore", "src\Newcats.AspNetCore\Newcats.AspNetCore.csproj", "{61225E8E-2BA8-403A-BF67-83E7B1413873}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.AspNetCore", "src\Newcats.AspNetCore\Newcats.AspNetCore.csproj", "{61225E8E-2BA8-403A-BF67-83E7B1413873}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

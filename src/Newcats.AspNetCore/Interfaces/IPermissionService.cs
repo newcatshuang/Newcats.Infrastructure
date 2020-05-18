@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Newcats.DenpendencyInjection;
+using Newcats.DependencyInjection;
 
 namespace Newcats.AspNetCore.Interfaces
 {

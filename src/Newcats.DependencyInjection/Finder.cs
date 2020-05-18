@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.PlatformAbstractions;
 
-namespace Newcats.DenpendencyInjection
+namespace Newcats.DependencyInjection
 {
     /// <summary>
     /// 类型查找器

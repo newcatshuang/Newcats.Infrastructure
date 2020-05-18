@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Newcats.DenpendencyInjection
+namespace Newcats.DependencyInjection
 {
     /// <summary>
     /// 类型查找器

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Newcats.DenpendencyInjection
+namespace Newcats.DependencyInjection
 {
     /// <summary>
     /// 依赖注册器

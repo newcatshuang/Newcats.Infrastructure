@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Newcats.DenpendencyInjection\Newcats.DenpendencyInjection.csproj" />
+    <ProjectReference Include="..\Newcats.DependencyInjection\Newcats.DependencyInjection.csproj" />
   </ItemGroup>
 
 </Project>

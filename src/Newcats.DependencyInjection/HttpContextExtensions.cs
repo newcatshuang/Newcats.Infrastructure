@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Newcats.DenpendencyInjection
+namespace Newcats.DependencyInjection
 {
     /// <summary>
     /// HttpContext扩展类型

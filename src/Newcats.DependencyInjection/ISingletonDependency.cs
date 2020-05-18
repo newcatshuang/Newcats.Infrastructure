@@ -1,4 +1,4 @@
-﻿namespace Newcats.DenpendencyInjection
+﻿namespace Newcats.DependencyInjection
 {
     /// <summary>
     /// 依赖注入标记接口

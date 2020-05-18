@@ -12,7 +12,7 @@ namespace Newcats.DataAccess.SqlServer
     /// <summary>
     /// 1.仓储实现类,提供数据库访问能力,封装了基本的CRUD方法。
     /// 2.若要使用非默认的数据库连接，请重新给Connection属性赋值。
-    /// 3.默认在Newcats.DenpendencyInjection里注册了作用域泛型仓储类
+    /// 3.默认在Newcats.DependencyInjection里注册了作用域泛型仓储类
     /// _builder.RegisterGeneric(typeof(DataAccess.Dapper.Repository<,>)).As(typeof(DataAccess.Dapper.IRepository<,>)).InstancePerLifetimeScope();
     /// </summary>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
