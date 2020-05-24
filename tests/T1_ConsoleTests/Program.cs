@@ -25,6 +25,8 @@ namespace T1_ConsoleTests
             var sss = rawJson.Deserialize<User>();
 
             Console.WriteLine(sss.CreateTime.ToChinaString());
+
+            Console.WriteLine(u.Name.PinYin());
         }
     }
 
