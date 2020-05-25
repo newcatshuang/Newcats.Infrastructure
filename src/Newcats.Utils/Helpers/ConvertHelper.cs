@@ -2,7 +2,10 @@
 
 namespace Newcats.Utils.Helpers
 {
-    public class ConvertHelper
+    /// <summary>
+    /// 类型转换帮助类
+    /// </summary>
+    public static class ConvertHelper
     {
         /// <summary>
         /// 通用泛型转换

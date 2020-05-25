@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Text.Unicode;
 
 namespace Newcats.Utils.Extensions
@@ -419,6 +420,32 @@ namespace Newcats.Utils.Extensions
         {
             return value.ToString("yyyy-MM-dd HH:mm:ss.fff");
         }
+
+        /// <summary>
+        /// 转换为Unix时间戳
+        /// </summary>
+        /// <param name="time">时间</param>
+        /// <returns>Unix时间戳</returns>
+        public static long ToUnixTimestamp(this DateTime time)
+        {
+            var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
+            long ticks = (time - start.Add(new TimeSpan(8, 0, 0))).Ticks;
+            return Convert.ToInt64(ticks / TimeSpan.TicksPerSecond);
+        }
+        #endregion
+
+        #region System.Int64
+        /// <summary>
+        /// 从Unix时间戳获取时间
+        /// </summary>
+        /// <param name="timestamp">Unix时间戳</param>
+        /// <returns>DateTime时间</returns>
+        public static DateTime GetTimeFromUnixTimestamp(this long timestamp)
+        {
+            var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
+            TimeSpan span = new TimeSpan(long.Parse(timestamp + "0000000"));
+            return start.Add(span).Add(new TimeSpan(8, 0, 0));
+        }
         #endregion
 
         #region Substring
@@ -548,6 +575,47 @@ namespace Newcats.Utils.Extensions
             return ConstContent.ChinesePinYin.Substring(index + 1, 1);
         }
 
+        #endregion
+
+        #region Regex
+        /// <summary>
+        /// 是否为数字(默认判断为纯数字，不包含小数点和负号)
+        /// </summary>
+        /// <param name="input">输入值</param>
+        /// <param name="pure">true:只包含数字，false:包含小数和负数</param>
+        /// <returns>true or false</returns>
+        public static bool IsNumber(this string input, bool pure = true)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return false;
+            if (input[0] == '.')//不能开头
+                return false;
+            if (input.LastIndexOf('.') == input.Length - 1)//不能结尾
+                return false;
+            if (input.IndexOf('.') != input.LastIndexOf('.'))//只能有一个
+                return false;
+            if (input.LastIndexOf('-') > 0)//只能开头
+                return false;
+            if (input.IndexOf('-') != input.LastIndexOf('-'))//只能有一个
+                return false;
+            if (input.Length > 2 && input[0] == '-' && input[1] == '.')
+                return false;
+            return pure ? Regex.IsMatch(input, "^[0-9]*$") : Regex.IsMatch(input, @"^(-?\d*)(\.\d+)?$");
+        }
+
+        /// <summary>
+        /// 是否为中国大陆手机号码
+        /// </summary>
+        /// <param name="value">输入值</param>
+        /// <returns>true or false</returns>
+        public static bool IsPhoneNumber(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            return value.Length == 11 && value.IsNumber() &&
+                (value.StartsWith("13") || value.StartsWith("14") || value.StartsWith("15") || value.StartsWith("16")
+                || value.StartsWith("17") || value.StartsWith("18") || value.StartsWith("19"));
+        }
         #endregion
     }
 

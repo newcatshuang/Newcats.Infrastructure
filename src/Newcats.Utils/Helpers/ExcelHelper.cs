@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using Newcats.Utils.Extensions;
 using Microsoft.AspNetCore.Http;
+using Newcats.Utils.Extensions;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -45,7 +45,7 @@ namespace Newcats.Utils.Helpers
     /// <summary>
     /// Excel文件帮助类，通过NPOI进行操作
     /// </summary>
-    public class ExcelHelper
+    public static class ExcelHelper
     {
         /// <summary>
         /// 读取Excel到DataTable(NPOI方式)(默认获取第一个Sheet)(第一行为表头,不记录数据)

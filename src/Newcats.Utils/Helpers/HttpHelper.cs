@@ -1,12 +1,20 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Newcats.Utils.Helpers
 {
-    public class HttpHelper
+    /// <summary>
+    /// Http操作帮助类
+    /// </summary>
+    public static class HttpHelper
     {
+        #region IP
         /// <summary>
         /// 获取当前页面客户端的IP地址
         /// </summary>
@@ -52,5 +60,85 @@ namespace Newcats.Utils.Helpers
             }
             return default(T);
         }
+        #endregion
+
+        #region Download(把文件流写入客户端响应)
+        /// <summary>
+        /// 下载文件
+        /// </summary>
+        /// <param name="response">http响应</param>
+        /// <param name="filePath">文件绝对路径</param>
+        /// <param name="fileName">文件名,包含扩展名</param>
+        public static async Task DownloadFileAsync(HttpResponse response, string filePath, string fileName)
+        {
+            await DownloadFileAsync(response, filePath, fileName, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 下载文件
+        /// </summary>
+        /// <param name="response">http响应</param>
+        /// <param name="filePath">文件绝对路径</param>
+        /// <param name="fileName">文件名,包含扩展名</param>
+        /// <param name="encoding">字符编码</param>
+        public static async Task DownloadFileAsync(HttpResponse response, string filePath, string fileName, Encoding encoding)
+        {
+            var bytes = FileHelper.Read(filePath);
+            await DownloadAsync(response, bytes, fileName, encoding);
+        }
+
+        /// <summary>
+        /// 下载
+        /// </summary>
+        /// <param name="response">http响应</param>
+        /// <param name="stream">流</param>
+        /// <param name="fileName">文件名,包含扩展名</param>
+        public static async Task DownloadAsync(HttpResponse response, Stream stream, string fileName)
+        {
+            await DownloadAsync(response, stream, fileName, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 下载
+        /// </summary>
+        /// <param name="response">http响应</param>
+        /// <param name="stream">流</param>
+        /// <param name="fileName">文件名,包含扩展名</param>
+        /// <param name="encoding">字符编码</param>
+        public static async Task DownloadAsync(HttpResponse response, Stream stream, string fileName, Encoding encoding)
+        {
+            await DownloadAsync(response, FileHelper.ToBytes(stream), fileName, encoding);
+        }
+
+        /// <summary>
+        /// 下载
+        /// </summary>
+        /// <param name="response">http响应</param>
+        /// <param name="bytes">字节流</param>
+        /// <param name="fileName">文件名,包含扩展名</param>
+        public static async Task DownloadAsync(HttpResponse response, byte[] bytes, string fileName)
+        {
+            await DownloadAsync(response, bytes, fileName, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 下载
+        /// </summary>
+        /// <param name="response">http响应</param>
+        /// <param name="bytes">字节流</param>
+        /// <param name="fileName">文件名,包含扩展名</param>
+        /// <param name="encoding">字符编码</param>
+        public static async Task DownloadAsync(HttpResponse response, byte[] bytes, string fileName, Encoding encoding)
+        {
+            if (bytes == null || bytes.Length == 0)
+                return;
+            fileName = fileName.Replace(" ", "");
+            fileName = HttpUtility.UrlEncode(fileName, encoding);
+            response.ContentType = "application/octet-stream";
+            response.Headers.Add("Content-Disposition", $"attachment; filename={fileName}");
+            response.Headers.Add("Content-Length", bytes.Length.ToString());
+            await response.Body.WriteAsync(bytes, 0, bytes.Length);
+        }
+        #endregion
     }
 }

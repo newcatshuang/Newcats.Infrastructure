@@ -20,13 +20,25 @@ namespace T1_ConsoleTests
 
             string rawJson = "{\"Id\":1,\"Name\":\"newcats\",\"CN\":\"皇权特许\",\"CreateTime\":\"2020-05-10 23:36:03\",\"UpdateTime\":\"2020-05-11 02:36:03\",\"Season\":1,\"IsMan\":\"true\"}";
 
-            Console.WriteLine(u.ToJson());
+            //Console.WriteLine(u.ToJson());
 
             var sss = rawJson.Deserialize<User>();
 
-            Console.WriteLine(sss.CreateTime.ToChinaString());
+            //Console.WriteLine(sss.CreateTime.ToChinaString());
 
-            Console.WriteLine(u.Name.PinYin());
+            //Console.WriteLine(u.CN.PinYin());
+
+            DateTime date = DateTime.Now;
+            //Console.WriteLine(date.ToChinaString());
+            //Console.WriteLine(date.ToUnixTimestamp());
+
+            long ss = date.ToUnixTimestamp();
+
+
+
+            //Console.WriteLine(ss.GetTimeFromUnixTimestamp());
+
+            Console.WriteLine("-11.11345678900".IsNumber(false));
         }
     }
 

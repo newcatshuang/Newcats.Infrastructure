@@ -6,7 +6,10 @@ using System.Reflection;
 
 namespace Newcats.Utils.Helpers
 {
-    public class EnumHelper
+    /// <summary>
+    /// 枚举操作帮助类
+    /// </summary>
+    public static class EnumHelper
     {
         /// <summary>
         /// 把枚举对象的每一项转换成对应的类
