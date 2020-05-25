@@ -616,6 +616,58 @@ namespace Newcats.Utils.Extensions
                 (value.StartsWith("13") || value.StartsWith("14") || value.StartsWith("15") || value.StartsWith("16")
                 || value.StartsWith("17") || value.StartsWith("18") || value.StartsWith("19"));
         }
+
+        /// <summary>
+        /// 是否为中国大陆身份证号码
+        /// </summary>
+        /// <param name="value">输入值</param>
+        /// <returns>true or false</returns>
+        public static bool IsIDCardNumber(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            if (value.Length != 15 && value.Length != 18)
+                return false;
+            return value.Length == 15 ?
+                Regex.IsMatch(value, @"^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$") :
+                Regex.IsMatch(value, @"^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$");
+        }
+
+        /// <summary>
+        /// 是否中国汉字
+        /// </summary>
+        /// <param name="value">输入值</param>
+        /// <returns>true or false</returns>
+        public static bool IsChineseCharacter(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            return Regex.IsMatch(value, "^[\u4e00-\u9fa5]{0,}$");
+        }
+
+        /// <summary>
+        /// 是否Email地址
+        /// </summary>
+        /// <param name="value">输入值</param>
+        /// <returns>true or false</returns>
+        public static bool IsEmail(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            return Regex.IsMatch(value, @"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$");
+        }
+
+        /// <summary>
+        /// 是否IPv4地址
+        /// </summary>
+        /// <param name="value">输入值</param>
+        /// <returns>true or false</returns>
+        public static bool IsIPv4(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+            return Regex.IsMatch(value, @"\d+\.\d+\.\d+\.\d+");
+        }
         #endregion
     }
 

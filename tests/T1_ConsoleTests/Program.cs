@@ -38,7 +38,9 @@ namespace T1_ConsoleTests
 
             //Console.WriteLine(ss.GetTimeFromUnixTimestamp());
 
-            Console.WriteLine("-11.11345678900".IsNumber(false));
+            //Console.WriteLine("-11.11345678900".IsNumber(false));
+
+            Console.WriteLine("127.0x.0.1".IsIPv4());
         }
     }
 
