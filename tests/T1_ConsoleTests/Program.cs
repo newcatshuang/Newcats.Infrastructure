@@ -1,5 +1,6 @@
 ﻿using System;
 using Newcats.Utils.Extensions;
+using Newcats.Utils.Helpers;
 
 namespace T1_ConsoleTests
 {
@@ -43,6 +44,12 @@ namespace T1_ConsoleTests
             Console.WriteLine("127.0x.0.1".IsIPv4());
 
             Console.WriteLine("17000000000".EncryptPhoneNumber());
+
+
+            for (int i = 0; i < 100; i++)
+            {
+                Console.WriteLine(IdHelper.Create());
+            }
         }
     }
 

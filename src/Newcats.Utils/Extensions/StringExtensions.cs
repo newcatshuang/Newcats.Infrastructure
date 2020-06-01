@@ -422,10 +422,10 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 转换为Unix时间戳
+        /// 转换为Unix时间戳(秒)
         /// </summary>
         /// <param name="time">时间</param>
-        /// <returns>Unix时间戳</returns>
+        /// <returns>Unix时间戳(秒)</returns>
         public static long ToUnixTimestamp(this DateTime time)
         {
             var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
@@ -436,9 +436,9 @@ namespace Newcats.Utils.Extensions
 
         #region System.Int64
         /// <summary>
-        /// 从Unix时间戳获取时间
+        /// 从Unix时间戳获取时间(秒)
         /// </summary>
-        /// <param name="timestamp">Unix时间戳</param>
+        /// <param name="timestamp">Unix时间戳(秒)</param>
         /// <returns>DateTime时间</returns>
         public static DateTime GetTimeFromUnixTimestamp(this long timestamp)
         {
