@@ -491,10 +491,10 @@ namespace Newcats.Utils.Extensions
 
         #region PinYin(获取汉字的拼音简码)
         /// <summary>
-        /// 获取汉字的拼音简码，即首字母缩写,范例：中国,返回ZG
+        /// 获取汉字的拼音简码，即首字母缩写,范例：中国,返回zg
         /// </summary>
         /// <param name="chineseText">汉字文本,范例： 中国</param>
-        /// <returns>拼音简码,范例：中国,返回ZG</returns>
+        /// <returns>拼音简码,范例：中国,返回zg</returns>
         public static string PinYin(this string chineseText)
         {
             if (string.IsNullOrWhiteSpace(chineseText))
@@ -502,7 +502,7 @@ namespace Newcats.Utils.Extensions
             var result = new StringBuilder();
             foreach (char text in chineseText)
                 result.AppendFormat("{0}", ResolvePinYin(text));
-            return result.ToString().ToUpper();
+            return result.ToString().ToLower();
         }
 
         /// <summary>
