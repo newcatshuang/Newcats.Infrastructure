@@ -41,6 +41,8 @@ namespace T1_ConsoleTests
             //Console.WriteLine("-11.11345678900".IsNumber(false));
 
             Console.WriteLine("127.0x.0.1".IsIPv4());
+
+            Console.WriteLine("17000000000".EncryptPhoneNumber());
         }
     }
 

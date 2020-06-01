@@ -628,6 +628,19 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
+        /// 加密中国大陆手机号码（例：13000000000->130*****000）（手机号码验证不通过则不加密）
+        /// </summary>
+        /// <param name="phoneNumber">中国大陆手机号码</param>
+        /// <returns>例：13000000000->130*****000</returns>
+        public static string EncryptPhoneNumber(this string phoneNumber)
+        {
+            if (!phoneNumber.IsPhoneNumber())
+                return phoneNumber;
+
+            return $"{phoneNumber.Substring(0, 3)}*****{phoneNumber.Substring(phoneNumber.Length - 3)}";
+        }
+
+        /// <summary>
         /// 是否为中国大陆身份证号码
         /// </summary>
         /// <param name="value">输入值</param>
