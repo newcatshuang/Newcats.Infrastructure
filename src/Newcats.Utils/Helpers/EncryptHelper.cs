@@ -533,7 +533,7 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// DES密钥,24位字符串
         /// </summary>
-        public static string DESKey = "AU5f6ImsFb,3@6z57j%Y_g7&";
+        public const string DESKey = "AU5f6ImsFb,3@6z57j%Y_g7&";
 
         /// <summary>
         /// DES 解密算法,密钥长度为8个字符
