@@ -16,7 +16,7 @@ namespace Newcats.AspNetCore.Defaults
         /// <param name="userId">用户UserId</param>
         /// <param name="permissionCode">权限Code</param>
         /// <returns>true or false</returns>
-        public virtual bool HasPermission(int userId, string permissionCode)
+        public virtual bool HasPermission(string userId, string permissionCode)
         {
             return true;
         }
@@ -27,7 +27,7 @@ namespace Newcats.AspNetCore.Defaults
         /// <param name="userId">用户UserId</param>
         /// <param name="permissionCode">权限Code</param>
         /// <returns>true or false</returns>
-        public virtual Task<bool> HasPermissionAsync(int userId, string permissionCode)
+        public virtual Task<bool> HasPermissionAsync(string userId, string permissionCode)
         {
             return Task.FromResult(true);
         }

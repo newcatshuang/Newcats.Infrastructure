@@ -45,7 +45,7 @@ namespace Newcats.AspNetCore.Filters
                 {
                     AuditLogModel model = new AuditLogModel
                     {
-                        CurrentUserId = context.HttpContext.User.Identity.IsAuthenticated ? int.Parse(context.HttpContext.User.FindFirst("sub").Value) : 0,
+                        CurrentUserId = context.HttpContext.User.Identity.IsAuthenticated ? context.HttpContext.User.FindFirst("sub").Value : string.Empty,
                         Action = context.ActionDescriptor.DisplayName.ToSubstring(127),
                         HttpMethod = context.HttpContext.Request.Method,
                         IP = HttpHelper.GetIP(context.HttpContext),

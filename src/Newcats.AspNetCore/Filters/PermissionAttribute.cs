@@ -44,7 +44,7 @@ namespace Newcats.AspNetCore.Filters
             }
 
             bool hasPermission = false;
-            int userId = int.Parse(context.HttpContext.User.FindFirst("sub").Value);
+            string userId = context.HttpContext.User.FindFirst("sub").Value;
             IPermissionService service = context.HttpContext.RequestServices.GetService<IPermissionService>();
             if (PermissionCodes == null || PermissionCodes.Length == 0)
             {

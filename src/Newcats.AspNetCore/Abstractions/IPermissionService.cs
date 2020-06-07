@@ -14,7 +14,7 @@ namespace Newcats.AspNetCore.Abstractions
         /// <param name="userId">用户UserId</param>
         /// <param name="permissionCode">权限Code</param>
         /// <returns>true or false</returns>
-        bool HasPermission(int userId, string permissionCode);
+        bool HasPermission(string userId, string permissionCode);
 
         /// <summary>
         /// 判断给定的用户UserId是否有某项权限
@@ -22,6 +22,6 @@ namespace Newcats.AspNetCore.Abstractions
         /// <param name="userId">用户UserId</param>
         /// <param name="permissionCode">权限Code</param>
         /// <returns>true or false</returns>
-        Task<bool> HasPermissionAsync(int userId, string permissionCode);
+        Task<bool> HasPermissionAsync(string userId, string permissionCode);
     }
 }
