@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Reports;
+using BenchmarkDotNet.Running;
 using Newcats.Utils.Extensions;
 using Newcats.Utils.Helpers;
 
@@ -8,6 +13,10 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            Summary summary = BenchmarkRunner.Run<TestContext>();
+            Console.ReadLine();
+            return;
+
             User u = new User()
             {
                 Id = 1,
@@ -51,7 +60,25 @@ namespace T1_ConsoleTests
                 Console.WriteLine(IdHelper.Create());
             }
         }
+
     }
+
+    public class TestContext
+    {
+        [Benchmark]
+        public void Method1()
+        {
+            RandomNumberGenerator.GetInt32(10, 20);
+        }
+
+        [Benchmark]
+        public void Method2()
+        {
+            Random.Shared.Next(10, 20);
+        }
+    }
+
+
 
     public class User
     {
