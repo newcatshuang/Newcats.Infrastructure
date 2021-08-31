@@ -1,11 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<PackageId>Newcats.Utils</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>NewcatsHuang</Authors>
+		<Company>newcats.xyz</Company>
+		<PackageTags>Utils;Extensions;Helpers</PackageTags>
+		<Description>
+			Some common functions to make coding easy.
+		</Description>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+	</ItemGroup>
 
 </Project>
