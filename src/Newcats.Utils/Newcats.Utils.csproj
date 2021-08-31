@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -6,6 +6,8 @@
 		<Version>1.0.0</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
+		<copyright>Copyright 2021 © newcats.xyz</copyright>
+		<projectUrl>https://github.com/newcatshuang/Newcats.Infrastructure</projectUrl>
 		<PackageTags>Utils;Extensions;Helpers</PackageTags>
 		<Description>
 			Some common functions to make coding easy.
