@@ -7,15 +7,25 @@
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
-		<projectUrl>https://github.com/newcatshuang/Newcats.Infrastructure</projectUrl>
 		<PackageTags>Utils;Extensions;Helpers</PackageTags>
-		<Description>
-			Some common functions to make coding easy.
-		</Description>
+		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.Utils</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
+		<Description>Some common functions to make coding easy.</Description>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="LICENSE" Pack="true" PackagePath=""/>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>
