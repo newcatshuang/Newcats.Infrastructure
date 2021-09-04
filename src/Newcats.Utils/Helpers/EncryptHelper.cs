@@ -28,10 +28,9 @@ namespace Newcats.Utils.Helpers
 
             StringBuilder num = new StringBuilder();
 
-            Random rnd = new Random();
             for (int i = 0; i < length; i++)
             {
-                num.Append(arrChar[rnd.Next(0, arrChar.Length)].ToString());
+                num.Append(arrChar[Random.Shared.Next(0, arrChar.Length)].ToString());
             }
             return num.ToString();
         }
@@ -45,10 +44,9 @@ namespace Newcats.Utils.Helpers
             char[] arrChar = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
             StringBuilder num = new StringBuilder();
 
-            Random rnd = new Random();
             for (int i = 0; i < length; i++)
             {
-                num.Append(arrChar[rnd.Next(0, arrChar.Length)].ToString());
+                num.Append(arrChar[Random.Shared.Next(0, arrChar.Length)].ToString());
             }
             return num.ToString();
         }
@@ -68,10 +66,9 @@ namespace Newcats.Utils.Helpers
 
             StringBuilder num = new StringBuilder();
 
-            Random rnd = new Random();
             for (int i = 0; i < length; i++)
             {
-                num.Append(arrChar[rnd.Next(0, arrChar.Length)].ToString());
+                num.Append(arrChar[Random.Shared.Next(0, arrChar.Length)].ToString());
             }
             return num.ToString();
         }

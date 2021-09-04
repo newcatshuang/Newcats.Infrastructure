@@ -15,6 +15,16 @@ namespace Newcats.Utils.Helpers
         {
             return SnowflakeIdGenerator.Current.Create();
         }
+
+        /// <summary>
+        /// 根据雪花算法，创建一个Id，返回string形式
+        /// </summary>
+        /// <param name="datePrefix">是否在当前雪花Id前面追加当前日期</param>
+        /// <returns>字符串形式Id</returns>
+        public static string Create(bool datePrefix = false)
+        {
+            return datePrefix ? (DateTime.Now.Date.ToString("yyyyMMdd") + SnowflakeIdGenerator.Current.Create().ToString()) : SnowflakeIdGenerator.Current.Create().ToString();
+        }
     }
 
     /// <summary>
@@ -186,7 +196,8 @@ namespace Newcats.Utils.Helpers
                 {
                     //如果和上次生成时间不同,重置sequence，就是下一毫秒开始，sequence计数重新从0开始累加,
                     //为了保证尾数随机性更大一些,最后一位可以设置一个随机数
-                    _sequence = 0;//new Random().Next(10);
+                    //_sequence = 0;//new Random().Next(10);
+                    _sequence = Random.Shared.Next(10);
                 }
 
                 _lastTimestamp = timestamp;
