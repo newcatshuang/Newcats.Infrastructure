@@ -10,7 +10,7 @@ using System.Text.Unicode;
 
 namespace Newcats.Utils.Extensions
 {
-    public enum SpanColor
+    public enum SpanColorEnum
     {
         /// <summary>
         /// Primary(#5867dd)
@@ -73,32 +73,32 @@ namespace Newcats.Utils.Extensions
         /// <param name="str">字符串</param>
         /// <param name="color">颜色枚举</param>
         /// <returns>生成的span标签</returns>
-        public static string GetSpanHtml(this string str, SpanColor color)
+        public static string GetSpanHtml(this string str, SpanColorEnum color)
         {
             switch (color)
             {
-                case SpanColor.Primary:
+                case SpanColorEnum.Primary:
                     str = $"<span class='label label-sm' style='background-color:#5867dd'>{str}</span>";
                     break;
-                case SpanColor.Success:
+                case SpanColorEnum.Success:
                     str = $"<span class='label label-sm' style='background-color:#34bfa3'>{str}</span>";
                     break;
-                case SpanColor.Warning:
+                case SpanColorEnum.Warning:
                     str = $"<span class='label label-sm' style='background-color:#ffb822'>{str}</span>";
                     break;
-                case SpanColor.Danger:
+                case SpanColorEnum.Danger:
                     str = $"<span class='label label-sm' style='background-color:#f4516c'>{str}</span>";
                     break;
-                case SpanColor.Metal:
+                case SpanColorEnum.Metal:
                     str = $"<span class='label label-sm' style='background-color:#c4c5d6'>{str}</span>";
                     break;
-                case SpanColor.Brand:
+                case SpanColorEnum.Brand:
                     str = $"<span class='label label-sm' style='background-color:#716aca'>{str}</span>";
                     break;
-                case SpanColor.Info:
+                case SpanColorEnum.Info:
                     str = $"<span class='label label-sm' style='background-color:#36a3f7'>{str}</span>";
                     break;
-                case SpanColor.Focus:
+                case SpanColorEnum.Focus:
                     str = $"<span class='label label-sm' style='background-color:#9816f4'>{str}</span>";
                     break;
                 default:
@@ -637,7 +637,8 @@ namespace Newcats.Utils.Extensions
             if (!phoneNumber.IsPhoneNumber())
                 return phoneNumber;
 
-            return $"{phoneNumber.Substring(0, 3)}*****{phoneNumber.Substring(phoneNumber.Length - 3)}";
+            return phoneNumber.HideMiddle();
+            //return $"{phoneNumber.Substring(0, 3)}*****{phoneNumber.Substring(phoneNumber.Length - 3)}";
         }
 
         /// <summary>
@@ -690,6 +691,29 @@ namespace Newcats.Utils.Extensions
             if (string.IsNullOrWhiteSpace(value))
                 return false;
             return Regex.IsMatch(value, @"\d+\.\d+\.\d+\.\d+");
+        }
+
+        /// <summary>
+        /// 隐藏中间的字符串，用*替代
+        /// </summary>
+        /// <param name="str">需要处理的字符串</param>
+        /// <param name="middlePercent">隐藏百分比的整数值</param>
+        /// <returns>中间*号替代的字符串</returns>
+        public static string HideMiddle(this string str, int middlePercent = 50)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                return str;
+            if (middlePercent < 0)
+                middlePercent = 0;
+            if (middlePercent > 100)
+                middlePercent = 100;
+
+            int middleLength = (int)(Math.Floor(str.Length * 1.0 * middlePercent / 100));
+            int firstLength = (str.Length - middleLength) / 2;
+            string midStr = string.Empty;
+            for (int i = 0; i < middleLength; i++)
+                midStr += "*";
+            return string.Concat(str.AsSpan(0, firstLength), midStr, str.AsSpan(firstLength + middleLength));
         }
         #endregion
     }
