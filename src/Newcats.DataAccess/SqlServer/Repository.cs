@@ -17,27 +17,40 @@ namespace Newcats.DataAccess.SqlServer
     /// </summary>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <typeparam name="TPrimaryKey">此数据库实体类的主键类型</typeparam>
-    public class Repository<TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey> where TEntity : class
+    public class Repository<TDbContext, TEntity, TPrimaryKey> : IRepository<TDbContext, TEntity, TPrimaryKey> where TEntity : class where TDbContext : DbContextBase
     {
-        private readonly IConfiguration _configuration;
+
+        private readonly TDbContext _context;
+
+        public virtual IDbConnection Connection
+        {
+            get { return _context.Connection; }
+        }
+        //private readonly IConfiguration _configuration;
+
+        public Repository(TDbContext context)
+        {
+            _context = context;
+            EntityType = typeof(TEntity);
+        }
 
         #region 数据库连接/配置
         /// <summary>
         /// 构造函数，初始化Connection/EntityType属性并赋值
         /// </summary>
-        public Repository(IConfiguration configuration)
-        {
-            _configuration = configuration;
-            Connection = CreateDbConnection();
-            EntityType = typeof(TEntity);
-        }
+        //public Repository(IConfiguration configuration)
+        //{
+        //    _configuration = configuration;
+        //    Connection = CreateDbConnection();
+        //    EntityType = typeof(TEntity);
+        //}
 
         /// <summary>
         /// 1.数据库连接,在构造函数初始化(默认连接为"DefaultConnection")。
         /// 2.若要使用非默认的数据库连接，请重新赋值。
         /// 3.一般在Service类的构造函数赋值_repository.Connection=_repository.CreateDbConnection("OtherDB")。
         /// </summary>
-        public IDbConnection Connection { get; set; }
+        //public IDbConnection Connection { get; set; }
 
         /// <summary>
         /// 实体类型
@@ -50,17 +63,17 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="key">连接字符串名，默认为"DefaultConnection"</param>
         /// <returns>数据库连接</returns>
-        public IDbConnection CreateDbConnection(string key = "DefaultConnection")
-        {
-            if (!key.Equals("DefaultConnection", StringComparison.OrdinalIgnoreCase) && Connection != null)
-            {
-                Connection.Close();
-                Connection.Dispose();
-            }
-            var connectionInstance = SqlClientFactory.Instance.CreateConnection();
-            connectionInstance.ConnectionString = GetConnectionString(key);
-            return connectionInstance;
-        }
+        //public IDbConnection CreateDbConnection(string key = "DefaultConnection")
+        //{
+        //    if (!key.Equals("DefaultConnection", StringComparison.OrdinalIgnoreCase) && Connection != null)
+        //    {
+        //        Connection.Close();
+        //        Connection.Dispose();
+        //    }
+        //    var connectionInstance = SqlClientFactory.Instance.CreateConnection();
+        //    connectionInstance.ConnectionString = GetConnectionString(key);
+        //    return connectionInstance;
+        //}
 
         /// <summary>
         /// 1.获取应用程序执行目录下的appsettings.json配置文件(默认ConnectionStrings:DefaultConnection)里的连接字符串
@@ -68,21 +81,21 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="key">连接字符串名称</param>
         /// <returns>解密之后的连接字符串</returns>
-        private string GetConnectionString(string key)
-        {
-            string connStr = RepositoryHelper.GetConnectionString(key);
-            if (!string.IsNullOrWhiteSpace(connStr))
-                return connStr;
+        //private string GetConnectionString(string key)
+        //{
+        //    string connStr = RepositoryHelper.GetConnectionString(key);
+        //    if (!string.IsNullOrWhiteSpace(connStr))
+        //        return connStr;
 
-            string connStrConfig = _configuration.GetValue<string>("DefaultConnection");//  Utils.Helper.ConfigHelper.AppSettings.GetConnectionString(key);
-            if (string.IsNullOrWhiteSpace(connStrConfig))
-            {
-                throw new KeyNotFoundException($"The config item ConnectionStrings:{key} do not exists on file appsettings.json");
-            }
-            connStr = connStrConfig; //Utils.Encrypt.EncryptHelper.DESDecrypt(connStrConfig, "123456");
-            RepositoryHelper.SetConnectionString(key, connStr);
-            return connStr;
-        }
+        //    string connStrConfig = _configuration.GetValue<string>("DefaultConnection");//  Utils.Helper.ConfigHelper.AppSettings.GetConnectionString(key);
+        //    if (string.IsNullOrWhiteSpace(connStrConfig))
+        //    {
+        //        throw new KeyNotFoundException($"The config item ConnectionStrings:{key} do not exists on file appsettings.json");
+        //    }
+        //    connStr = connStrConfig; //Utils.Encrypt.EncryptHelper.DESDecrypt(connStrConfig, "123456");
+        //    RepositoryHelper.SetConnectionString(key, connStr);
+        //    return connStr;
+        //}
         #endregion
 
         #region 同步方法
@@ -944,5 +957,29 @@ namespace Newcats.DataAccess.SqlServer
             return await Connection.QueryFirstOrDefaultAsync<T>(sqlText, pars, null, commandTimeout, commandType);
         }
         #endregion
+
+        public bool Execute(IEnumerable<Action<IDbTransaction>> actions)
+        {
+            bool success = false;
+            Connection.Open();
+            using (IDbTransaction transaction = _context.GetTransaction())
+            {
+                try
+                {
+                    foreach (var action in actions)
+                    {
+                        action(transaction);
+                    }
+                    transaction.Commit();
+                    success = true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+            return success;
+        }
     }
 }

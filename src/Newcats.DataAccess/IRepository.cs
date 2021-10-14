@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
+using Newcats.DataAccess.SqlServer;
 
 namespace Newcats.DataAccess
 {
@@ -12,7 +13,7 @@ namespace Newcats.DataAccess
     /// </summary>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <typeparam name="TPrimaryKey">此数据库实体类的主键类型</typeparam>
-    public interface IRepository<TEntity, TPrimaryKey> where TEntity : class
+    public interface IRepository<TDbContext, TEntity, TPrimaryKey> where TEntity : class where TDbContext : DbContextBase
     {
         #region 数据库链接/配置
         /// <summary>
@@ -20,7 +21,7 @@ namespace Newcats.DataAccess
         /// 2.若要使用非默认的数据库链接，请重新赋值。
         /// 3.一般在Service类的构造函数赋值_repository.Connection=_repository.CreateDbConnection("OtherDB")。
         /// </summary>
-        IDbConnection Connection { get; set; }
+        //IDbConnection Connection { get; set; }
 
         /// <summary>
         /// 1.根据 [/Config/ConnectionString.json] 配置文件里的连接字符串创建数据库链接
@@ -28,7 +29,7 @@ namespace Newcats.DataAccess
         /// </summary>
         /// <param name="key">链接字符串名，默认为"DefaultConnection"</param>
         /// <returns>数据库链接</returns>
-        IDbConnection CreateDbConnection(string key = "DefaultConnection");
+        //IDbConnection CreateDbConnection(string key = "DefaultConnection");
         #endregion
 
         #region 同步方法
