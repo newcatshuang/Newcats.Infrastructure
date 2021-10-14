@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Dapper;
 
-namespace Newcats.DataAccess.SqlServer
+namespace Newcats.DataAccess
 {
     /// <summary>
     /// SqlServer数据库的sql生成类

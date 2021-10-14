@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="LICENSE" Pack="true" PackagePath=""/>
+		<None Include="LICENSE" Pack="true" PackagePath="" />
 		<None Update="README.md">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>

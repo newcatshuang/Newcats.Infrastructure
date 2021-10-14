@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newcats.AspNetCore.Filters;
-using Newcats.DataAccess.SqlServer;
+using Newcats.DataAccess;
 
 namespace Newcats.WebApi.Controllers
 {
@@ -35,6 +35,23 @@ namespace Newcats.WebApi.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+            //事务不能跨连接
+            using (var tran = _repository.BeginTransaction())
+            {
+                _ = _repository.GetTop(1, null, tran);
+                _ = _repository.GetTop(2, null, tran);
+                tran.Commit();
+            }
+
+            //分布式事务，可跨连接
+            //using (var tran = TransactionScopeBuilder.CreateReadCommitted())
+            //{
+            //    _ = _repository.GetTop(1, null);
+            //    _ = _repository.GetTop(2, null);
+            //    _user.GetTop(3, null);
+            //    tran.Complete();
+            //}
+
             var r = _repository.GetAll();
             var r2 = _user.GetAll();
             var r3 = _repository.GetAll();

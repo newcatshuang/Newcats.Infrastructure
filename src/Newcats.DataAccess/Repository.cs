@@ -1,56 +1,24 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
-namespace Newcats.DataAccess.SqlServer
+namespace Newcats.DataAccess
 {
     /// <summary>
-    /// 1.仓储实现类,提供数据库访问能力,封装了基本的CRUD方法。
-    /// 2.若要使用非默认的数据库连接，请重新给Connection属性赋值。
-    /// 3.默认在Newcats.DependencyInjection里注册了作用域泛型仓储类
-    /// _builder.RegisterGeneric(typeof(DataAccess.Dapper.Repository<,>)).As(typeof(DataAccess.Dapper.IRepository<,>)).InstancePerLifetimeScope();
+    /// 仓储实现类,提供数据库访问能力,封装了基本的CRUD方法。
     /// </summary>
+    /// <typeparam name="TDbContext">数据库上下文，不同的数据库连接注册不同的DbContext</typeparam>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <typeparam name="TPrimaryKey">此数据库实体类的主键类型</typeparam>
-    public class Repository<TDbContext, TEntity, TPrimaryKey> : IRepository<TDbContext, TEntity, TPrimaryKey> where TEntity : class where TDbContext : DbContextBase
+    public class Repository<TDbContext, TEntity, TPrimaryKey> : IRepository<TDbContext, TEntity, TPrimaryKey> where TEntity : class where TDbContext : IDbContext
     {
-
+        /// <summary>
+        /// 数据库上下文
+        /// </summary>
         private readonly TDbContext _context;
-
-        public virtual IDbConnection Connection
-        {
-            get { return _context.Connection; }
-        }
-        //private readonly IConfiguration _configuration;
-
-        public Repository(TDbContext context)
-        {
-            _context = context;
-            EntityType = typeof(TEntity);
-        }
-
-        #region 数据库连接/配置
-        /// <summary>
-        /// 构造函数，初始化Connection/EntityType属性并赋值
-        /// </summary>
-        //public Repository(IConfiguration configuration)
-        //{
-        //    _configuration = configuration;
-        //    Connection = CreateDbConnection();
-        //    EntityType = typeof(TEntity);
-        //}
-
-        /// <summary>
-        /// 1.数据库连接,在构造函数初始化(默认连接为"DefaultConnection")。
-        /// 2.若要使用非默认的数据库连接，请重新赋值。
-        /// 3.一般在Service类的构造函数赋值_repository.Connection=_repository.CreateDbConnection("OtherDB")。
-        /// </summary>
-        //public IDbConnection Connection { get; set; }
 
         /// <summary>
         /// 实体类型
@@ -58,84 +26,60 @@ namespace Newcats.DataAccess.SqlServer
         private Type EntityType { get; set; }
 
         /// <summary>
-        /// 1.根据应用程序执行目录下的appsettings.json配置文件(默认ConnectionStrings:DefaultConnection)的连接字符串创建数据库连接
-        /// 2.会在构造函数自动调用并赋值，不需要手动调用，除非需要使用非默认的数据库连接
+        /// 数据库连接
         /// </summary>
-        /// <param name="key">连接字符串名，默认为"DefaultConnection"</param>
-        /// <returns>数据库连接</returns>
-        //public IDbConnection CreateDbConnection(string key = "DefaultConnection")
-        //{
-        //    if (!key.Equals("DefaultConnection", StringComparison.OrdinalIgnoreCase) && Connection != null)
-        //    {
-        //        Connection.Close();
-        //        Connection.Dispose();
-        //    }
-        //    var connectionInstance = SqlClientFactory.Instance.CreateConnection();
-        //    connectionInstance.ConnectionString = GetConnectionString(key);
-        //    return connectionInstance;
-        //}
+        public virtual IDbConnection Connection
+        {
+            get { return _context.Connection; }
+        }
 
-        /// <summary>
-        /// 1.获取应用程序执行目录下的appsettings.json配置文件(默认ConnectionStrings:DefaultConnection)里的连接字符串
-        /// 2.此处有缓存，如果更改了配置文件，请重新启动应用程序
-        /// </summary>
-        /// <param name="key">连接字符串名称</param>
-        /// <returns>解密之后的连接字符串</returns>
-        //private string GetConnectionString(string key)
-        //{
-        //    string connStr = RepositoryHelper.GetConnectionString(key);
-        //    if (!string.IsNullOrWhiteSpace(connStr))
-        //        return connStr;
-
-        //    string connStrConfig = _configuration.GetValue<string>("DefaultConnection");//  Utils.Helper.ConfigHelper.AppSettings.GetConnectionString(key);
-        //    if (string.IsNullOrWhiteSpace(connStrConfig))
-        //    {
-        //        throw new KeyNotFoundException($"The config item ConnectionStrings:{key} do not exists on file appsettings.json");
-        //    }
-        //    connStr = connStrConfig; //Utils.Encrypt.EncryptHelper.DESDecrypt(connStrConfig, "123456");
-        //    RepositoryHelper.SetConnectionString(key, connStr);
-        //    return connStr;
-        //}
-        #endregion
+        public Repository(TDbContext context)
+        {
+            _context = context;
+            EntityType = typeof(TEntity);
+        }
 
         #region 同步方法
         /// <summary>
         /// 插入一条数据，成功时返回当前主键的值，否则返回主键类型的默认值
         /// </summary>
         /// <param name="entity">要插入的数据实体</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
-        public TPrimaryKey Insert(TEntity entity, int? commandTimeout = null)
+        public TPrimaryKey Insert(TEntity entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
             string sqlText = $"{RepositoryHelper.GetInsertSqlText(EntityType)} SELECT SCOPE_IDENTITY();";
-            return Connection.ExecuteScalar<TPrimaryKey>(sqlText, entity, null, commandTimeout, CommandType.Text);
+            return Connection.ExecuteScalar<TPrimaryKey>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 批量插入数据，返回成功的条数
         /// </summary>
         /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public int InsertBulk(IEnumerable<TEntity> list, int? commandTimeout = null)
+        public int InsertBulk(IEnumerable<TEntity> list, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (list == null || !list.Any())
                 throw new ArgumentNullException(nameof(list));
 
             string sqlText = RepositoryHelper.GetInsertSqlText(EntityType);
-            return Connection.Execute(sqlText, list, null, commandTimeout, CommandType.Text);
+            return Connection.Execute(sqlText, list, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据主键，删除一条记录
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public int Delete(TPrimaryKey primaryKeyValue, int? commandTimeout = null)
+        public int Delete(TPrimaryKey primaryKeyValue, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
@@ -145,16 +89,17 @@ namespace Newcats.DataAccess.SqlServer
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
-            return Connection.Execute(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return Connection.Execute(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据给定的条件，删除记录
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public int Delete(IEnumerable<DbWhere<TEntity>> dbWheres, int? commandTimeout = null)
+        public int Delete(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string sqlWhere = string.Empty;
@@ -162,7 +107,7 @@ namespace Newcats.DataAccess.SqlServer
             if (!string.IsNullOrWhiteSpace(sqlWhere))
                 sqlWhere = $" WHERE 1=1 {sqlWhere} ";
             string sqlText = $" DELETE FROM {tableName} {sqlWhere} ;";
-            return Connection.Execute(sqlText, pars, null, commandTimeout, CommandType.Text);
+            return Connection.Execute(sqlText, pars, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -170,9 +115,10 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="dbUpdates">要更新的字段集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public int Update(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, int? commandTimeout = null)
+        public int Update(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
@@ -185,7 +131,7 @@ namespace Newcats.DataAccess.SqlServer
             DynamicParameters parameters = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             parameters.Add("@" + pkName, primaryKeyValue);
             string sqlText = $" UPDATE {tableName} SET {sqlUpdate} WHERE {pkName}=@{pkName} ;";
-            return Connection.Execute(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return Connection.Execute(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -193,9 +139,10 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
         /// <param name="dbUpdates">要更新的字段集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public int Update(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, int? commandTimeout = null)
+        public int Update(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
@@ -208,16 +155,17 @@ namespace Newcats.DataAccess.SqlServer
             DynamicParameters updatePars = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             wherePars.AddDynamicParams(updatePars);
             string sqlText = $" UPDATE {tableName} SET {sqlUpdate} {sqlWhere} ;";
-            return Connection.Execute(sqlText, wherePars, null, commandTimeout, CommandType.Text);
+            return Connection.Execute(sqlText, wherePars, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据主键，获取一条记录
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>数据库实体或null</returns>
-        public TEntity Get(TPrimaryKey primaryKeyValue, int? commandTimeout = null)
+        public TEntity Get(TPrimaryKey primaryKeyValue, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
@@ -228,17 +176,18 @@ namespace Newcats.DataAccess.SqlServer
             string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
-            return Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据给定的条件，获取一条记录
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序集合</param>
         /// <returns>数据库实体或null</returns>
-        public TEntity Get(IEnumerable<DbWhere<TEntity>> dbWheres, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public TEntity Get(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
@@ -250,7 +199,7 @@ namespace Newcats.DataAccess.SqlServer
             if (!string.IsNullOrWhiteSpace(sqlOrderBy))
                 sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
             string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ;";
-            return Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -259,10 +208,11 @@ namespace Newcats.DataAccess.SqlServer
         /// <param name="pageIndex">页码索引（从0开始）（pageIndex小于等于0，返回第0页数据）</param>
         /// <param name="pageSize">页大小(pageSize小于等于0，返回所有数据)</param>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
         /// <returns>分页数据集合</returns>
-        public (IEnumerable<TEntity> list, int totalCount) GetPage(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public (IEnumerable<TEntity> list, int totalCount) GetPage(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
             int totalCount = 0;
             string tableName = RepositoryHelper.GetTableName(EntityType);
@@ -300,7 +250,7 @@ namespace Newcats.DataAccess.SqlServer
                     sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} OFFSET {(pageIndex * pageSize)} ROWS FETCH NEXT {pageSize} ROWS ONLY ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
                 }
             }
-            IEnumerable<TEntity> list = Connection.Query<TEntity>(sqlText, pars, null, true, commandTimeout, CommandType.Text);
+            IEnumerable<TEntity> list = Connection.Query<TEntity>(sqlText, pars, transaction, true, commandTimeout, CommandType.Text);
             totalCount = pars.Get<int?>("@Row_Count") ?? 0;
             return (list, totalCount);
         }
@@ -309,11 +259,12 @@ namespace Newcats.DataAccess.SqlServer
         /// 分页获取数据
         /// </summary>
         /// <param name="pageInfo">分页信息</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>分页数据</returns>
-        public (IEnumerable<TEntity> list, int totalCount) GetPage(PageInfo<TEntity> pageInfo, int? commandTimeout = null)
+        public (IEnumerable<TEntity> list, int totalCount) GetPage(PageInfo<TEntity> pageInfo, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            return GetPage(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, commandTimeout, pageInfo.OrderBy?.ToArray());
+            return GetPage(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, pageInfo.OrderBy?.ToArray());
         }
 
         /// <summary>
@@ -330,12 +281,13 @@ namespace Newcats.DataAccess.SqlServer
         /// 根据给定的条件及排序，获取所有数据
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
         /// <returns>分页数据集合</returns>
-        public IEnumerable<TEntity> GetAll(IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public IEnumerable<TEntity> GetAll(IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
-            var (list, totalCount) = GetPage(0, 0, dbWheres, commandTimeout, dbOrderBy);
+            var (list, totalCount) = GetPage(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
@@ -355,12 +307,13 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="top">指定数量</param>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
         /// <returns>分页数据集合</returns>
-        public IEnumerable<TEntity> GetTop(int top, IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public IEnumerable<TEntity> GetTop(int top, IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
-            var (list, totalCount) = GetPage(0, top, dbWheres, commandTimeout, dbOrderBy);
+            var (list, totalCount) = GetPage(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
@@ -377,9 +330,10 @@ namespace Newcats.DataAccess.SqlServer
         /// 根据给定的条件，获取记录数量
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>记录数量</returns>
-        public int Count(IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null)
+        public int Count(IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             if (dbWheres != null && dbWheres.Any())
@@ -387,12 +341,12 @@ namespace Newcats.DataAccess.SqlServer
                 string sqlWhere = string.Empty;
                 DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
                 string sqlText = $" SELECT COUNT(1) FROM {tableName} WHERE 1=1 {sqlWhere} ;";
-                return Connection.ExecuteScalar<int>(sqlText, pars, null, commandTimeout, CommandType.Text);
+                return Connection.ExecuteScalar<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
             }
             else
             {
                 string sqlText = $" SELECT COUNT(1) FROM {tableName} ;";
-                return Connection.ExecuteScalar<int>(sqlText, null, null, commandTimeout, CommandType.Text);
+                return Connection.ExecuteScalar<int>(sqlText, null, transaction, commandTimeout, CommandType.Text);
             }
         }
 
@@ -420,15 +374,16 @@ namespace Newcats.DataAccess.SqlServer
         /// 根据给定的条件，判断数据是否存在
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>是否存在</returns>
-        public bool Exists(IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null)
+        public bool Exists(IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE 1=1 {sqlWhere} ;";
-            object o = Connection.ExecuteScalar(sqlText, pars, null, commandTimeout, CommandType.Text);
+            object o = Connection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, CommandType.Text);
             if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
                 return true;
             return false;
@@ -439,13 +394,14 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="storedProcedureName">存储过程名称</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>受影响的行数</returns>
-        public int ExecuteStoredProcedure(string storedProcedureName, DynamicParameters pars, int? commandTimeout = null)
+        public int ExecuteStoredProcedure(string storedProcedureName, DynamicParameters pars, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (string.IsNullOrWhiteSpace(storedProcedureName))
                 throw new ArgumentNullException(nameof(storedProcedureName));
-            return Connection.Execute(storedProcedureName, pars, null, commandTimeout, CommandType.StoredProcedure);
+            return Connection.Execute(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure);
         }
 
         /// <summary>
@@ -453,14 +409,15 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>受影响的行数</returns>
-        public int Execute(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public int Execute(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return Connection.Execute(sqlText, pars, null, commandTimeout, commandType);
+            return Connection.Execute(sqlText, pars, transaction, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -469,14 +426,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果</returns>
-        public T ExecuteScalar<T>(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public T ExecuteScalar<T>(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return Connection.ExecuteScalar<T>(sqlText, pars, null, commandTimeout, commandType);
+            return Connection.ExecuteScalar<T>(sqlText, pars, transaction, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -485,14 +443,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果</returns>
-        public object ExecuteScalar(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public object ExecuteScalar(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return Connection.ExecuteScalar(sqlText, pars, null, commandTimeout, commandType);
+            return Connection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -501,14 +460,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果集</returns>
-        public IEnumerable<T> Query<T>(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public IEnumerable<T> Query<T>(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return Connection.Query<T>(sqlText, pars, null, true, commandTimeout, commandType);
+            return Connection.Query<T>(sqlText, pars, transaction, true, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -517,14 +477,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果</returns>
-        public T QueryFirstOrDefault<T>(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public T QueryFirstOrDefault<T>(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return Connection.QueryFirstOrDefault<T>(sqlText, pars, null, commandTimeout, commandType);
+            return Connection.QueryFirstOrDefault<T>(sqlText, pars, transaction, commandTimeout, commandType);
         }
         #endregion
 
@@ -533,39 +494,42 @@ namespace Newcats.DataAccess.SqlServer
         /// 插入一条数据，成功时返回当前主键的值，否则返回主键类型的默认值
         /// </summary>
         /// <param name="entity">要插入的数据实体</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
-        public async Task<TPrimaryKey> InsertAsync(TEntity entity, int? commandTimeout = null)
+        public async Task<TPrimaryKey> InsertAsync(TEntity entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
             string sqlText = $"{RepositoryHelper.GetInsertSqlText(EntityType)} SELECT SCOPE_IDENTITY();";
-            return await Connection.ExecuteScalarAsync<TPrimaryKey>(sqlText, entity, null, commandTimeout, CommandType.Text);
+            return await Connection.ExecuteScalarAsync<TPrimaryKey>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 批量插入数据，返回成功的条数
         /// </summary>
         /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public async Task<int> InsertBulkAsync(IEnumerable<TEntity> list, int? commandTimeout = null)
+        public async Task<int> InsertBulkAsync(IEnumerable<TEntity> list, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (list == null || !list.Any())
                 throw new ArgumentNullException(nameof(list));
 
             string sqlText = RepositoryHelper.GetInsertSqlText(EntityType);
-            return await Connection.ExecuteAsync(sqlText, list, null, commandTimeout, CommandType.Text);
+            return await Connection.ExecuteAsync(sqlText, list, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据主键，删除一条记录
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public async Task<int> DeleteAsync(TPrimaryKey primaryKeyValue, int? commandTimeout = null)
+        public async Task<int> DeleteAsync(TPrimaryKey primaryKeyValue, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
@@ -575,16 +539,17 @@ namespace Newcats.DataAccess.SqlServer
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
-            return await Connection.ExecuteAsync(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return await Connection.ExecuteAsync(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据给定的条件，删除记录
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public async Task<int> DeleteAsync(IEnumerable<DbWhere<TEntity>> dbWheres, int? commandTimeout = null)
+        public async Task<int> DeleteAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string sqlWhere = string.Empty;
@@ -592,7 +557,7 @@ namespace Newcats.DataAccess.SqlServer
             if (!string.IsNullOrWhiteSpace(sqlWhere))
                 sqlWhere = $" WHERE 1=1 {sqlWhere} ";
             string sqlText = $" DELETE FROM {tableName} {sqlWhere} ;";
-            return await Connection.ExecuteAsync(sqlText, pars, null, commandTimeout, CommandType.Text);
+            return await Connection.ExecuteAsync(sqlText, pars, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -600,9 +565,10 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="dbUpdates">要更新的字段集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public async Task<int> UpdateAsync(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, int? commandTimeout = null)
+        public async Task<int> UpdateAsync(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
@@ -615,7 +581,7 @@ namespace Newcats.DataAccess.SqlServer
             DynamicParameters parameters = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             parameters.Add("@" + pkName, primaryKeyValue);
             string sqlText = $" UPDATE {tableName} SET {sqlUpdate} WHERE {pkName}=@{pkName} ;";
-            return await Connection.ExecuteAsync(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return await Connection.ExecuteAsync(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -623,9 +589,10 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
         /// <param name="dbUpdates">要更新的字段集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
-        public async Task<int> UpdateAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, int? commandTimeout = null)
+        public async Task<int> UpdateAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
@@ -638,16 +605,17 @@ namespace Newcats.DataAccess.SqlServer
             DynamicParameters updatePars = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             wherePars.AddDynamicParams(updatePars);
             string sqlText = $" UPDATE {tableName} SET {sqlUpdate} {sqlWhere} ;";
-            return await Connection.ExecuteAsync(sqlText, wherePars, null, commandTimeout, CommandType.Text);
+            return await Connection.ExecuteAsync(sqlText, wherePars, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据主键，获取一条记录
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>数据库实体或null</returns>
-        public async Task<TEntity> GetAsync(TPrimaryKey primaryKeyValue, int? commandTimeout = null)
+        public async Task<TEntity> GetAsync(TPrimaryKey primaryKeyValue, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
@@ -658,17 +626,18 @@ namespace Newcats.DataAccess.SqlServer
             string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
-            return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
         /// 根据给定的条件，获取一条记录
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序集合</param>
         /// <returns>数据库实体或null</returns>
-        public async Task<TEntity> GetAsync(IEnumerable<DbWhere<TEntity>> dbWheres, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<TEntity> GetAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
@@ -680,7 +649,7 @@ namespace Newcats.DataAccess.SqlServer
             if (!string.IsNullOrWhiteSpace(sqlOrderBy))
                 sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
             string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ;";
-            return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, null, commandTimeout, CommandType.Text);
+            return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -689,10 +658,11 @@ namespace Newcats.DataAccess.SqlServer
         /// <param name="pageIndex">页码索引（从0开始）（pageIndex小于等于0，返回第0页数据）</param>
         /// <param name="pageSize">页大小(pageSize小于等于0，返回所有数据)</param>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
         /// <returns>分页数据集合</returns>
-        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
@@ -730,7 +700,7 @@ namespace Newcats.DataAccess.SqlServer
                     sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} OFFSET {(pageIndex * pageSize)} ROWS FETCH NEXT {pageSize} ROWS ONLY ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
                 }
             }
-            IEnumerable<TEntity> list = await Connection.QueryAsync<TEntity>(sqlText, pars, null, commandTimeout, CommandType.Text);
+            IEnumerable<TEntity> list = await Connection.QueryAsync<TEntity>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
             totalCount = pars.Get<int?>("@Row_Count") ?? 0;
             return (list, totalCount);
         }
@@ -739,11 +709,12 @@ namespace Newcats.DataAccess.SqlServer
         /// 分页获取数据
         /// </summary>
         /// <param name="pageInfo">分页信息</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>分页数据</returns>
-        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(PageInfo<TEntity> pageInfo, int? commandTimeout = null)
+        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(PageInfo<TEntity> pageInfo, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            return await GetPageAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, commandTimeout, pageInfo.OrderBy?.ToArray());
+            return await GetPageAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, pageInfo.OrderBy?.ToArray());
         }
 
         /// <summary>
@@ -760,12 +731,13 @@ namespace Newcats.DataAccess.SqlServer
         /// 根据给定的条件及排序，获取所有数据
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
         /// <returns>数据集合</returns>
-        public async Task<IEnumerable<TEntity>> GetAllAsync(IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
-            var (list, totals) = await GetPageAsync(0, 0, dbWheres, commandTimeout, dbOrderBy);
+            var (list, totals) = await GetPageAsync(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
@@ -785,12 +757,13 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="top">指定数量</param>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
         /// <returns>指定数量的数据集合</returns>
-        public async Task<IEnumerable<TEntity>> GetTopAsync(int top, IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<IEnumerable<TEntity>> GetTopAsync(int top, IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
         {
-            var (list, totals) = await GetPageAsync(0, top, dbWheres, commandTimeout, dbOrderBy);
+            var (list, totals) = await GetPageAsync(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
@@ -807,9 +780,10 @@ namespace Newcats.DataAccess.SqlServer
         /// 根据给定的条件，获取记录数量
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>记录数量</returns>
-        public async Task<int> CountAsync(IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null)
+        public async Task<int> CountAsync(IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             if (dbWheres != null && dbWheres.Any())
@@ -817,12 +791,12 @@ namespace Newcats.DataAccess.SqlServer
                 string sqlWhere = string.Empty;
                 DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
                 string sqlText = $" SELECT COUNT(1) FROM {tableName} WHERE 1=1 {sqlWhere} ;";
-                return await Connection.ExecuteScalarAsync<int>(sqlText, pars, null, commandTimeout, CommandType.Text);
+                return await Connection.ExecuteScalarAsync<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
             }
             else
             {
                 string sqlText = $" SELECT COUNT(1) FROM {tableName} ;";
-                return await Connection.ExecuteScalarAsync<int>(sqlText, null, null, commandTimeout, CommandType.Text);
+                return await Connection.ExecuteScalarAsync<int>(sqlText, null, transaction, commandTimeout, CommandType.Text);
             }
         }
 
@@ -850,15 +824,16 @@ namespace Newcats.DataAccess.SqlServer
         /// 根据给定的条件，判断数据是否存在
         /// </summary>
         /// <param name="dbWheres">条件集合</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>是否存在</returns>
-        public async Task<bool> ExistsAsync(IEnumerable<DbWhere<TEntity>> dbWheres = null, int? commandTimeout = null)
+        public async Task<bool> ExistsAsync(IEnumerable<DbWhere<TEntity>> dbWheres = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE 1=1 {sqlWhere} ;";
-            object o = await Connection.ExecuteScalarAsync(sqlText, pars, null, commandTimeout, CommandType.Text);
+            object o = await Connection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, CommandType.Text);
             if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
                 return true;
             return false;
@@ -869,13 +844,14 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="storedProcedureName">存储过程名称</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>受影响的行数</returns>
-        public async Task<int> ExecuteStoredProcedureAsync(string storedProcedureName, DynamicParameters pars, int? commandTimeout = null)
+        public async Task<int> ExecuteStoredProcedureAsync(string storedProcedureName, DynamicParameters pars, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             if (string.IsNullOrWhiteSpace(storedProcedureName))
                 throw new ArgumentNullException(nameof(storedProcedureName));
-            return await Connection.ExecuteAsync(storedProcedureName, pars, null, commandTimeout, CommandType.StoredProcedure);
+            return await Connection.ExecuteAsync(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure);
         }
 
         /// <summary>
@@ -883,14 +859,15 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>受影响的行数</returns>
-        public async Task<int> ExecuteAsync(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<int> ExecuteAsync(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return await Connection.ExecuteAsync(sqlText, pars, null, commandTimeout, commandType);
+            return await Connection.ExecuteAsync(sqlText, pars, transaction, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -899,14 +876,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果</returns>
-        public async Task<T> ExecuteScalarAsync<T>(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> ExecuteScalarAsync<T>(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return await Connection.ExecuteScalarAsync<T>(sqlText, pars, null, commandTimeout, commandType);
+            return await Connection.ExecuteScalarAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -915,14 +893,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果</returns>
-        public async Task<object> ExecuteScalarAsync(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<object> ExecuteScalarAsync(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return await Connection.ExecuteScalarAsync(sqlText, pars, null, commandTimeout, commandType);
+            return await Connection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -931,14 +910,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果集</returns>
-        public async Task<IEnumerable<T>> QueryAsync<T>(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<IEnumerable<T>> QueryAsync<T>(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return await Connection.QueryAsync<T>(sqlText, pars, null, commandTimeout, commandType);
+            return await Connection.QueryAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
         }
 
         /// <summary>
@@ -947,22 +927,53 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="sqlText">sql语句</param>
         /// <param name="pars">参数</param>
+        /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="commandType">执行类型，默认为CommandType.Text</param>
         /// <returns>查询结果</returns>
-        public async Task<T> QueryFirstOrDefaultAsync<T>(string sqlText, DynamicParameters pars = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> QueryFirstOrDefaultAsync<T>(string sqlText, DynamicParameters pars = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             if (string.IsNullOrWhiteSpace(sqlText))
                 throw new ArgumentNullException(nameof(sqlText));
-            return await Connection.QueryFirstOrDefaultAsync<T>(sqlText, pars, null, commandTimeout, commandType);
+            return await Connection.QueryFirstOrDefaultAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
         }
         #endregion
 
+        #region 事务
+        /// <summary>
+        /// 开启事务
+        /// </summary>
+        /// <returns>事务</returns>
+        public IDbTransaction BeginTransaction()
+        {
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            return Connection.BeginTransaction();
+        }
+
+        /// <summary>
+        /// 开启事务
+        /// </summary>
+        /// <param name="il">事务等级</param>
+        /// <returns>事务</returns>
+        public IDbTransaction BeginTransaction(IsolationLevel il)
+        {
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            return Connection.BeginTransaction(il);
+        }
+
+        /// <summary>
+        /// 执行通用事务
+        /// </summary>
+        /// <param name="actions">事务方法</param>
+        /// <returns>是否成功</returns>
         public bool Execute(IEnumerable<Action<IDbTransaction>> actions)
         {
             bool success = false;
-            Connection.Open();
-            using (IDbTransaction transaction = _context.GetTransaction())
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            using (IDbTransaction transaction = Connection.BeginTransaction())
             {
                 try
                 {
@@ -981,5 +992,6 @@ namespace Newcats.DataAccess.SqlServer
             }
             return success;
         }
+        #endregion
     }
 }

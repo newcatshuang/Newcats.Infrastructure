@@ -13,11 +13,6 @@ namespace Newcats.DataAccess
     {
         #region 静态字典缓存及私有方法
         /// <summary>
-        /// 解密后的数据库连接字符串字典
-        /// </summary>
-        private static readonly ConcurrentDictionary<string, string> _connStrDic = new ConcurrentDictionary<string, string>();
-
-        /// <summary>
         /// 实体类对应的insert语句字典，键为实体类全名（命名空间+类名+插入？批量插入？）
         /// </summary>
         private static readonly ConcurrentDictionary<string, string> _sqlInsertDic = new ConcurrentDictionary<string, string>();
@@ -36,34 +31,6 @@ namespace Newcats.DataAccess
         /// 实体类对应的数据库表的主键名，键为实体类全名（命名空间+类名）
         /// </summary>
         private static readonly ConcurrentDictionary<string, string> _tablePrimaryKeyDic = new ConcurrentDictionary<string, string>();
-
-        /// <summary>
-        /// 获取缓存中的解密之后的连接字符串明文
-        /// </summary>
-        /// <param name="key">连接字符串名称</param>
-        /// <returns>连接字符串明文</returns>
-        internal static string GetConnectionString(string key)
-        {
-            string dicKey = $"connStr_{key}";
-            string connStr = string.Empty;
-            if (_connStrDic.TryGetValue(dicKey, out connStr))
-            {
-                if (!string.IsNullOrWhiteSpace(connStr))
-                    return connStr;
-            }
-            return connStr;
-        }
-
-        /// <summary>
-        /// 设置解密之后的连接字符串明文缓存
-        /// </summary>
-        /// <param name="key">连接字符串名称</param>
-        /// <param name="connectionString">连接字符串明文</param>
-        internal static void SetConnectionString(string key, string connectionString)
-        {
-            string dicKey = $"connStr_{key}";
-            _connStrDic.TryAdd(dicKey, connectionString);
-        }
 
         /// <summary>
         /// 获取实体类的表名

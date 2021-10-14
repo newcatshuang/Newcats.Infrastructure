@@ -1,17 +1,17 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
 using System.Data;
 
-namespace Newcats.DataAccess.SqlServer
+namespace Newcats.DataAccess
 {
-    public class DbContextBase : IDisposable
+    /// <summary>
+    /// SqlServer数据库上下文基类
+    /// </summary>
+    public class DbContextBase : IDbContext
     {
+        /// <summary>
+        /// 数据库连接
+        /// </summary>
         public IDbConnection Connection { get; }
-
-        public IDbTransaction GetTransaction()
-        {
-            return Connection.BeginTransaction();
-        }
 
         public DbContextBase(string connectionString)
         {
