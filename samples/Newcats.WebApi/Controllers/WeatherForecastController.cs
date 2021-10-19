@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newcats.AspNetCore.Filters;
 using Newcats.DataAccess;
+using Newcats.DataAccess.MySQL;
 
 namespace Newcats.WebApi.Controllers
 {
@@ -14,8 +15,10 @@ namespace Newcats.WebApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly DataAccess.IRepository<DbContextBase, UserInfo, long> _repository;
-        private readonly DataAccess.IRepository<TwoDbContext, User, long> _user;
+        //private readonly DataAccess.IRepository<DbContextBase, UserInfo, long> _repository;
+        //private readonly DataAccess.IRepository<TwoDbContext, User, long> _user;
+
+        private readonly DataAccess.MySQL.IRepository<DataAccess.MySQL.DbContextBase, UserInfo, long> _repository;
 
         private static readonly string[] Summaries = new[]
         {
@@ -24,11 +27,11 @@ namespace Newcats.WebApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, DataAccess.IRepository<DbContextBase, UserInfo, long> repository, DataAccess.IRepository<TwoDbContext, User, long> user)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, Newcats.DataAccess.MySQL.IRepository<DataAccess.MySQL.DbContextBase, UserInfo, long> repository)
         {
             _repository = repository;
             _logger = logger;
-            _user = user;
+            //_user = user;
         }
 
         [Audit]
@@ -36,12 +39,12 @@ namespace Newcats.WebApi.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             //事务不能跨连接
-            using (var tran = _repository.BeginTransaction())
-            {
-                _ = _repository.GetTop(1, null, tran);
-                _ = _repository.GetTop(2, null, tran);
-                tran.Commit();
-            }
+            //using (var tran = _repository.BeginTransaction())
+            //{
+            //    _ = _repository.GetTop(1, null, tran);
+            //    _ = _repository.GetTop(2, null, tran);
+            //    tran.Commit();
+            //}
 
             //分布式事务，可跨连接
             //using (var tran = TransactionScopeBuilder.CreateReadCommitted())
@@ -53,7 +56,7 @@ namespace Newcats.WebApi.Controllers
             //}
 
             var r = _repository.GetAll();
-            var r2 = _user.GetAll();
+            //var r2 = _user.GetAll();
             var r3 = _repository.GetAll();
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
