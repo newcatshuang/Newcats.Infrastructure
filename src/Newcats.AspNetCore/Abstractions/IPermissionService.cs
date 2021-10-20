@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Newcats.DependencyInjection;
+﻿using Newcats.DependencyInjection;
 
 namespace Newcats.AspNetCore.Abstractions
 {

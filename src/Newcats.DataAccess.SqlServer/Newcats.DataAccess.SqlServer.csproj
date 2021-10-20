@@ -16,11 +16,12 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.0.1" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>

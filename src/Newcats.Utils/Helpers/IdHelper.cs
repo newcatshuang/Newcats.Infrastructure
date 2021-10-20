@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Newcats.Utils.Helpers
+﻿namespace Newcats.Utils.Helpers
 {
     /// <summary>
     /// Id生成器（雪花算法）

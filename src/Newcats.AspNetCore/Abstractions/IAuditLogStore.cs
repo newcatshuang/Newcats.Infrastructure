@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Newcats.AspNetCore.Models;
+﻿using Newcats.AspNetCore.Models;
 using Newcats.DependencyInjection;
 
 namespace Newcats.AspNetCore.Abstractions

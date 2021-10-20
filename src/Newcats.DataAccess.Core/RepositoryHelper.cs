@@ -40,7 +40,7 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表名</returns>
-        internal static string GetTableName(Type type)
+        public static string GetTableName(Type type)
         {
             string key = type.FullName;
             string tableName = string.Empty;
@@ -85,7 +85,7 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表字段(逗号(,)分割)</returns>
-        internal static string GetTableFieldsInsert(Type type)
+        public static string GetTableFieldsInsert(Type type)
         {
             string key = $"{type.FullName}_InsertFields";
             string fields = string.Empty;
@@ -127,7 +127,7 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表字段(逗号(,)分割)</returns>
-        internal static string GetTableFieldsQuery(Type type)
+        public static string GetTableFieldsQuery(Type type)
         {
             string key = $"{type.FullName}_QueryFields";
             string fields = string.Empty;
@@ -173,7 +173,7 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表的主键</returns>
-        internal static string GetTablePrimaryKey(Type type)
+        public static string GetTablePrimaryKey(Type type)
         {
             string key = type.FullName;
             string pkName = string.Empty;
@@ -239,7 +239,7 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>insert语句</returns>
-        internal static string GetInsertSqlText(Type type)
+        public static string GetInsertSqlText(Type type)
         {
             string key = $"{type.FullName}_Insert";
             string sqlText = string.Empty;

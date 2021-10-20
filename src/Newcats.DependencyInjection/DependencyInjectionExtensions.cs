@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Newcats.DependencyInjection
 {

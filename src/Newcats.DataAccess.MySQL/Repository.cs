@@ -1,11 +1,8 @@
 ﻿using Dapper;
-using System;
-using System.Collections.Generic;
+using Newcats.DataAccess.Core;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Newcats.DataAccess.MySQL
+namespace Newcats.DataAccess.MySql
 {
     /// <summary>
     /// 仓储实现类,提供数据库访问能力,封装了基本的CRUD方法。

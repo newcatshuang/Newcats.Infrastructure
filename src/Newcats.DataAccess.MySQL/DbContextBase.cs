@@ -1,12 +1,12 @@
 ﻿using MySqlConnector;
 using System.Data;
 
-namespace Newcats.DataAccess.MySQL
+namespace Newcats.DataAccess.MySql
 {
     /// <summary>
     /// SqlServer数据库上下文基类
     /// </summary>
-    public class DbContextBase : IDbContext
+    public class DbContextBase : Core.IDbContext
     {
         /// <summary>
         /// 数据库连接

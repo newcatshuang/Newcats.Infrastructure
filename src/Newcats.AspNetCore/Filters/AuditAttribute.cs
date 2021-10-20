@@ -1,11 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Newcats.AspNetCore.Abstractions;
 using Newcats.AspNetCore.Models;
+using System.Diagnostics;
 
 namespace Newcats.AspNetCore.Filters
 {

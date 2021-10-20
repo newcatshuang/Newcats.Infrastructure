@@ -16,7 +16,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <param name="dbWheres">DbWhere参数数组</param>
         /// <param name="sqlWhere">不包含【WHERE】和【WHERE 1=1】的sql where语句(例  AND Id=@pw_1 AND Age=@pw_2 )</param>
         /// <returns>DynamicParameters参数</returns>
-        public DynamicParameters GetWhereDynamicParameter<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, ref string sqlWhere) where TEntity : class
+        public static DynamicParameters GetWhereDynamicParameter<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, ref string sqlWhere) where TEntity : class
         {
             if (dbWheres == null || !dbWheres.Any())
             {
@@ -147,7 +147,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <param name="dbUpdates">DbUpdate参数数组</param>
         /// <param name="sqlUpdate">不包含【SET】的sql update语句（例 Id=@pu,Age=@pu）</param>
         /// <returns>DynamicParameters参数</returns>
-        public DynamicParameters GetUpdateDynamicParameter<TEntity>(IEnumerable<DbUpdate<TEntity>> dbUpdates, ref string sqlUpdate) where TEntity : class
+        public static DynamicParameters GetUpdateDynamicParameter<TEntity>(IEnumerable<DbUpdate<TEntity>> dbUpdates, ref string sqlUpdate) where TEntity : class
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
@@ -170,7 +170,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <param name="dbOrderBy">DbOrderBy参数</param>
         /// <returns>sql order by语句（不包含【ORDER BY】关键字）</returns>
-        public string GetOrderBySql<TEntity>(params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+        public static string GetOrderBySql<TEntity>(params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
             if (dbOrderBy == null || dbOrderBy.Length == 0)
                 return string.Empty;

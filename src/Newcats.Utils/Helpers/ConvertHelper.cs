@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Newcats.Utils.Helpers
+﻿namespace Newcats.Utils.Helpers
 {
     /// <summary>
     /// 类型转换帮助类

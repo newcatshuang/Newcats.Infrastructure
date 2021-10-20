@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newcats.AspNetCore.Filters;
 using Newcats.DataAccess;
-using Newcats.DataAccess.MySQL;
+using Newcats.DataAccess.MySql;
 
 namespace Newcats.WebApi.Controllers
 {
@@ -18,7 +18,7 @@ namespace Newcats.WebApi.Controllers
         //private readonly DataAccess.IRepository<DbContextBase, UserInfo, long> _repository;
         //private readonly DataAccess.IRepository<TwoDbContext, User, long> _user;
 
-        private readonly DataAccess.MySQL.IRepository<DataAccess.MySQL.DbContextBase, UserInfo, long> _repository;
+        private readonly DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, long> _repository;
 
         private static readonly string[] Summaries = new[]
         {
@@ -27,7 +27,7 @@ namespace Newcats.WebApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, Newcats.DataAccess.MySQL.IRepository<DataAccess.MySQL.DbContextBase, UserInfo, long> repository)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, Newcats.DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, long> repository)
         {
             _repository = repository;
             _logger = logger;

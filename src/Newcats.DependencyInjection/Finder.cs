@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using Microsoft.Extensions.PlatformAbstractions;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Newcats.DependencyInjection
 {
