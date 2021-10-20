@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.DependencyInjection;
+using Newcats.DataAccess.SqlServer;
 using Newcats.DependencyInjection;
 
 namespace Newcats.WebApi
@@ -37,7 +38,7 @@ namespace Newcats.WebApi
         }
     }
 
-    public class TwoDbContext : DataAccess.DbContextBase
+    public class TwoDbContext : DbContextBase
     {
         public TwoDbContext(string connectionString) : base(connectionString)
         {
