@@ -101,9 +101,9 @@ namespace Newcats.DataAccess.Core
         Between = 14,
 
         /// <summary>
-        /// End
+        /// And
         /// </summary>
-        End = 15,
+        And = 15,
 
         /// <summary>
         /// 直接拼接sql语句.

@@ -1,11 +1,10 @@
 ﻿using Dapper;
-using Newcats.DataAccess.Core;
 using System.Text;
 
-namespace Newcats.DataAccess.SqlServer
+namespace Newcats.DataAccess.Core
 {
     /// <summary>
-    /// SqlServer数据库的sql生成类
+    /// 数据库的sql生成类
     /// </summary>
     public class SqlBuilder
     {
@@ -124,8 +123,8 @@ namespace Newcats.DataAccess.SqlServer
                         sb.AppendFormat(" {0} {1} BETWEEN {2} ", item.LogicType.ToString(), item.PropertyName, "@pw_" + index.ToString());
                         dp.Add("@pw_" + index.ToString(), item.Value);
                         break;
-                    case OperateTypeEnum.End:
-                        sb.AppendFormat(" {0} {1} ", item.LogicType.ToString(), "@pw_" + index.ToString());
+                    case OperateTypeEnum.And:
+                        sb.AppendFormat(" AND {1} ", "@pw_" + index.ToString());
                         dp.Add("@pw_" + index.ToString(), item.Value);
                         break;
                     case OperateTypeEnum.SqlText:
