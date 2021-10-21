@@ -229,16 +229,16 @@ namespace Newcats.DataAccess.MySql
                 sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
             if (pars == null)
                 pars = new DynamicParameters();
-            pars.Add("@Row_Count", totalCount, DbType.Int32, ParameterDirection.Output);
+            string sqlCount = $"SELECT COUNT(1) FROM {tableName} {sqlWhere};";
             if (pageSize <= 0)
             {
-                sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere};";
+                sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ;";
             }
             else
             {
                 if (pageIndex <= 0)
                 {
-                    sqlText = $" SELECT TOP {pageSize} {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
+                    sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageSize};";
                 }
                 else
                 {
@@ -247,12 +247,11 @@ namespace Newcats.DataAccess.MySql
                         sqlOrderBy = RepositoryHelper.GetTablePrimaryKey(EntityType);
                         sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
                     }
-                    //sqlText = $" SELECT * FROM(SELECT TOP {((pageIndex + 1) * pageSize)} ROW_NUMBER() OVER({sqlOrderBy}) RowNumber_Index,{fields} FROM {tableName} {sqlWhere}) temTab1 WHERE RowNumber_Index > {(pageIndex * pageSize)} ORDER BY RowNumber_Index ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
-                    sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} OFFSET {(pageIndex * pageSize)} ROWS FETCH NEXT {pageSize} ROWS ONLY ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
+                    sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageIndex * pageSize},{pageSize};";
                 }
             }
             IEnumerable<TEntity> list = Connection.Query<TEntity>(sqlText, pars, transaction, true, commandTimeout, CommandType.Text);
-            totalCount = pars.Get<int?>("@Row_Count") ?? 0;
+            totalCount = Connection.ExecuteScalar<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
             return (list, totalCount);
         }
 
@@ -362,7 +361,7 @@ namespace Newcats.DataAccess.MySql
                 throw new ArgumentNullException(nameof(primaryKeyValue));
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
-            string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE {pkName}=@p_1 ;";
+            string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
             object o = Connection.ExecuteScalar(sqlText, parameters, null, null, CommandType.Text);
@@ -383,7 +382,7 @@ namespace Newcats.DataAccess.MySql
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
-            string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE 1=1 {sqlWhere} ;";
+            string sqlText = $" SELECT 1 FROM {tableName} WHERE 1=1 {sqlWhere} LIMIT 1;";
             object o = Connection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, CommandType.Text);
             if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
                 return true;
@@ -503,7 +502,7 @@ namespace Newcats.DataAccess.MySql
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            string sqlText = $"{RepositoryHelper.GetInsertSqlText(EntityType)} SELECT SCOPE_IDENTITY();";
+            string sqlText = $"{RepositoryHelper.GetInsertSqlText(EntityType)} SELECT LAST_INSERT_ID();";
             return await Connection.ExecuteScalarAsync<TPrimaryKey>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -624,7 +623,7 @@ namespace Newcats.DataAccess.MySql
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
             string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
-            string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} WHERE {pkName}=@p_1 ;";
+            string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
             return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
@@ -649,7 +648,7 @@ namespace Newcats.DataAccess.MySql
             string sqlOrderBy = SqlBuilder.GetOrderBySql(dbOrderBy);
             if (!string.IsNullOrWhiteSpace(sqlOrderBy))
                 sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
-            string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ;";
+            string sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT 1;";
             return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -679,16 +678,16 @@ namespace Newcats.DataAccess.MySql
             if (pars == null)
                 pars = new DynamicParameters();
             int totalCount = 0;
-            pars.Add("@Row_Count", totalCount, DbType.Int32, ParameterDirection.Output);
+            string sqlCount = $"SELECT COUNT(1) FROM {tableName} {sqlWhere};";
             if (pageSize <= 0)
             {
-                sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
+                sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ;";
             }
             else
             {
                 if (pageIndex <= 0)
                 {
-                    sqlText = $" SELECT TOP {pageSize} {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
+                    sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageSize};";
                 }
                 else
                 {
@@ -697,12 +696,11 @@ namespace Newcats.DataAccess.MySql
                         sqlOrderBy = RepositoryHelper.GetTablePrimaryKey(EntityType);
                         sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
                     }
-                    //sqlText = $" SELECT * FROM(SELECT TOP {((pageIndex + 1) * pageSize)} ROW_NUMBER() OVER({sqlOrderBy}) RowNumber_Index,{fields} FROM {tableName} {sqlWhere}) temTab1 WHERE RowNumber_Index > {(pageIndex * pageSize)} ORDER BY RowNumber_Index ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
-                    sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} OFFSET {(pageIndex * pageSize)} ROWS FETCH NEXT {pageSize} ROWS ONLY ; SELECT @Row_Count=COUNT(1) FROM {tableName} {sqlWhere} ;";
+                    sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageIndex * pageSize},{pageSize};";
                 }
             }
             IEnumerable<TEntity> list = await Connection.QueryAsync<TEntity>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
-            totalCount = pars.Get<int?>("@Row_Count") ?? 0;
+            totalCount = await Connection.ExecuteScalarAsync<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
             return (list, totalCount);
         }
 
@@ -812,7 +810,7 @@ namespace Newcats.DataAccess.MySql
                 throw new ArgumentNullException(nameof(primaryKeyValue));
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
-            string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE {pkName}=@p_1 ;";
+            string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
             object o = await Connection.ExecuteScalarAsync(sqlText, parameters, null, null, CommandType.Text);
@@ -833,7 +831,7 @@ namespace Newcats.DataAccess.MySql
             string tableName = RepositoryHelper.GetTableName(EntityType);
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
-            string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE 1=1 {sqlWhere} ;";
+            string sqlText = $" SELECT 1 FROM {tableName} WHERE 1=1 {sqlWhere} LIMIT 1;";
             object o = await Connection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, CommandType.Text);
             if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
                 return true;

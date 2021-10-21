@@ -8,6 +8,7 @@
     <ProjectReference Include="..\..\src\Newcats.AspNetCore\Newcats.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Newcats.DataAccess.MySQL\Newcats.DataAccess.MySql.csproj" />
     <ProjectReference Include="..\..\src\Newcats.DataAccess.SqlServer\Newcats.DataAccess.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\Newcats.Utils\Newcats.Utils.csproj" />
   </ItemGroup>
 
 
