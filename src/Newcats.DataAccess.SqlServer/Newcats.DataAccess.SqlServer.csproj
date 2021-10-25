@@ -24,7 +24,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.0.8" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.0.9" />
 	</ItemGroup>
 
 	<ItemGroup>
