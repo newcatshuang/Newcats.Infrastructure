@@ -283,6 +283,7 @@ namespace Newcats.DataAccess.Core
                 if (attrsNot != null && attrsNot.Length > 0)
                 {
                     props.Remove(props[i]);
+                    i--;
                     continue;
                 }
                 var attrReal = props[i].GetCustomAttributes(typeof(ColumnAttribute), false);

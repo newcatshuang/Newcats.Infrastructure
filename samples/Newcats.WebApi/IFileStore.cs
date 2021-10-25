@@ -26,15 +26,15 @@ namespace Newcats.WebApi
     {
         public void Register(IServiceCollection services)
         {
-            //const string connStr = "Data Source=.;Initial Catalog=NewcatsDB20170627;User ID=sa;Password=123456;TrustServerCertificate=True";
+            const string connStr = "Data Source=.;Initial Catalog=NewcatsDB20170627;User ID=sa;Password=123456;TrustServerCertificate=True";
             //const string connStr2 = "Data Source=.;Initial Catalog=AcadsochrDB20190701;User ID=sa;Password=123456;TrustServerCertificate=True";
-            const string mySqlStr = "server=localhost;port=3306;database=newcatshq20211019;uid=root;pwd=hq1232@mysql;CharSet=utf8";
-            //services.AddScoped(c => new DataAccess.DbContextBase(connStr));
+            //const string mySqlStr = "server=localhost;port=3306;database=newcatshq20211019;uid=root;pwd=hq1232@mysql;CharSet=utf8";
+            services.AddScoped(c => new DataAccess.SqlServer.DbContextBase(connStr));
             //services.AddScoped(c => new TwoDbContext(connStr2));
-            services.AddScoped(_ => new DataAccess.MySql.DbContextBase(mySqlStr));
+            //services.AddScoped(_ => new DataAccess.MySql.DbContextBase(mySqlStr));
             services.AddScoped<IFileStore, FileStore>();
-            //services.AddScoped(typeof(DataAccess.IRepository<,,>), typeof(DataAccess.Repository<,,>));//注册泛型仓储
-            services.AddScoped(typeof(DataAccess.MySql.IRepository<,,>), typeof(DataAccess.MySql.Repository<,,>));//注册泛型仓储
+            services.AddScoped(typeof(DataAccess.SqlServer.IRepository<,,>), typeof(DataAccess.SqlServer.Repository<,,>));//注册泛型仓储
+            //services.AddScoped(typeof(DataAccess.MySql.IRepository<,,>), typeof(DataAccess.MySql.Repository<,,>));//注册泛型仓储
         }
     }
 

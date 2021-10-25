@@ -17,10 +17,10 @@ namespace Newcats.WebApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        //private readonly DataAccess.IRepository<DbContextBase, UserInfo, long> _repository;
+        private readonly DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase, UserInfo, long> _repository;
         //private readonly DataAccess.IRepository<TwoDbContext, User, long> _user;
 
-        private readonly DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, int> _repository;
+        //private readonly DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, int> _repository;
 
         private static readonly string[] Summaries = new[]
         {
@@ -29,7 +29,7 @@ namespace Newcats.WebApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, Newcats.DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, int> repository)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, Newcats.DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase, UserInfo, long> repository)
         {
             _repository = repository;
             _logger = logger;
@@ -73,14 +73,24 @@ namespace Newcats.WebApi.Controllers
         [HttpGet]
         public async Task<string> Get()
         {
+            List<UserInfo> users = new List<UserInfo>();
+            for (int i = 0; i < 20000; i++)
+            {
+                users.Add(new UserInfo
+                {
+                    Name = Newcats.Utils.Helpers.EncryptHelper.GetRandomString(Random.Shared.Next(10, 20)),
+                    UserId = i,
+                    JoinTime = new DateTime(2021, 10, 25)
+                });
+            }
             Stopwatch stopwatch = Stopwatch.StartNew();
             stopwatch.Start();
 
-            var r = _repository.GetPage(100, 100);
+            var r = await _repository.InsertSqlBulkCopyAsync(users);
 
 
             stopwatch.Stop();
-            return $"Result:{r.list.First().ToString()}\r\nTimes:{stopwatch.ElapsedMilliseconds}ms";
+            return $"Result:{r.ToString()}\r\nTimes:{stopwatch.ElapsedMilliseconds}ms";
         }
 
         [HttpGet("/WeatherForecast/Hello")]
@@ -90,12 +100,18 @@ namespace Newcats.WebApi.Controllers
         }
     }
 
-    [Table("userinfo")]
+    [Table("UserInfo")]
     public class UserInfo
     {
         public long Id { get; set; }
 
         public string Name { get; set; }
+
+        [NotMapped]
+        public long? UserId { get; set; }
+
+        [Column("CreateTime")]
+        public DateTime JoinTime { get; set; }
     }
 
     [Table("UserInfo")]
