@@ -271,7 +271,7 @@ namespace Newcats.DataAccess.Core
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="collection">数据源</param>
         /// <returns>DataTable数据</returns>
-        public static DataTable ToDataTable<T>(IEnumerable<T> collection) where T : class, new()
+        public static DataTable ToDataTable<T>(IEnumerable<T> collection) where T : class
         {
             var tb = new DataTable(typeof(T).Name);
             if (collection == null || !collection.Any())

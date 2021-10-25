@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using Newcats.DataAccess.Core;
 using System.Data;
 
@@ -67,6 +68,33 @@ namespace Newcats.DataAccess.SqlServer
 
             string sqlText = RepositoryHelper.GetInsertSqlText(EntityType);
             return Connection.Execute(sqlText, list, transaction, commandTimeout, CommandType.Text);
+        }
+
+        /// <summary>
+        /// 通过SqlBulkCopy批量插入数据，返回成功的条数
+        /// (此方法性能最优)
+        /// </summary>
+        /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <returns>成功的条数</returns>
+        public int InsertSqlBulkCopy(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        {
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            SqlBulkCopy copy = null;
+            if (transaction == null)
+                copy = new SqlBulkCopy((SqlConnection)Connection);
+            else
+                copy = new SqlBulkCopy((SqlConnection)Connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction);
+            using (copy)
+            {
+                copy.DestinationTableName = RepositoryHelper.GetTableName(EntityType);
+                copy.BulkCopyTimeout = commandTimeout ?? 0;
+                copy.BatchSize = list.Count();
+                copy.WriteToServer(RepositoryHelper.ToDataTable<TEntity>(list));
+                return copy.RowsCopied;
+            }
         }
 
         /// <summary>
@@ -517,6 +545,33 @@ namespace Newcats.DataAccess.SqlServer
 
             string sqlText = RepositoryHelper.GetInsertSqlText(EntityType);
             return await Connection.ExecuteAsync(sqlText, list, transaction, commandTimeout, CommandType.Text);
+        }
+
+        /// <summary>
+        /// 通过SqlBulkCopy批量插入数据，返回成功的条数
+        /// (此方法性能最优)
+        /// </summary>
+        /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <returns>成功的条数</returns>
+        public async Task<int> InsertSqlBulkCopyAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        {
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            SqlBulkCopy copy = null;
+            if (transaction == null)
+                copy = new SqlBulkCopy((SqlConnection)Connection);
+            else
+                copy = new SqlBulkCopy((SqlConnection)Connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction);
+            using (copy)
+            {
+                copy.DestinationTableName = RepositoryHelper.GetTableName(EntityType);
+                copy.BulkCopyTimeout = commandTimeout ?? 0;
+                copy.BatchSize = list.Count();
+                await copy.WriteToServerAsync(RepositoryHelper.ToDataTable<TEntity>(list));
+                return copy.RowsCopied;
+            }
         }
 
         /// <summary>

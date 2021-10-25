@@ -77,6 +77,26 @@ namespace Newcats.DataAccess.MySql
         }
 
         /// <summary>
+        /// 通过SqlBulkCopy批量插入数据，返回成功的条数
+        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true )
+        /// </summary>
+        /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <returns>成功的条数</returns>
+        public int InsertSqlBulkCopy(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        {
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
+            copy.DestinationTableName = RepositoryHelper.GetTableName(EntityType);
+            copy.BulkCopyTimeout = commandTimeout ?? 0;
+
+            copy.WriteToServer(RepositoryHelper.ToDataTable<TEntity>(list));
+            return copy.RowsCopied;
+        }
+
+        /// <summary>
         /// 根据主键，删除一条记录
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
@@ -525,7 +545,15 @@ namespace Newcats.DataAccess.MySql
             return await Connection.ExecuteAsync(sqlText, list, transaction, commandTimeout, CommandType.Text);
         }
 
-        public async Task<int> InsertSqlBulkCopy(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        /// <summary>
+        /// 通过SqlBulkCopy批量插入数据，返回成功的条数
+        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true )
+        /// </summary>
+        /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <returns>成功的条数</returns>
+        public async Task<int> InsertSqlBulkCopyAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
         {
             if (Connection.State == ConnectionState.Closed)
                 Connection.Open();
@@ -533,7 +561,7 @@ namespace Newcats.DataAccess.MySql
             copy.DestinationTableName = RepositoryHelper.GetTableName(EntityType);
             copy.BulkCopyTimeout = commandTimeout ?? 0;
 
-            _ = await copy.WriteToServerAsync(,);
+            await copy.WriteToServerAsync(RepositoryHelper.ToDataTable<TEntity>(list));
             return copy.RowsCopied;
         }
 
