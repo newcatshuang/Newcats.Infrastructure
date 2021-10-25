@@ -1,6 +1,9 @@
 ﻿using Dapper;
+using MySqlConnector;
 using Newcats.DataAccess.Core;
 using System.Data;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Newcats.DataAccess.MySql
 {
@@ -520,6 +523,18 @@ namespace Newcats.DataAccess.MySql
 
             string sqlText = RepositoryHelper.GetInsertSqlText(EntityType);
             return await Connection.ExecuteAsync(sqlText, list, transaction, commandTimeout, CommandType.Text);
+        }
+
+        public async Task<int> InsertSqlBulkCopy(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        {
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
+            copy.DestinationTableName = RepositoryHelper.GetTableName(EntityType);
+            copy.BulkCopyTimeout = commandTimeout ?? 0;
+
+            _ = await copy.WriteToServerAsync(,);
+            return copy.RowsCopied;
         }
 
         /// <summary>

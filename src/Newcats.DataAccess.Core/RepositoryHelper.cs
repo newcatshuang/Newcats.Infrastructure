@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
+using System.Reflection;
 using System.Text;
 
 namespace Newcats.DataAccess.Core
@@ -259,6 +261,81 @@ namespace Newcats.DataAccess.Core
             sqlText = $" INSERT INTO {tableName} ({fields}) VALUES ({string.Join(",", fieldArray)});";
             _sqlInsertDic.TryAdd(key, sqlText);
             return sqlText;
+        }
+        #endregion
+
+        #region IEnumerable转DataTable
+        /// <summary>
+        /// IEnumerable<T>数据转为DataTable
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="collection">数据源</param>
+        /// <returns>DataTable数据</returns>
+        public static DataTable ToDataTable<T>(IEnumerable<T> collection) where T : class, new()
+        {
+            var tb = new DataTable(typeof(T).Name);
+            if (collection == null || !collection.Any())
+                return tb;
+            List<PropertyInfo> props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+            for (int i = 0; i < props.Count; i++)
+            {
+                var attrsNot = props[i].GetCustomAttributes(typeof(NotMappedAttribute), false);
+                if (attrsNot != null && attrsNot.Length > 0)
+                {
+                    props.Remove(props[i]);
+                    continue;
+                }
+                var attrReal = props[i].GetCustomAttributes(typeof(ColumnAttribute), false);
+                if (attrReal != null && attrReal.Length > 0)
+                {
+                    tb.Columns.Add(((ColumnAttribute)attrReal[0]).Name, GetCoreType(props[i].PropertyType));
+                }
+                else
+                {
+                    tb.Columns.Add(props[i].Name, GetCoreType(props[i].PropertyType));
+                }
+            }
+
+            foreach (T item in collection)
+            {
+                var values = new object[props.Count];
+                for (int i = 0; i < props.Count; i++)
+                {
+                    values[i] = props[i].GetValue(item, null);
+                }
+                tb.Rows.Add(values);
+            }
+            return tb;
+        }
+
+        /// <summary>
+        /// Return underlying type if type is Nullable otherwise return the type
+        /// </summary>
+        private static Type GetCoreType(Type t)
+        {
+            if (t != null && IsNullable(t))
+            {
+                if (!t.IsValueType)
+                {
+                    return t;
+                }
+                else
+                {
+                    return Nullable.GetUnderlyingType(t);
+                }
+            }
+            else
+            {
+                return t;
+            }
+        }
+
+        /// <summary>
+        /// Determine of specified type is nullable
+        /// </summary>
+        private static bool IsNullable(Type t)
+        {
+            return !t.IsValueType || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
         #endregion
     }

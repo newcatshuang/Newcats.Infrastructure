@@ -31,6 +31,16 @@ namespace Newcats.DataAccess.Core
         int InsertBulk(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
 
         /// <summary>
+        /// 通过SqlBulkCopy批量插入数据，返回成功的条数
+        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true )
+        /// </summary>
+        /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <returns>成功的条数</returns>
+        int InsertSqlBulkCopy(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
+
+        /// <summary>
         /// 根据主键，删除一条记录
         /// </summary>
         /// <param name="primaryKeyValue">主键的值</param>
@@ -260,6 +270,16 @@ namespace Newcats.DataAccess.Core
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <returns>成功的条数</returns>
         Task<int> InsertBulkAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
+
+        /// <summary>
+        /// 通过SqlBulkCopy批量插入数据，返回成功的条数
+        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true )
+        /// </summary>
+        /// <param name="list">要插入的数据实体集合</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <returns>成功的条数</returns>
+        Task<int> InsertSqlBulkCopyAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
 
         /// <summary>
         /// 根据主键，删除一条记录
