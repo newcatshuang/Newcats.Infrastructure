@@ -78,7 +78,7 @@ namespace Newcats.DataAccess.MySql
 
         /// <summary>
         /// 通过SqlBulkCopy批量插入数据，返回成功的条数
-        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true )
+        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true 并且服务端设置变量 set global local_infile = 1;或修改全局配置文件)
         /// </summary>
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
@@ -547,7 +547,7 @@ namespace Newcats.DataAccess.MySql
 
         /// <summary>
         /// 通过SqlBulkCopy批量插入数据，返回成功的条数
-        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true )
+        /// (此方法性能最优)(MySql要在连接字符串加上 AllowLoadLocalInfile=true 并且服务端设置变量 set global local_infile = 1;或修改全局配置文件)
         /// </summary>
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>

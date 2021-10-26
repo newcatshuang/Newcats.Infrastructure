@@ -17,10 +17,10 @@ namespace Newcats.WebApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase, UserInfo, long> _repository;
+        //private readonly DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase, UserInfo, long> _repository;
         //private readonly DataAccess.IRepository<TwoDbContext, User, long> _user;
 
-        //private readonly DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, int> _repository;
+        private readonly DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, int> _repository;
 
         private static readonly string[] Summaries = new[]
         {
@@ -29,7 +29,7 @@ namespace Newcats.WebApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, Newcats.DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase, UserInfo, long> repository)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, Newcats.DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, int> repository)
         {
             _repository = repository;
             _logger = logger;
