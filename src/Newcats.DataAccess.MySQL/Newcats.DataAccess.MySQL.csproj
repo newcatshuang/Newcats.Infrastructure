@@ -23,7 +23,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MySqlConnector" Version="1.3.14" />
+		<PackageReference Include="MySqlConnector" Version="2.0.0" />
 		<PackageReference Include="Newcats.DataAccess.Core" Version="1.0.10" />
 	</ItemGroup>
 
