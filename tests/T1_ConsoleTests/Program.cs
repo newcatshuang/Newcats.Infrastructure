@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
+using Newcats.DataAccess.Core;
 using Newcats.Utils.Extensions;
 using Newcats.Utils.Helpers;
 
@@ -13,6 +15,9 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            var r = RepositoryHelper.GetInsertSqlText<UserInfo>();
+            return;
+
             Summary summary = BenchmarkRunner.Run<TestContext>();
             Console.ReadLine();
             return;
@@ -79,7 +84,19 @@ namespace T1_ConsoleTests
     }
 
 
+    [Table("UserInfo")]
+    public class UserInfo
+    {
+        public long Id { get; set; }
 
+        public string Name { get; set; }
+
+        [NotMapped]
+        public long? UserId { get; set; }
+
+        [Column("CreateTime")]
+        public DateTime JoinTime { get; set; }
+    }
     public class User
     {
         public int Id { get; set; }

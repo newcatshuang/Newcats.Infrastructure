@@ -1,6 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
 using Newcats.DataAccess.Core;
-using System.Data;
 
 namespace Newcats.DataAccess.SqlServer
 {
@@ -14,6 +14,10 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         public IDbConnection Connection { get; }
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="connectionString"></param>
         public DbContextBase(string connectionString)
         {
             if (Connection != null)
@@ -27,6 +31,9 @@ namespace Newcats.DataAccess.SqlServer
             Connection.Open();
         }
 
+        /// <summary>
+        /// 释放
+        /// </summary>
         public void Dispose()
         {
             if (Connection != null && Connection.State != ConnectionState.Closed)

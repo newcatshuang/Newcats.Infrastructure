@@ -1,5 +1,5 @@
-﻿using Dapper;
-using System.Data;
+﻿using System.Data;
+using Dapper;
 
 namespace Newcats.DataAccess.Core
 {
@@ -7,9 +7,7 @@ namespace Newcats.DataAccess.Core
     /// 通用仓储接口,提供数据库访问能力,封装了基本的CRUD方法。
     /// </summary>
     /// <typeparam name="TDbContext">数据库上下文，不同的数据库连接注册不同的DbContext</typeparam>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <typeparam name="TPrimaryKey">此数据库实体类的主键类型</typeparam>
-    public interface IRepository<TDbContext, TEntity, TPrimaryKey> where TEntity : class where TDbContext : IDbContext
+    public interface IRepository<TDbContext> where TDbContext : IDbContext
     {
         #region 同步方法
         /// <summary>
@@ -18,8 +16,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="entity">要插入的数据实体</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
-        TPrimaryKey Insert(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null);
+        object Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 批量插入数据，返回成功的条数
@@ -27,8 +26,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        int InsertBulk(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
+        int InsertBulk<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 通过SqlBulkCopy批量插入数据，返回成功的条数
@@ -37,8 +37,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        int InsertSqlBulkCopy(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
+        int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，删除一条记录
@@ -46,8 +47,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        int Delete(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null);
+        int Delete<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，删除记录
@@ -55,8 +57,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        int Delete(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null);
+        int Delete<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，更新一条记录
@@ -65,8 +68,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        int Update(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null);
+        int Update<TEntity>(object primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，更新记录
@@ -75,8 +79,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        int Update(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null);
+        int Update<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，获取一条记录
@@ -84,8 +89,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        TEntity Get(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null);
+        TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，获取一条记录
@@ -94,8 +100,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序集合</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        TEntity Get(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件及排序，分页获取数据
@@ -106,8 +113,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        (IEnumerable<TEntity> list, int totalCount) GetPage(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 分页获取数据
@@ -115,14 +123,16 @@ namespace Newcats.DataAccess.Core
         /// <param name="pageInfo">分页信息</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据</returns>
-        (IEnumerable<TEntity> list, int totalCount) GetPage(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null);
+        (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 获取所有数据
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据集合</returns>
-        IEnumerable<TEntity> GetAll();
+        IEnumerable<TEntity> GetAll<TEntity>() where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件及排序，获取所有数据
@@ -131,15 +141,17 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据集合</returns>
-        IEnumerable<TEntity> GetAll(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        IEnumerable<TEntity> GetAll<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 根据默认排序，获取指定数量的数据
         /// </summary>
         /// <param name="top">指定数量</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>指定数量的数据集合</returns>
-        IEnumerable<TEntity> GetTop(int top);
+        IEnumerable<TEntity> GetTop<TEntity>(int top) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件及排序，获取指定数量的数据
@@ -149,14 +161,16 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>指定数量的数据集合</returns>
-        IEnumerable<TEntity> GetTop(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        IEnumerable<TEntity> GetTop<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 获取记录总数量
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录总数量</returns>
-        int Count();
+        int Count<TEntity>() where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，获取记录数量
@@ -164,15 +178,17 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录数量</returns>
-        int Count(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null);
+        int Count<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，判断数据是否存在
         /// </summary>
         /// <param name="primaryKeyValue">主键值</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        bool Exists(TPrimaryKey primaryKeyValue);
+        bool Exists<TEntity>(object primaryKeyValue) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，判断数据是否存在
@@ -180,8 +196,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        bool Exists(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null);
+        bool Exists<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 执行存储过程
@@ -259,8 +276,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="entity">要插入的数据实体</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
-        Task<TPrimaryKey> InsertAsync(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<object> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 批量插入数据，返回成功的条数
@@ -268,8 +286,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        Task<int> InsertBulkAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<int> InsertBulkAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 通过SqlBulkCopy批量插入数据，返回成功的条数
@@ -278,8 +297,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        Task<int> InsertSqlBulkCopyAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，删除一条记录
@@ -287,8 +307,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        Task<int> DeleteAsync(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<int> DeleteAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，删除记录
@@ -296,8 +317,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        Task<int> DeleteAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<int> DeleteAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，更新一条记录
@@ -306,8 +328,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        Task<int> UpdateAsync(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<int> UpdateAsync<TEntity>(object primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，更新记录
@@ -316,8 +339,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        Task<int> UpdateAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<int> UpdateAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，获取一条记录
@@ -325,8 +349,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        Task<TEntity> GetAsync(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，获取一条记录
@@ -335,8 +360,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序集合</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        Task<TEntity> GetAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件及排序，分页获取数据
@@ -347,8 +373,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 分页获取数据
@@ -356,14 +383,16 @@ namespace Newcats.DataAccess.Core
         /// <param name="pageInfo">分页信息</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据</returns>
-        Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 获取所有数据
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据集合</returns>
-        Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<IEnumerable<TEntity>> GetAllAsync<TEntity>() where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件及排序，获取所有数据
@@ -372,15 +401,17 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据集合</returns>
-        Task<IEnumerable<TEntity>> GetAllAsync(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 根据默认排序，获取指定数量的数据
         /// </summary>
         /// <param name="top">指定数量</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>指定数量的数据集合</returns>
-        Task<IEnumerable<TEntity>> GetTopAsync(int top);
+        Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件及排序，获取指定数量的数据
@@ -390,14 +421,16 @@ namespace Newcats.DataAccess.Core
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>指定数量的数据集合</returns>
-        Task<IEnumerable<TEntity>> GetTopAsync(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy);
+        Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
         /// <summary>
         /// 获取记录总数量
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录总数量</returns>
-        Task<int> CountAsync();
+        Task<int> CountAsync<TEntity>() where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，获取记录数量
@@ -405,15 +438,17 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录数量</returns>
-        Task<int> CountAsync(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<int> CountAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 根据主键，判断数据是否存在
         /// </summary>
         /// <param name="primaryKeyValue">主键值</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        Task<bool> ExistsAsync(TPrimaryKey primaryKeyValue);
+        Task<bool> ExistsAsync<TEntity>(object primaryKeyValue) where TEntity : class;
 
         /// <summary>
         /// 根据给定的条件，判断数据是否存在
@@ -421,8 +456,9 @@ namespace Newcats.DataAccess.Core
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        Task<bool> ExistsAsync(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null);
+        Task<bool> ExistsAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
         /// 执行存储过程
