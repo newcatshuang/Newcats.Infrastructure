@@ -47,7 +47,7 @@ namespace Newcats.DataAccess.SqlServer
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            string sqlText = $"{RepositoryHelper.GetInsertSqlText<TEntity>()} SELECT SCOPE_IDENTITY();";
+            string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT SCOPE_IDENTITY();";
             return Connection.ExecuteScalar<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -64,7 +64,7 @@ namespace Newcats.DataAccess.SqlServer
             if (list == null || !list.Any())
                 throw new ArgumentNullException(nameof(list));
 
-            string sqlText = RepositoryHelper.GetInsertSqlText<TEntity>();
+            string sqlText = RepositoryHelper.GetInsertSqlText(typeof(TEntity));
             return Connection.Execute(sqlText, list, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -88,7 +88,7 @@ namespace Newcats.DataAccess.SqlServer
                 copy = new SqlBulkCopy((SqlConnection)Connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction);
             using (copy)
             {
-                copy.DestinationTableName = RepositoryHelper.GetTableName<TEntity>();
+                copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
                 copy.BulkCopyTimeout = commandTimeout ?? 0;
                 copy.BatchSize = list.Count();
                 copy.WriteToServer(RepositoryHelper.ToDataTable(list));
@@ -108,9 +108,9 @@ namespace Newcats.DataAccess.SqlServer
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
-
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -127,7 +127,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>成功的条数</returns>
         public int Delete<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -152,8 +152,9 @@ namespace Newcats.DataAccess.SqlServer
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
 
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlUpdate = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             parameters.Add("@" + pkName, primaryKeyValue);
@@ -174,7 +175,7 @@ namespace Newcats.DataAccess.SqlServer
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters wherePars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -199,9 +200,10 @@ namespace Newcats.DataAccess.SqlServer
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
 
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
-            string fields = RepositoryHelper.GetTableFieldsQuery<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -219,8 +221,9 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>数据库实体或null</returns>
         public TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string fields = RepositoryHelper.GetTableFieldsQuery<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlWhere = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -246,8 +249,9 @@ namespace Newcats.DataAccess.SqlServer
         public (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
             int totalCount = 0;
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string fields = RepositoryHelper.GetTableFieldsQuery<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = string.Empty, sqlWhere = string.Empty, sqlOrderBy = string.Empty;
             DynamicParameters pars = new DynamicParameters();
             if (dbWheres != null && dbWheres.Any())
@@ -374,7 +378,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>记录数量</returns>
         public int Count<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             if (dbWheres != null && dbWheres.Any())
             {
                 string sqlWhere = string.Empty;
@@ -399,8 +403,9 @@ namespace Newcats.DataAccess.SqlServer
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -420,7 +425,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>是否存在</returns>
         public bool Exists<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE 1=1 {sqlWhere} ;";
@@ -544,7 +549,7 @@ namespace Newcats.DataAccess.SqlServer
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            string sqlText = $"{RepositoryHelper.GetInsertSqlText<TEntity>()} SELECT SCOPE_IDENTITY();";
+            string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT SCOPE_IDENTITY();";
             return await Connection.ExecuteScalarAsync<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -561,7 +566,7 @@ namespace Newcats.DataAccess.SqlServer
             if (list == null || !list.Any())
                 throw new ArgumentNullException(nameof(list));
 
-            string sqlText = RepositoryHelper.GetInsertSqlText<TEntity>();
+            string sqlText = RepositoryHelper.GetInsertSqlText(typeof(TEntity));
             return await Connection.ExecuteAsync(sqlText, list, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -585,7 +590,7 @@ namespace Newcats.DataAccess.SqlServer
                 copy = new SqlBulkCopy((SqlConnection)Connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction);
             using (copy)
             {
-                copy.DestinationTableName = RepositoryHelper.GetTableName<TEntity>();
+                copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
                 copy.BulkCopyTimeout = commandTimeout ?? 0;
                 copy.BatchSize = list.Count();
                 await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
@@ -606,8 +611,9 @@ namespace Newcats.DataAccess.SqlServer
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
 
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -624,7 +630,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>成功的条数</returns>
         public async Task<int> DeleteAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -649,8 +655,9 @@ namespace Newcats.DataAccess.SqlServer
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
 
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlUpdate = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             parameters.Add("@" + pkName, primaryKeyValue);
@@ -671,7 +678,7 @@ namespace Newcats.DataAccess.SqlServer
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters wherePars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -696,9 +703,10 @@ namespace Newcats.DataAccess.SqlServer
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
 
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
-            string fields = RepositoryHelper.GetTableFieldsQuery<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = $" SELECT TOP 1 {fields} FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -716,8 +724,9 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>数据库实体或null</returns>
         public async Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string fields = RepositoryHelper.GetTableFieldsQuery<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlWhere = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -742,8 +751,9 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>分页数据集合</returns>
         public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string fields = RepositoryHelper.GetTableFieldsQuery<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = string.Empty, sqlWhere = string.Empty, sqlOrderBy = string.Empty;
             DynamicParameters pars = new DynamicParameters();
             if (dbWheres != null && dbWheres.Any())
@@ -871,7 +881,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>记录数量</returns>
         public async Task<int> CountAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             if (dbWheres != null && dbWheres.Any())
             {
                 string sqlWhere = string.Empty;
@@ -896,8 +906,9 @@ namespace Newcats.DataAccess.SqlServer
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
-            string pkName = RepositoryHelper.GetTablePrimaryKey<TEntity>();
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -917,7 +928,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>是否存在</returns>
         public async Task<bool> ExistsAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName<TEntity>();
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT TOP 1 1 FROM {tableName} WHERE 1=1 {sqlWhere} ;";

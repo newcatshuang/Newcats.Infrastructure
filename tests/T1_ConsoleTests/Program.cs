@@ -15,7 +15,8 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            var r = RepositoryHelper.GetInsertSqlText<UserInfo>();
+            var name = RepositoryHelper.GetTableName(typeof(UserInfo));
+            var r = RepositoryHelper.GetInsertSqlText(typeof(UserInfo));
             return;
 
             Summary summary = BenchmarkRunner.Run<TestContext>();

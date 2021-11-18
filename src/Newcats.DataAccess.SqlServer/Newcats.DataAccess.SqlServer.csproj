@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Newcats.DataAccess.SqlServer</PackageId>
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -17,14 +17,19 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
-			1.增加SqlBulkCopy的批量插入接口 2021-10-25
+			2021-11-17
+			1.IRepository只接收TDbContext,取消TEntity/TPrimaryKey泛型参数
+			2.主键类型改为object
+
+			2021-10-25
+			1.增加SqlBulkCopy的批量插入接口
 		</PackageReleaseNotes>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.0.13" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.0.14" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -42,9 +42,8 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表名</returns>
-        public static string GetTableName<TEntity>()
+        public static string GetTableName(Type type)
         {
-            Type type = typeof(TEntity);
             string key = type.FullName;
             string tableName = string.Empty;
             if (_tableNameDic.TryGetValue(key, out tableName))
@@ -88,9 +87,8 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表字段(逗号(,)分割)</returns>
-        private static string GetTableFieldsInsert<TEntity>()
+        private static string GetTableFieldsInsert(Type type)
         {
-            Type type = typeof(TEntity);
             string key = $"{type.FullName}_InsertFields";
             string fields = string.Empty;
             if (_tableFieldsDic.TryGetValue(key, out fields))
@@ -140,9 +138,8 @@ namespace Newcats.DataAccess.Core
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static string GetTableFieldsInsertParameter<TEntity>()
+        public static string GetTableFieldsInsertParameter(Type type)
         {
-            Type type = typeof(TEntity);
             string key = $"{type.FullName}_InsertFieldsParameter";
             string fields = string.Empty;
             if (_tableFieldsDic.TryGetValue(key, out fields))
@@ -183,9 +180,8 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表字段(逗号(,)分割)</returns>
-        public static string GetTableFieldsQuery<TEntity>()
+        public static string GetTableFieldsQuery(Type type)
         {
-            Type type = typeof(TEntity);
             string key = $"{type.FullName}_QueryFields";
             string fields = string.Empty;
             if (_tableFieldsDic.TryGetValue(key, out fields))
@@ -230,9 +226,8 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表的主键</returns>
-        public static string GetTablePrimaryKey<TEntity>()
+        public static string GetTablePrimaryKey(Type type)
         {
-            Type type = typeof(TEntity);
             string key = type.FullName;
             string pkName = string.Empty;
             if (_tablePrimaryKeyDic.TryGetValue(key, out pkName))
@@ -297,9 +292,8 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>insert语句</returns>
-        public static string GetInsertSqlText<TEntity>()
+        public static string GetInsertSqlText(Type type)
         {
-            Type type = typeof(TEntity);
             string key = $"{type.FullName}_Insert";
             string sqlText = string.Empty;
             if (_sqlInsertDic.TryGetValue(key, out sqlText))
@@ -308,9 +302,9 @@ namespace Newcats.DataAccess.Core
                     return sqlText;
             }
 
-            string fields = GetTableFieldsInsert<TEntity>();
-            string fieldsParameter = GetTableFieldsInsertParameter<TEntity>();
-            string tableName = GetTableName<TEntity>();
+            string fields = GetTableFieldsInsert(type);
+            string fieldsParameter = GetTableFieldsInsertParameter(type);
+            string tableName = GetTableName(type);
             string[] fieldArray = fieldsParameter.Split(',');
             for (int i = 0; i < fieldArray.Length; i++)
             {
