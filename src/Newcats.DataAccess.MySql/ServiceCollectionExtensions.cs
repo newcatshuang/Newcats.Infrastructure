@@ -25,7 +25,7 @@ namespace Newcats.DataAccess.MySql
             services.AddOptions();
             services.Configure(option);
             services.AddScoped<TDbContext>();
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));//注册泛型仓储
+            services.AddScoped(typeof(IRepository<>), typeof(MySqlRepository<>));//注册泛型仓储
 
             return services;
         }

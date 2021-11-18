@@ -67,10 +67,10 @@ namespace Newcats.WebApi.Controllers
             var r1 = _repository.GetTop<MySqlUserInfo>(10);
             var r3 = _repository.Insert(new MySqlUserInfo { Id = 1, Name = "Newcats" });
 
-            var r2 = await _repository.GetTopAsync<MySqlUserInfo>(10);
+            var r2 = await _repository.GetTopAsync<MySqlUserInfo>(20);
             var r4 = await _repository.InsertAsync<MySqlUserInfo>(new MySqlUserInfo { Id = 2, Name = "huang" });
 
-            return "ok";
+            return $"r1:{r1.Count()}\r\nr3:{r3}\r\nr2:{r2.Count()}\r\nr4:{r4}";
         }
 
         //[Audit]

@@ -37,6 +37,7 @@
 
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<ProjectReference Include="..\Newcats.DataAccess.Core\Newcats.DataAccess.Core.csproj" />
 		<None Update="README.md">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
