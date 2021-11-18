@@ -1,13 +1,19 @@
 ﻿using System.Data;
+using Microsoft.Extensions.Options;
 using MySqlConnector;
 
 namespace Newcats.DataAccess.MySql
 {
     /// <summary>
-    /// SqlServer数据库上下文基类
+    /// MySql数据库上下文基类
     /// </summary>
-    public class DbContextBase : Core.IDbContext
+    public abstract class DbContextBase : Core.IDbContext
     {
+        /// <summary>
+        /// 选项
+        /// </summary>
+        private readonly DbContextOptions _options;
+
         /// <summary>
         /// 数据库连接
         /// </summary>
@@ -16,17 +22,21 @@ namespace Newcats.DataAccess.MySql
         /// <summary>
         /// 构造函数
         /// </summary>
-        /// <param name="connectionString"></param>
-        public DbContextBase(string connectionString)
+        /// <param name="optionsAccessor">配置项</param>
+        public DbContextBase(IOptions<DbContextOptions> optionsAccessor)
         {
+            _options = optionsAccessor.Value;
             if (Connection != null)
             {
                 if (Connection.State == ConnectionState.Closed)
+                {
+                    Connection.ConnectionString = _options.ConnectionString;
                     Connection.Open();
+                }
                 return;
             }
             Connection = MySqlConnectorFactory.Instance.CreateConnection();
-            Connection.ConnectionString = connectionString;
+            Connection.ConnectionString = _options.ConnectionString;
             Connection.Open();
         }
 

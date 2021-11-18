@@ -17,10 +17,10 @@ namespace Newcats.WebApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase> _repository;
-        private readonly DataAccess.SqlServer.IRepository<TwoDbContext> _user;
+        //private readonly DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase> _repository;
+        //private readonly DataAccess.SqlServer.IRepository<TwoDbContext> _user;
 
-        //private readonly DataAccess.MySql.IRepository<DataAccess.MySql.DbContextBase, UserInfo, int> _repository;
+        private readonly DataAccess.MySql.IRepository<MySqlDbContext> _repository;
 
         private static readonly string[] Summaries = new[]
         {
@@ -29,35 +29,46 @@ namespace Newcats.WebApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        //public WeatherForecastController(ILogger<WeatherForecastController> logger, IRepository<DbContextBase, UserInfo, int> repository)
-        //{
-        //    _repository = repository;
-        //    _logger = logger;
-        //    //_user = user;
-        //}
-
-        public WeatherForecastController(DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase> repository, DataAccess.SqlServer.IRepository<TwoDbContext> user)
+        public WeatherForecastController(DataAccess.MySql.IRepository<MySqlDbContext> repository)
         {
             _repository = repository;
-            _user = user;
         }
+
+        //public WeatherForecastController(DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase> repository, DataAccess.SqlServer.IRepository<TwoDbContext> user)
+        //{
+        //    _repository = repository;
+        //    _user = user;
+        //}
+
+        //SqlServer测试
+        //[HttpGet]
+        //public async Task<string> Get()
+        //{
+        //    var r1 = _repository.GetTop<UserInfo>(10);
+        //    _repository.Insert(new UserInfo { JoinTime = DateTime.Now, Name = "Newcats", UserId = 111 });
+
+        //    var r2 = await _repository.GetTopAsync<UserInfo>(10);
+        //    await _repository.InsertAsync<UserInfo>(new UserInfo { JoinTime = DateTime.Now, UserId = 222, Name = "huang" });
+
+        //    var r3 = _user.GetTop<User>(10);
+        //    var r4 = await _user.GetTopAsync<User>(10);
+
+        //    _user.Insert<User>(new Controllers.User { Id = 111, Phone = "11111" });
+        //    await _user.InsertAsync<User>(new Controllers.User { Id = 222, Phone = "222" });
+
+
+
+        //    return "ok";
+        //}
 
         [HttpGet]
         public async Task<string> Get()
         {
-            var r1 = _repository.GetTop<UserInfo>(10);
-            _repository.Insert(new UserInfo { JoinTime = DateTime.Now, Name = "Newcats", UserId = 111 });
+            var r1 = _repository.GetTop<MySqlUserInfo>(10);
+            var r3 = _repository.Insert(new MySqlUserInfo { Id = 1, Name = "Newcats" });
 
-            var r2 = await _repository.GetTopAsync<UserInfo>(10);
-            await _repository.InsertAsync<UserInfo>(new UserInfo { JoinTime = DateTime.Now, UserId = 222, Name = "huang" });
-
-            var r3 = _user.GetTop<User>(10);
-            var r4 = await _user.GetTopAsync<User>(10);
-
-            _user.Insert<User>(new Controllers.User { Id = 111, Phone = "11111" });
-            await _user.InsertAsync<User>(new Controllers.User { Id = 222, Phone = "222" });
-
-
+            var r2 = await _repository.GetTopAsync<MySqlUserInfo>(10);
+            var r4 = await _repository.InsertAsync<MySqlUserInfo>(new MySqlUserInfo { Id = 2, Name = "huang" });
 
             return "ok";
         }
@@ -148,5 +159,17 @@ namespace Newcats.WebApi.Controllers
         public long Id { get; set; }
 
         public string Phone { get; set; }
+    }
+
+    [Table("UserInfo")]
+    public class MySqlUserInfo
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        [NotMapped]
+        public DateTime CreateTime { get; set; }
     }
 }
