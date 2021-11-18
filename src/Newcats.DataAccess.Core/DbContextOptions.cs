@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace Newcats.DataAccess.MySql
+namespace Newcats.DataAccess.Core
 {
     /// <summary>
     /// 数据库上下文选项

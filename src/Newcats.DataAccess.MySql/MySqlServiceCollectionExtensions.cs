@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Newcats.DataAccess.Core;
 
 namespace Newcats.DataAccess.MySql
 {

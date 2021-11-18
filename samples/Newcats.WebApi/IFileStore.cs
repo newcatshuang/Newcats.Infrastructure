@@ -52,9 +52,9 @@ namespace Newcats.WebApi
     //    }
     //}
 
-    public class MySqlDbContext : DbContextBase
+    public class MySqlDbContext : DbContext
     {
-        public MySqlDbContext(IOptions<DbContextOptions> optionsAccessor) : base(optionsAccessor)
+        public MySqlDbContext(IOptions<DataAccess.Core.DbContextOptions> optionsAccessor) : base(optionsAccessor)
         {
         }
     }
