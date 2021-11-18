@@ -36,6 +36,7 @@ namespace Newcats.DataAccess.MySql
             _context = context;
         }
 
+        #region 同步方法
         /// <summary>
         /// 插入一条数据，成功时返回当前主键的值，否则返回主键类型的默认值
         /// </summary>
@@ -176,6 +177,7 @@ namespace Newcats.DataAccess.MySql
             totalCount = Connection.ExecuteScalar<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
             return (list, totalCount);
         }
+
         /// <summary>
         /// 根据主键，判断数据是否存在
         /// </summary>
@@ -217,7 +219,9 @@ namespace Newcats.DataAccess.MySql
                 return true;
             return false;
         }
+        #endregion
 
+        #region 异步方法
         /// <summary>
         /// 插入一条数据，成功时返回当前主键的值，否则返回主键类型的默认值
         /// </summary>
@@ -400,5 +404,6 @@ namespace Newcats.DataAccess.MySql
                 return true;
             return false;
         }
+        #endregion
     }
 }
