@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Newcats.DataAccess.MySql</PackageId>
-		<Version>1.1.1</Version>
+		<Version>1.1.2</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -32,12 +32,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="MySqlConnector" Version="2.0.0" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.1" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
-		<ProjectReference Include="..\Newcats.DataAccess.Core\Newcats.DataAccess.Core.csproj" />
 		<None Update="README.md">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
