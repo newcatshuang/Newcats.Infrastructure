@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.AspNetCore", "src\N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.Office", "src\Newcats.Office\Newcats.Office.csproj", "{55358B2B-21DF-4408-A65C-C868D65033A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess.MySql", "src\Newcats.DataAccess.MySQL\Newcats.DataAccess.MySql.csproj", "{4D7D83D0-0836-4CC8-BF16-EB3F28EF9451}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess.MySql", "src\Newcats.DataAccess.MySql\Newcats.DataAccess.MySql.csproj", "{4D7D83D0-0836-4CC8-BF16-EB3F28EF9451}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess.Core", "src\Newcats.DataAccess.Core\Newcats.DataAccess.Core.csproj", "{A286210F-F101-40BC-B6E3-EC265D5C8F5C}"
 EndProject

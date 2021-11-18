@@ -1,7 +1,7 @@
-﻿using Dapper;
+﻿using System.Data;
+using Dapper;
 using Microsoft.Data.SqlClient;
 using Newcats.DataAccess.Core;
-using System.Data;
 
 namespace Newcats.DataAccess.SqlServer
 {

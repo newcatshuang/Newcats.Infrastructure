@@ -1,9 +1,7 @@
-﻿using Dapper;
+﻿using System.Data;
+using Dapper;
 using MySqlConnector;
 using Newcats.DataAccess.Core;
-using System.Data;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Newcats.DataAccess.MySql
 {
@@ -11,19 +9,12 @@ namespace Newcats.DataAccess.MySql
     /// 仓储实现类,提供数据库访问能力,封装了基本的CRUD方法。
     /// </summary>
     /// <typeparam name="TDbContext">数据库上下文，不同的数据库连接注册不同的DbContext</typeparam>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <typeparam name="TPrimaryKey">此数据库实体类的主键类型</typeparam>
-    public class Repository<TDbContext, TEntity, TPrimaryKey> : IRepository<TDbContext, TEntity, TPrimaryKey> where TEntity : class where TDbContext : IDbContext
+    public class Repository<TDbContext> : IRepository<TDbContext> where TDbContext : IDbContext
     {
         /// <summary>
         /// 数据库上下文
         /// </summary>
         private readonly TDbContext _context;
-
-        /// <summary>
-        /// 实体类型
-        /// </summary>
-        private Type EntityType { get; set; }
 
         /// <summary>
         /// 数据库连接
@@ -40,7 +31,6 @@ namespace Newcats.DataAccess.MySql
         public Repository(TDbContext context)
         {
             _context = context;
-            EntityType = typeof(TEntity);
         }
 
         #region 同步方法
@@ -50,14 +40,15 @@ namespace Newcats.DataAccess.MySql
         /// <param name="entity">要插入的数据实体</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
-        public TPrimaryKey Insert(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public object Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            string sqlText = $"{RepositoryHelper.GetInsertSqlText(EntityType)} SELECT LAST_INSERT_ID();";
-            return Connection.ExecuteScalar<TPrimaryKey>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
+            string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT LAST_INSERT_ID();";
+            return Connection.ExecuteScalar<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -66,13 +57,14 @@ namespace Newcats.DataAccess.MySql
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public int InsertBulk(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public int InsertBulk<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (list == null || !list.Any())
                 throw new ArgumentNullException(nameof(list));
 
-            string sqlText = RepositoryHelper.GetInsertSqlText(EntityType);
+            string sqlText = RepositoryHelper.GetInsertSqlText(typeof(TEntity));
             return Connection.Execute(sqlText, list, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -83,17 +75,18 @@ namespace Newcats.DataAccess.MySql
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public int InsertSqlBulkCopy(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (Connection.State == ConnectionState.Closed)
                 Connection.Open();
             MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
-            copy.DestinationTableName = RepositoryHelper.GetTableName(EntityType);
+            copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
             copy.BulkCopyTimeout = commandTimeout ?? 0;
 
-            copy.WriteToServer(RepositoryHelper.ToDataTable<TEntity>(list));
-            return copy.RowsCopied;
+            var r = copy.WriteToServer(RepositoryHelper.ToDataTable<TEntity>(list));
+            return r.RowsInserted;
         }
 
         /// <summary>
@@ -102,14 +95,16 @@ namespace Newcats.DataAccess.MySql
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public int Delete(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public int Delete<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
 
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -122,10 +117,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public int Delete(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public int Delete<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -141,16 +137,18 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public int Update(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public int Update<TEntity>(object primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
 
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlUpdate = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             parameters.Add("@" + pkName, primaryKeyValue);
@@ -165,12 +163,13 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public int Update(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public int Update<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters wherePars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -188,15 +187,17 @@ namespace Newcats.DataAccess.MySql
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        public TEntity Get(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
 
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
-            string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -210,11 +211,13 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序集合</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        public TEntity Get(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlWhere = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -235,12 +238,14 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        public (IEnumerable<TEntity> list, int totalCount) GetPage(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
             int totalCount = 0;
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = string.Empty, sqlWhere = string.Empty, sqlOrderBy = string.Empty;
             DynamicParameters pars = new DynamicParameters();
             if (dbWheres != null && dbWheres.Any())
@@ -267,8 +272,9 @@ namespace Newcats.DataAccess.MySql
                 {
                     if (string.IsNullOrWhiteSpace(sqlOrderBy))
                     {
-                        sqlOrderBy = RepositoryHelper.GetTablePrimaryKey(EntityType);
-                        sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
+                        //sqlOrderBy = RepositoryHelper.GetTablePrimaryKey(type);
+                        //sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
+                        sqlOrderBy = string.Empty;
                     }
                     sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageIndex * pageSize},{pageSize};";
                 }
@@ -284,8 +290,9 @@ namespace Newcats.DataAccess.MySql
         /// <param name="pageInfo">分页信息</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据</returns>
-        public (IEnumerable<TEntity> list, int totalCount) GetPage(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             return GetPage(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, pageInfo.OrderBy?.ToArray());
         }
@@ -293,10 +300,11 @@ namespace Newcats.DataAccess.MySql
         /// <summary>
         /// 获取所有数据
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据集合</returns>
-        public IEnumerable<TEntity> GetAll()
+        public IEnumerable<TEntity> GetAll<TEntity>() where TEntity : class
         {
-            var (list, totalCount) = GetPage(0, 0, null, null, null);
+            var (list, _) = GetPage<TEntity>(0, 0, null, null, null);
             return list;
         }
 
@@ -307,10 +315,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        public IEnumerable<TEntity> GetAll(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public IEnumerable<TEntity> GetAll<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            var (list, totalCount) = GetPage(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
+            var (list, _) = GetPage(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
@@ -318,10 +327,11 @@ namespace Newcats.DataAccess.MySql
         /// 根据默认排序，获取指定数量的数据
         /// </summary>
         /// <param name="top">指定数量</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>指定数量的数据集合</returns>
-        public IEnumerable<TEntity> GetTop(int top)
+        public IEnumerable<TEntity> GetTop<TEntity>(int top) where TEntity : class
         {
-            var (list, totalCount) = GetPage(0, top, null, null, null);
+            var (list, _) = GetPage<TEntity>(0, top, null, null, null);
             return list;
         }
 
@@ -333,20 +343,22 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        public IEnumerable<TEntity> GetTop(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public IEnumerable<TEntity> GetTop<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            var (list, totalCount) = GetPage(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
+            var (list, _) = GetPage(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
         /// <summary>
         /// 获取记录总数量
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录总数量</returns>
-        public int Count()
+        public int Count<TEntity>() where TEntity : class
         {
-            return Count(null, null);
+            return Count<TEntity>(null, null);
         }
 
         /// <summary>
@@ -355,10 +367,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录数量</returns>
-        public int Count(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public int Count<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             if (dbWheres != null && dbWheres.Any())
             {
                 string sqlWhere = string.Empty;
@@ -377,13 +390,15 @@ namespace Newcats.DataAccess.MySql
         /// 根据主键，判断数据是否存在
         /// </summary>
         /// <param name="primaryKeyValue">主键值</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        public bool Exists(TPrimaryKey primaryKeyValue)
+        public bool Exists<TEntity>(object primaryKeyValue) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -399,10 +414,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        public bool Exists(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public bool Exists<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT 1 FROM {tableName} WHERE 1=1 {sqlWhere} LIMIT 1;";
@@ -519,14 +535,15 @@ namespace Newcats.DataAccess.MySql
         /// <param name="entity">要插入的数据实体</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
-        public async Task<TPrimaryKey> InsertAsync(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<object> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            string sqlText = $"{RepositoryHelper.GetInsertSqlText(EntityType)} SELECT LAST_INSERT_ID();";
-            return await Connection.ExecuteScalarAsync<TPrimaryKey>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
+            string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT LAST_INSERT_ID();";
+            return await Connection.ExecuteScalarAsync<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
         /// <summary>
@@ -535,13 +552,14 @@ namespace Newcats.DataAccess.MySql
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public async Task<int> InsertBulkAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<int> InsertBulkAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (list == null || !list.Any())
                 throw new ArgumentNullException(nameof(list));
 
-            string sqlText = RepositoryHelper.GetInsertSqlText(EntityType);
+            string sqlText = RepositoryHelper.GetInsertSqlText(typeof(TEntity));
             return await Connection.ExecuteAsync(sqlText, list, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -552,17 +570,18 @@ namespace Newcats.DataAccess.MySql
         /// <param name="list">要插入的数据实体集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public async Task<int> InsertSqlBulkCopyAsync(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (Connection.State == ConnectionState.Closed)
                 Connection.Open();
             MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
-            copy.DestinationTableName = RepositoryHelper.GetTableName(EntityType);
+            copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
             copy.BulkCopyTimeout = commandTimeout ?? 0;
 
-            await copy.WriteToServerAsync(RepositoryHelper.ToDataTable<TEntity>(list));
-            return copy.RowsCopied;
+            var r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
+            return r.RowsInserted;
         }
 
         /// <summary>
@@ -571,14 +590,16 @@ namespace Newcats.DataAccess.MySql
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public async Task<int> DeleteAsync(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<int> DeleteAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
 
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -591,10 +612,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public async Task<int> DeleteAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<int> DeleteAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -610,16 +632,18 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public async Task<int> UpdateAsync(TPrimaryKey primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<int> UpdateAsync<TEntity>(object primaryKeyValue, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
 
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlUpdate = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetUpdateDynamicParameter(dbUpdates, ref sqlUpdate);
             parameters.Add("@" + pkName, primaryKeyValue);
@@ -634,12 +658,13 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbUpdates">要更新的字段集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功的条数</returns>
-        public async Task<int> UpdateAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<int> UpdateAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IEnumerable<DbUpdate<TEntity>> dbUpdates, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters wherePars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -657,15 +682,17 @@ namespace Newcats.DataAccess.MySql
         /// <param name="primaryKeyValue">主键的值</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        public async Task<TEntity> GetAsync(TPrimaryKey primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
 
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
-            string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -679,11 +706,13 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序集合</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据库实体或null</returns>
-        public async Task<TEntity> GetAsync(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlWhere = string.Empty;
             DynamicParameters parameters = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             if (!string.IsNullOrWhiteSpace(sqlWhere))
@@ -704,11 +733,13 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string fields = RepositoryHelper.GetTableFieldsQuery(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = string.Empty, sqlWhere = string.Empty, sqlOrderBy = string.Empty;
             DynamicParameters pars = new DynamicParameters();
             if (dbWheres != null && dbWheres.Any())
@@ -736,8 +767,9 @@ namespace Newcats.DataAccess.MySql
                 {
                     if (string.IsNullOrWhiteSpace(sqlOrderBy))
                     {
-                        sqlOrderBy = RepositoryHelper.GetTablePrimaryKey(EntityType);
-                        sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
+                        //sqlOrderBy = RepositoryHelper.GetTablePrimaryKey(type);
+                        //sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
+                        sqlOrderBy = string.Empty;
                     }
                     sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageIndex * pageSize},{pageSize};";
                 }
@@ -753,8 +785,9 @@ namespace Newcats.DataAccess.MySql
         /// <param name="pageInfo">分页信息</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据</returns>
-        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
             return await GetPageAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, pageInfo.OrderBy?.ToArray());
         }
@@ -762,10 +795,11 @@ namespace Newcats.DataAccess.MySql
         /// <summary>
         /// 获取所有数据
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据集合</returns>
-        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>() where TEntity : class
         {
-            var (list, totals) = await GetPageAsync(0, 0, null, null, null);
+            var (list, _) = await GetPageAsync<TEntity>(0, 0, null, null, null);
             return list;
         }
 
@@ -776,10 +810,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>数据集合</returns>
-        public async Task<IEnumerable<TEntity>> GetAllAsync(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            var (list, totals) = await GetPageAsync(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
+            var (list, _) = await GetPageAsync(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
@@ -787,10 +822,11 @@ namespace Newcats.DataAccess.MySql
         /// 根据默认排序，获取指定数量的数据
         /// </summary>
         /// <param name="top">指定数量</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>指定数量的数据集合</returns>
-        public async Task<IEnumerable<TEntity>> GetTopAsync(int top)
+        public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top) where TEntity : class
         {
-            var (list, totals) = await GetPageAsync(0, top, null, null, null);
+            var (list, _) = await GetPageAsync<TEntity>(0, top, null, null, null);
             return list;
         }
 
@@ -802,20 +838,22 @@ namespace Newcats.DataAccess.MySql
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
         /// <param name="dbOrderBy">排序</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>指定数量的数据集合</returns>
-        public async Task<IEnumerable<TEntity>> GetTopAsync(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy)
+        public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
-            var (list, totals) = await GetPageAsync(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
+            var (list, _) = await GetPageAsync(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
             return list;
         }
 
         /// <summary>
         /// 获取记录总数量
         /// </summary>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录总数量</returns>
-        public async Task<int> CountAsync()
+        public async Task<int> CountAsync<TEntity>() where TEntity : class
         {
-            return await CountAsync(null, null);
+            return await CountAsync<TEntity>(null, null);
         }
 
         /// <summary>
@@ -824,10 +862,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>记录数量</returns>
-        public async Task<int> CountAsync(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<int> CountAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             if (dbWheres != null && dbWheres.Any())
             {
                 string sqlWhere = string.Empty;
@@ -846,13 +885,15 @@ namespace Newcats.DataAccess.MySql
         /// 根据主键，判断数据是否存在
         /// </summary>
         /// <param name="primaryKeyValue">主键值</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        public async Task<bool> ExistsAsync(TPrimaryKey primaryKeyValue)
+        public async Task<bool> ExistsAsync<TEntity>(object primaryKeyValue) where TEntity : class
         {
             if (primaryKeyValue == null)
                 throw new ArgumentNullException(nameof(primaryKeyValue));
-            string tableName = RepositoryHelper.GetTableName(EntityType);
-            string pkName = RepositoryHelper.GetTablePrimaryKey(EntityType);
+            Type type = typeof(TEntity);
+            string tableName = RepositoryHelper.GetTableName(type);
+            string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@p_1", primaryKeyValue);
@@ -868,10 +909,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>是否存在</returns>
-        public async Task<bool> ExistsAsync(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null)
+        public async Task<bool> ExistsAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            string tableName = RepositoryHelper.GetTableName(EntityType);
+            string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT 1 FROM {tableName} WHERE 1=1 {sqlWhere} LIMIT 1;";

@@ -1,5 +1,5 @@
-﻿using MySqlConnector;
-using System.Data;
+﻿using System.Data;
+using MySqlConnector;
 
 namespace Newcats.DataAccess.MySql
 {
@@ -13,6 +13,10 @@ namespace Newcats.DataAccess.MySql
         /// </summary>
         public IDbConnection Connection { get; }
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="connectionString"></param>
         public DbContextBase(string connectionString)
         {
             if (Connection != null)
@@ -26,6 +30,9 @@ namespace Newcats.DataAccess.MySql
             Connection.Open();
         }
 
+        /// <summary>
+        /// 释放
+        /// </summary>
         public void Dispose()
         {
             if (Connection != null && Connection.State != ConnectionState.Closed)
