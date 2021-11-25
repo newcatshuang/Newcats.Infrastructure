@@ -5,18 +5,21 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Newcats.DataAccess.Core</PackageId>
-		<Version>1.1.3</Version>
+		<Version>1.1.5</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
 		<PackageTags>Dapper;DataAccess;Helpers</PackageTags>
 		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.DataAccess.Core</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
-		<Description>Some common functions(CRUD etc) to make data access easy.</Description>
+		<Description>Some common functions(CRUD etc) to make data access easy.Check detail from github for how to use.</Description>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2021-11-25
+			1.增加详细的使用说明文档，详见github
+
 			2021-11-18
 			1.改为IOptions方式注册服务
 
