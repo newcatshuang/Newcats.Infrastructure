@@ -15,6 +15,10 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+
+            Console.WriteLine(GetLastMonthCurrent());
+            return;
+
             var name = RepositoryHelper.GetTableName(typeof(UserInfo));
             var r = RepositoryHelper.GetInsertSqlText(typeof(UserInfo));
             return;
@@ -65,6 +69,25 @@ namespace T1_ConsoleTests
             {
                 Console.WriteLine(IdHelper.Create());
             }
+        }
+
+        /// <summary>
+        /// 获取上月同期的日期，若今天比上月最后一天大，则返回本月1日
+        /// </summary>
+        /// <returns></returns>
+        private static DateTime GetLastMonthCurrent()
+        {
+            DateTime now = DateTime.Now;// new DateTime(2021, 3, 30);
+            int day = now.Day;//今天的日期数
+            int nowDays = DateTime.DaysInMonth(now.Year, now.Month);//本月总天数
+            int lastDays = DateTime.DaysInMonth(now.AddMonths(-1).Year, now.AddMonths(-1).Month);//上月总天数
+
+            if ((lastDays < nowDays) && (day > lastDays))
+            {
+                return new DateTime(now.Year, now.Month, 1);//返回当月1号
+            }
+
+            return new DateTime(now.AddMonths(-1).Year, now.AddMonths(-1).Month, now.Day);
         }
 
     }
