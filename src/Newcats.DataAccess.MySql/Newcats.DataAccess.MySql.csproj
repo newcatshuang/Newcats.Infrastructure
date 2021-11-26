@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageId>Newcats.DataAccess.MySql</PackageId>
+		<Version>1.1.5</Version>
+		<Authors>NewcatsHuang</Authors>
+		<Company>newcats.xyz</Company>
+		<copyright>Copyright 2021 © newcats.xyz</copyright>
+		<PackageTags>Dapper;DataAccess;Helpers;MySql</PackageTags>
+		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.DataAccess.MySql</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
+		<Description>Some common functions(CRUD etc) to make data access easy.Check detail from github for how to use.</Description>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReleaseNotes>
+			2021-11-25
+			1.增加详细的使用说明文档，详见github
+
+			2021-11-18
+			1.改为IOptions方式注册服务
+
+			2021-11-17
+			1.IRepository只接收TDbContext,取消TEntity/TPrimaryKey泛型参数
+			2.主键类型改为object
+
+			2021-10-25
+			1.增加SqlBulkCopy的批量插入接口
+		</PackageReleaseNotes>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MySqlConnector" Version="2.0.0" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>
