@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -8,6 +9,7 @@ using BenchmarkDotNet.Running;
 using Newcats.DataAccess.Core;
 using Newcats.Utils.Extensions;
 using Newcats.Utils.Helpers;
+using Newcats.Utils.Models;
 
 namespace T1_ConsoleTests
 {
@@ -16,16 +18,20 @@ namespace T1_ConsoleTests
         static void Main(string[] args)
         {
 
-            Console.WriteLine(GetLastMonthCurrent());
-            return;
+            //Console.WriteLine(GetLastMonthCurrent());
+            //return;
 
-            var name = RepositoryHelper.GetTableName(typeof(UserInfo));
-            var r = RepositoryHelper.GetInsertSqlText(typeof(UserInfo));
-            return;
+            //var name = RepositoryHelper.GetTableName(typeof(UserInfo));
+            //var r = RepositoryHelper.GetInsertSqlText(typeof(UserInfo));
+            //return;
 
-            Summary summary = BenchmarkRunner.Run<TestContext>();
-            Console.ReadLine();
-            return;
+            //Summary summary = BenchmarkRunner.Run<TestContext>();
+            //Console.ReadLine();
+            //return;
+
+            var list = EnumHelper.ConvertToList<Season>();
+            Console.WriteLine(list.ToJson());
+
 
             User u = new User()
             {
@@ -37,6 +43,8 @@ namespace T1_ConsoleTests
                 Season = Season.Summer,
                 IsMan = true
             };
+            Console.WriteLine(u.ToJson());
+            return;
 
             string rawJson = "{\"Id\":1,\"Name\":\"newcats\",\"CN\":\"皇权特许\",\"CreateTime\":\"2020-05-10 23:36:03\",\"UpdateTime\":\"2020-05-11 02:36:03\",\"Season\":1,\"IsMan\":\"true\"}";
 
@@ -135,6 +143,8 @@ namespace T1_ConsoleTests
 
         public Season Season { get; set; }
 
+        public EnumDescription SeasonDescription { get { return Season.GetEnumDescription(); } }
+
         public bool IsMan { get; set; }
     }
 
@@ -142,6 +152,7 @@ namespace T1_ConsoleTests
     {
         Spring = 0,
 
+        [Description("夏天")]
         Summer = 1,
 
         Fall = 2,

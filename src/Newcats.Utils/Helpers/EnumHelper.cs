@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using System.Reflection;
+﻿using Newcats.Utils.Extensions;
+using Newcats.Utils.Models;
 
 namespace Newcats.Utils.Helpers
 {
@@ -13,44 +13,22 @@ namespace Newcats.Utils.Helpers
         /// </summary>
         /// <typeparam name="T">要转换的枚举对象</typeparam>
         /// <returns></returns>
-        public static List<EnumberEntity> ConvertToList<T>()
+        public static List<EnumDescription> ConvertToList<T>() where T : Enum
         {
-            List<EnumberEntity> list = new List<EnumberEntity>();
+            List<EnumDescription> list = new List<EnumDescription>();
+            if (!typeof(T).IsEnum)
+                return list;
+
             foreach (var e in Enum.GetValues(typeof(T)))
             {
-                EnumberEntity m = new EnumberEntity();
+                EnumDescription m = new EnumDescription();
 
-                Type type = e.GetType();
-                string memberName = Enum.GetName(type, e);
-                MemberInfo memberInfo = type.GetTypeInfo().GetMember(memberName).FirstOrDefault();
-                m.Description = memberInfo.GetCustomAttribute(typeof(DescriptionAttribute)) is DescriptionAttribute attribute ? attribute.Description : memberInfo.Name;
-
-                m.EnumValue = Convert.ToInt32(e);
-                m.EnumName = e.ToString();
+                m.Description = (e as Enum).GetDescription();
+                m.Value = Convert.ToInt32(e);
+                m.Name = e.ToString();
                 list.Add(m);
             }
             return list;
         }
-    }
-
-    /// <summary>
-    /// 枚举项转换的类
-    /// </summary>
-    public class EnumberEntity
-    {
-        /// <summary>  
-        /// 枚举项的值  
-        /// </summary>  
-        public int EnumValue { get; set; }
-
-        /// <summary>  
-        /// 枚举项的名称  
-        /// </summary>  
-        public string EnumName { get; set; }
-
-        /// <summary>  
-        /// 枚举项的描述  
-        /// </summary>  
-        public string Description { get; set; }
     }
 }
