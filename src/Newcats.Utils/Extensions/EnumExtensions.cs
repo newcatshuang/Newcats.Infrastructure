@@ -22,10 +22,9 @@ namespace Newcats.Utils.Extensions
         /// <returns>Description特性描述</returns>
         public static string GetDescription(this Enum value)
         {
-            string des = string.Empty;
-            string key = $"{type.FullName}:{value}";
             Type type = value.GetType();
-            if (_cache.TryGetValue(key, out des))
+            string key = $"{type.FullName}:{value}";
+            if (_cache.TryGetValue(key, out string des))
             {
                 if (!string.IsNullOrWhiteSpace(des))
                     return des;
