@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Reflection;
 using Newcats.Utils.Models;
 
@@ -10,16 +11,31 @@ namespace Newcats.Utils.Extensions
     public static class EnumExtensions
     {
         /// <summary>
+        /// 缓存，键为类的全名+值的名字
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, string> _cache = new ConcurrentDictionary<string, string>();
+
+        /// <summary>
         /// 获取描述,使用System.ComponentModel.Description特性设置描述
         /// </summary>
         /// <param name="value">当前枚举项</param>
         /// <returns>Description特性描述</returns>
         public static string GetDescription(this Enum value)
         {
+            string des = string.Empty;
+            string key = $"{type.FullName}:{value}";
             Type type = value.GetType();
+            if (_cache.TryGetValue(key, out des))
+            {
+                if (!string.IsNullOrWhiteSpace(des))
+                    return des;
+            }
+
             string memberName = Enum.GetName(type, value);
             MemberInfo memberInfo = type.GetTypeInfo().GetMember(memberName).FirstOrDefault();
-            return memberInfo.GetCustomAttribute(typeof(DescriptionAttribute)) is DescriptionAttribute attribute ? attribute.Description : memberInfo.Name;
+            des = memberInfo.GetCustomAttribute(typeof(DescriptionAttribute)) is DescriptionAttribute attribute ? attribute.Description : memberInfo.Name;
+            _cache.TryAdd(key, des);
+            return des;
         }
 
         /// <summary>
