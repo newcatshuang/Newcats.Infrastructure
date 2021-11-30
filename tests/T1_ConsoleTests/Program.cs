@@ -18,6 +18,9 @@ namespace T1_ConsoleTests
         static void Main(string[] args)
         {
 
+            EnumHelper.ConvertToList<Season>();
+            EnumHelper.ConvertToList<Season>();
+
             //Console.WriteLine(GetLastMonthCurrent());
             //return;
 

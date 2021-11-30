@@ -31,7 +31,7 @@ namespace Newcats.Utils.Helpers
                 if (list != null && list.Count > 0)
                     return list;
             }
-
+            list = new List<EnumDescription>();
             foreach (var e in Enum.GetValues(typeof(T)))
             {
                 EnumDescription m = new EnumDescription();
