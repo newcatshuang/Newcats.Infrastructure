@@ -18,8 +18,8 @@ namespace T1_ConsoleTests
         static void Main(string[] args)
         {
 
-            EnumHelper.ConvertToList<Season>();
-            EnumHelper.ConvertToList<Season>();
+            //EnumHelper.ConvertToList<Season>();
+            //EnumHelper.ConvertToList<Season>();
 
             //Console.WriteLine(GetLastMonthCurrent());
             //return;
@@ -32,8 +32,8 @@ namespace T1_ConsoleTests
             //Console.ReadLine();
             //return;
 
-            var list = EnumHelper.ConvertToList<Season>();
-            Console.WriteLine(list.ToJson());
+            //var list = EnumHelper.ConvertToList<Season>();
+            //Console.WriteLine(list.ToJson());
 
 
             User u = new User()
