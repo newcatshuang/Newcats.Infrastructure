@@ -1,4 +1,5 @@
-﻿using Newcats.Utils.Extensions;
+﻿using System.Collections.Concurrent;
+using Newcats.Utils.Extensions;
 using Newcats.Utils.Models;
 
 namespace Newcats.Utils.Helpers
@@ -9,15 +10,27 @@ namespace Newcats.Utils.Helpers
     public static class EnumHelper
     {
         /// <summary>
+        /// 缓存，键为类的全名
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, List<EnumDescription>> _cache = new ConcurrentDictionary<string, List<EnumDescription>>();
+
+        /// <summary>
         /// 把枚举对象的每一项转换成对应的类
         /// </summary>
         /// <typeparam name="T">要转换的枚举对象</typeparam>
         /// <returns></returns>
         public static List<EnumDescription> ConvertToList<T>() where T : Enum
         {
+            Type type = typeof(T);
             List<EnumDescription> list = new List<EnumDescription>();
-            if (!typeof(T).IsEnum)
+            if (!type.IsEnum)
                 return list;
+
+            if (_cache.TryGetValue(type.FullName, out list))
+            {
+                if (list != null && list.Count > 0)
+                    return list;
+            }
 
             foreach (var e in Enum.GetValues(typeof(T)))
             {
@@ -28,6 +41,8 @@ namespace Newcats.Utils.Helpers
                 m.Name = e.ToString();
                 list.Add(m);
             }
+
+            _cache.TryAdd(type.FullName, list);
             return list;
         }
     }
