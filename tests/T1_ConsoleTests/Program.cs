@@ -46,6 +46,13 @@ namespace T1_ConsoleTests
                 Season = Season.Summer,
                 IsMan = true
             };
+
+            var sss1 = u.Season.GetAllEnumDescription();
+            var s2222 = Season.Summer.GetAllEnumDescription();
+
+            var s = u.Season.GetDescription();
+            var s2 = u.Season.GetEnumDescription();
+
             Console.WriteLine(u.ToJson());
             return;
 
