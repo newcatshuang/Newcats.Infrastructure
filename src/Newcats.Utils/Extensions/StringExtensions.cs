@@ -9,6 +9,9 @@ using System.Text.Unicode;
 
 namespace Newcats.Utils.Extensions
 {
+    /// <summary>
+    /// 16进制颜色枚举
+    /// </summary>
     public enum SpanColorEnum
     {
         /// <summary>
@@ -713,6 +716,19 @@ namespace Newcats.Utils.Extensions
             for (int i = 0; i < middleLength; i++)
                 midStr += "*";
             return string.Concat(str.AsSpan(0, firstLength), midStr, str.AsSpan(firstLength + middleLength));
+        }
+        #endregion
+
+        #region Exception
+        /// <summary>
+        /// Throws an System.ArgumentNullException if the string is null, empty, or consists only of white-space characters.
+        /// </summary>
+        /// <param name="value">The string</param>
+        /// <exception cref="ArgumentNullException">the string is null, empty, or consists only of white-space characters</exception>
+        public static void ThrowIfNullOrWhiteSpace(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(nameof(value));
         }
         #endregion
     }

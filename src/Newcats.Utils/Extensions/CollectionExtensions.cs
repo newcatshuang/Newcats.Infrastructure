@@ -215,5 +215,29 @@ namespace Newcats.Utils.Extensions
             return condition ? (TQueryable)query.Where(predicate) : query;
         }
         #endregion
+
+        /// <summary>
+        /// Throws an System.ArgumentException if the collection is empty        
+        /// </summary>
+        /// <typeparam name="T">The type of objects to enumerate</typeparam>
+        /// <param name="collection">The collection</param>
+        /// <exception cref="ArgumentException">collection is empty</exception>
+        public static void ThrowIfEmpty<T>(this IEnumerable<T> collection)
+        {
+            if (!collection.Any())
+                throw new ArgumentException("The collection is empty.", nameof(collection));
+        }
+
+        /// <summary>
+        /// Throws an System.ArgumentNullException if the collection is null or empty
+        /// </summary>
+        /// <typeparam name="T">The type of objects to enumerate</typeparam>
+        /// <param name="collection">The collection</param>
+        /// <exception cref="ArgumentNullException">collection is null or empty</exception>
+        public static void ThrowIfNullOrEmpty<T>(this IEnumerable<T> collection)
+        {
+            if (collection == null || !collection.Any())
+                throw new ArgumentNullException(nameof(collection), "The collection is null or empty.");
+        }
     }
 }
