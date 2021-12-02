@@ -16,11 +16,6 @@ namespace Newcats.Utils.Extensions
         private static readonly ConcurrentDictionary<string, string> _cacheDes = new ConcurrentDictionary<string, string>();
 
         /// <summary>
-        /// 缓存，键为类的全名
-        /// </summary>
-        private static readonly ConcurrentDictionary<string, List<EnumDescription>> _cacheAll = new ConcurrentDictionary<string, List<EnumDescription>>();
-
-        /// <summary>
         /// 获取描述,使用System.ComponentModel.Description特性设置描述
         /// </summary>
         /// <param name="value">当前枚举项</param>
@@ -49,10 +44,12 @@ namespace Newcats.Utils.Extensions
         /// <returns>枚举项描述类EnumDescription</returns>
         public static EnumDescription GetEnumDescription(this Enum value)
         {
-            EnumDescription description = new EnumDescription();
-            description.Value = Convert.ToInt32(value);
-            description.Name = value.ToString();
-            description.Description = value.GetDescription();
+            EnumDescription description = new()
+            {
+                Value = Convert.ToInt32(value),
+                Name = value.ToString(),
+                Description = value.GetDescription()
+            };
             return description;
         }
 
@@ -64,23 +61,7 @@ namespace Newcats.Utils.Extensions
         public static List<EnumDescription> GetAllEnumDescriptions(this Enum value)
         {
             Type type = value.GetType();
-            List<EnumDescription> list = new List<EnumDescription>();
-            if (!type.IsEnum)
-                return list;
-
-            if (_cacheAll.TryGetValue(type.FullName, out list))
-            {
-                if (list != null && list.Count > 0)
-                    return list;
-            }
-            list = new List<EnumDescription>();
-            foreach (Enum e in Enum.GetValues(type))
-            {
-                list.Add(e.GetEnumDescription());
-            }
-
-            _cacheAll.TryAdd(type.FullName, list);
-            return list;
+            return Helpers.EnumHelper.GetAllEnumDescriptions(type);
         }
     }
 }

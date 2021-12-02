@@ -31,22 +31,31 @@ namespace Newcats.Utils.Helpers
         public static List<EnumDescription> GetAllEnumDescriptions<T>() where T : Enum
         {
             Type type = typeof(T);
-            List<EnumDescription> list = new List<EnumDescription>();
-            if (!type.IsEnum)
-                return list;
+            return GetAllEnumDescriptions(type);
+        }
 
-            if (_cache.TryGetValue(type.FullName, out list))
+        /// <summary>
+        /// 获取当前枚举项所在的枚举的所有枚举项描述类
+        /// </summary>
+        /// <param name="enumType">指定的枚举类型</param>
+        /// <returns>枚举项描述类集合EnumDescription(若指定类型为非枚举类型，则返回null)</returns>
+        public static List<EnumDescription> GetAllEnumDescriptions(Type enumType)
+        {
+            if (!enumType.IsEnum)
+                return null;
+            List<EnumDescription> list = new List<EnumDescription>();
+            if (_cache.TryGetValue(enumType.FullName, out list))
             {
                 if (list != null && list.Count > 0)
                     return list;
             }
             list = new List<EnumDescription>();
-            foreach (Enum e in Enum.GetValues(type))
+            foreach (Enum e in Enum.GetValues(enumType))
             {
                 list.Add(e.GetEnumDescription());
             }
 
-            _cache.TryAdd(type.FullName, list);
+            _cache.TryAdd(enumType.FullName, list);
             return list;
         }
     }
