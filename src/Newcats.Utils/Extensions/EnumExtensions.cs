@@ -61,7 +61,7 @@ namespace Newcats.Utils.Extensions
         /// </summary>
         /// <param name="value">当前枚举项</param>
         /// <returns>枚举项描述类集合EnumDescription</returns>
-        public static List<EnumDescription> GetAllEnumDescription(this Enum value)
+        public static List<EnumDescription> GetAllEnumDescriptions(this Enum value)
         {
             Type type = value.GetType();
             List<EnumDescription> list = new List<EnumDescription>();
