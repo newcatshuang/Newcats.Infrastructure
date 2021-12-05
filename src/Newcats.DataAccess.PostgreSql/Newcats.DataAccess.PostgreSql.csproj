@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageId>Newcats.DataAccess.PostgreSql</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>NewcatsHuang</Authors>
+		<Company>newcats.xyz</Company>
+		<copyright>Copyright 2021 © newcats.xyz</copyright>
+		<PackageTags>Dapper;DataAccess;Helpers;PostgreSql</PackageTags>
+		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.DataAccess.PostgreSql</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
+		<Description>Some common functions(CRUD etc) to make data access easy.Check detail from github for how to use.</Description>
+		<Title>Newcats.DataAccess.PostgreSql</Title>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReleaseNotes>
+			2021-12-05
+			1.增加详细的使用说明文档，详见github
+		</PackageReleaseNotes>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<PackageReference Include="Npgsql" Version="6.0.1" />
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>
