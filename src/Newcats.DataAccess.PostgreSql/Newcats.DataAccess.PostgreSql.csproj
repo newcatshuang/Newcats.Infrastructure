@@ -19,12 +19,14 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
 			2021-12-05
-			1.增加详细的使用说明文档，详见github
+			1.完成基本的CRUD方法(SqlBulkCopy暂未实现)
+			2.增加详细的使用说明文档，详见github
 		</PackageReleaseNotes>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.5" />
 		<PackageReference Include="Npgsql" Version="6.0.1" />
 		<None Update="README.md">
 			<Pack>True</Pack>

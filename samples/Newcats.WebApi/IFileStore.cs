@@ -37,6 +37,7 @@ namespace Newcats.WebApi
             //services.AddScoped<IFileStore, FileStore>();
             //services.AddScoped(typeof(DataAccess.SqlServer.IRepository<>), typeof(DataAccess.SqlServer.Repository<>));//注册泛型仓储
             //services.AddScoped(typeof(DataAccess.MySql.IRepository<,,>), typeof(DataAccess.MySql.Repository<,,>));//注册泛型仓储
+            const string pgSqlConnstr = "Host=192.168.164.10;Port=5432;Username=postgres;Password=123456;Database=tedb;Pooling=true;Maximum Pool Size=20";
 
             services.AddMySqlDataAccess<MySqlDbContext>(opt =>
             {

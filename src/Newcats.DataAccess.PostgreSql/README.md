@@ -1,7 +1,7 @@
-﻿# Newcats.DataAccess.MySql 使用说明
+﻿# Newcats.DataAccess.PostgreSql 使用说明
 
 [![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
-[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.1.5&color=blue)](https://www.nuget.org/packages/Newcats.DataAccess.MySql)
+[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.0.0&color=blue)](https://www.nuget.org/packages/Newcats.DataAccess.PostgreSql)
 [![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
 
 ## 1.实体类
@@ -66,9 +66,9 @@ public class UserDto
 }
 ```
 
-## 2.新建自定义DbContext,继承自 Newcats.DataAccess.MySql.DbContext
+## 2.新建自定义DbContext,继承自 Newcats.DataAccess.PostgreSql.DbContext
 
-* 注1：不同的数据库类型继承不同的DbContext基类,此处以MySql为例
+* 注1：不同的数据库类型继承不同的DbContext基类,此处以PostgreSql为例
 * 注2：若使用了多个数据库连接字符串，需要为每个连接字符串分别定义DbContext
 
 #### MyDbContext.cs
@@ -105,14 +105,14 @@ public class Startup
         services.AddControllers();
 
         //第一个DbContext
-        services.AddMySqlDataAccess<MyDbContext>(opt =>
+        services.AddPostgreSqlDataAccess<MyDbContext>(opt =>
         {
             opt.ConnectionString = "ConnectionStringOfMyDbContext";
         });
 
         //第二个DbContext
         //同一个应用可以注册不同的数据库，例如：services.AddSqlServerDataAccess...
-        services.AddMySqlDataAccess<OtherDbContext>(opt =>
+        services.AddPostgreSqlDataAccess<OtherDbContext>(opt =>
         {
             opt.ConnectionString = "ConnectionStringOfOtherDbContext";
         });
@@ -127,10 +127,10 @@ public class Startup
 ```c#
 public class UserService : IUserService
 {
-    private readonly Newcats.DataAccess.MySql.IRepository<MyDbContext> _myRepository;
-    private readonly Newcats.DataAccess.MySql.IRepository<OtherDbContext> _otherRepository;
+    private readonly Newcats.DataAccess.PostgreSql.IRepository<MyDbContext> _myRepository;
+    private readonly Newcats.DataAccess.PostgreSql.IRepository<OtherDbContext> _otherRepository;
 
-    public UserService(Newcats.DataAccess.MySql.IRepository<MyDbContext> myRepository, Newcats.DataAccess.MySql.IRepository<OtherDbContext> otherRepository)
+    public UserService(Newcats.DataAccess.PostgreSql.IRepository<MyDbContext> myRepository, Newcats.DataAccess.PostgreSql.IRepository<OtherDbContext> otherRepository)
     {
          _myRepository = myRepository;
         _otherRepository = otherRepository;
@@ -175,4 +175,4 @@ public class UserService : IUserService
 
 ---
 
-## 作者: newcats-2021/11/25
+## 作者: newcats-2021/12/05
