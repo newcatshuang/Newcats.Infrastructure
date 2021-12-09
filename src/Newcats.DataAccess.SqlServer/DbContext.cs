@@ -14,7 +14,7 @@ namespace Newcats.DataAccess.SqlServer
         /// 构造函数
         /// </summary>
         /// <param name="optionsAccessor">配置项</param>
-        protected DbContext(IOptions<DbContextOptions> optionsAccessor) : base(optionsAccessor)
+        public DbContext(IOptions<DbContextOptions> optionsAccessor) : base(optionsAccessor)
         {
         }
 
@@ -23,7 +23,7 @@ namespace Newcats.DataAccess.SqlServer
         /// </summary>
         /// <param name="connectionString">连接字符串</param>
         /// <returns>数据库连接</returns>
-        protected override IDbConnection CreateConnection(string connectionString)
+        public override IDbConnection CreateConnection(string connectionString)
         {
             return SqlClientFactory.Instance.CreateConnection();
         }

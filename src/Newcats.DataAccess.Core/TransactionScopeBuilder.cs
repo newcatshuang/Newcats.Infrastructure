@@ -14,9 +14,20 @@ namespace Newcats.DataAccess.Core
         /// <returns></returns>
         public static TransactionScope CreateReadCommitted(bool enabledAsync = true)
         {
+            return Create(IsolationLevel.ReadCommitted, enabledAsync);
+        }
+
+        /// <summary>
+        /// 创建事务块
+        /// </summary>
+        /// <param name="isolationLevel">事务隔离级别</param>
+        /// <param name="enabledAsync">是否启用异步</param>
+        /// <returns>TransactionScope</returns>
+        public static TransactionScope Create(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted, bool enabledAsync = true)
+        {
             TransactionOptions options = new TransactionOptions
             {
-                IsolationLevel = IsolationLevel.ReadCommitted,//默认为Serializable，锁的级别太高，死锁严重
+                IsolationLevel = isolationLevel,
                 Timeout = TransactionManager.DefaultTimeout
             };
             return new TransactionScope(TransactionScopeOption.Required, options, enabledAsync ? TransactionScopeAsyncFlowOption.Enabled : TransactionScopeAsyncFlowOption.Suppress);

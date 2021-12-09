@@ -4,8 +4,9 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<Title>Newcats.DataAccess.SqlServer</Title>
 		<PackageId>Newcats.DataAccess.SqlServer</PackageId>
-		<Version>1.1.5</Version>
+		<Version>1.1.7</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -17,6 +18,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2021-12-09
+			1.修复访问修饰符bug
+
 			2021-11-25
 			1.增加详细的使用说明文档，详见github
 
@@ -35,7 +39,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.5" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.7" />
 	</ItemGroup>
 
 	<ItemGroup>

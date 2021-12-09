@@ -74,7 +74,10 @@ namespace Newcats.DataAccess.PostgreSql
         /// <returns>成功的条数</returns>
         public override int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            throw new NotImplementedException("2021-12-05,v1.0.0暂未实现SqlBulkCopy方法");
+            //TODO:参考 https://github.com/PostgreSQLCopyHelper/PostgreSQLCopyHelper 实现
+            return InsertBulk<TEntity>(list, transaction, commandTimeout);
+
+            //throw new NotImplementedException("2021-12-05,v1.0.0暂未实现SqlBulkCopy方法");
             //if (Connection.State == ConnectionState.Closed)
             //    Connection.Open();
             //MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
@@ -259,7 +262,10 @@ namespace Newcats.DataAccess.PostgreSql
         /// <returns>成功的条数</returns>
         public override async Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            throw new NotImplementedException("2021-12-05,v1.0.0暂未实现SqlBulkCopy方法");
+            //TODO:参考 https://github.com/PostgreSQLCopyHelper/PostgreSQLCopyHelper 实现
+            return await InsertBulkAsync<TEntity>(list, transaction, commandTimeout);
+
+            //throw new NotImplementedException("2021-12-05,v1.0.0暂未实现SqlBulkCopy方法");
             //if (Connection.State == ConnectionState.Closed)
             //    Connection.Open();
             //MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);

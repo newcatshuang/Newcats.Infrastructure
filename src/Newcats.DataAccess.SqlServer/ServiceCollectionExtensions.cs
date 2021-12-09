@@ -17,10 +17,8 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>IServiceCollection</returns>
         public static IServiceCollection AddSqlServerDataAccess<TDbContext>(this IServiceCollection services, Action<DbContextOptions> option) where TDbContext : DbContextBase
         {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
-            if (option == null)
-                throw new ArgumentNullException(nameof(option));
+            ArgumentNullException.ThrowIfNull(nameof(services));
+            ArgumentNullException.ThrowIfNull(nameof(option));
 
             services.AddOptions();
             services.Configure(option);

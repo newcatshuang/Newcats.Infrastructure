@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Newcats.Office</PackageId>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -21,7 +21,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.12" />
-		<PackageReference Include="Newcats.Utils" Version="1.0.4" />
+		<PackageReference Include="Newcats.Utils" Version="1.0.6" />
 		<PackageReference Include="NPOI" Version="2.5.5" />
 	</ItemGroup>
 

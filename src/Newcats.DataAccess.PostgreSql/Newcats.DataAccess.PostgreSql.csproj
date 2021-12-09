@@ -4,6 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<Title>Newcats.DataAccess.PostgreSql</Title>
 		<PackageId>Newcats.DataAccess.PostgreSql</PackageId>
 		<Version>1.0.0</Version>
 		<Authors>NewcatsHuang</Authors>
@@ -18,7 +19,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
-			2021-12-05
+			2021-12-09
 			1.完成基本的CRUD方法(SqlBulkCopy暂未实现)
 			2.增加详细的使用说明文档，详见github
 		</PackageReleaseNotes>
@@ -26,8 +27,8 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.7" />
 		<PackageReference Include="Npgsql" Version="6.0.1" />
-		<ProjectReference Include="..\Newcats.DataAccess.Core\Newcats.DataAccess.Core.csproj" />
 		<None Update="README.md">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>

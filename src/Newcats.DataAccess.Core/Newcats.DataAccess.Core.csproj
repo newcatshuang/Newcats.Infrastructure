@@ -4,8 +4,9 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<Title>Newcats.DataAccess.Core</Title>
 		<PackageId>Newcats.DataAccess.Core</PackageId>
-		<Version>1.1.6</Version>
+		<Version>1.1.7</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
