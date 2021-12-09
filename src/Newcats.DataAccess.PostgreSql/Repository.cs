@@ -57,7 +57,9 @@ namespace Newcats.DataAccess.PostgreSql
         {
             ArgumentNullException.ThrowIfNull(nameof(entity));
 
-            string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} RETURNING id;";
+            Type entityType = typeof(TEntity);
+
+            string sqlText = $"{RepositoryHelper.GetInsertSqlText(entityType).Replace(";", "")} RETURNING {RepositoryHelper.GetTablePrimaryKey(entityType)};";
             return Connection.ExecuteScalar<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 
@@ -240,7 +242,9 @@ namespace Newcats.DataAccess.PostgreSql
         {
             ArgumentNullException.ThrowIfNull(nameof(entity));
 
-            string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} RETURNING id;";
+            Type entityType = typeof(TEntity);
+
+            string sqlText = $"{RepositoryHelper.GetInsertSqlText(entityType).Replace(";", "")} RETURNING {RepositoryHelper.GetTablePrimaryKey(entityType)};";
             return await Connection.ExecuteScalarAsync<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
         }
 

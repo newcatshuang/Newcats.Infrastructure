@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Newcats.AspNetCore\Newcats.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Newcats.DataAccess.MySql\Newcats.DataAccess.MySql.csproj" />
+    <ProjectReference Include="..\..\src\Newcats.DataAccess.PostgreSql\Newcats.DataAccess.PostgreSql.csproj" />
     <ProjectReference Include="..\..\src\Newcats.Utils\Newcats.Utils.csproj" />
   </ItemGroup>
 

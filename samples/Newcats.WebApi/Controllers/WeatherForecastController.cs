@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newcats.AspNetCore.Filters;
 using Newcats.DataAccess;
 using Newcats.DataAccess.Core;
-using Newcats.DataAccess.MySql;
+//using Newcats.DataAccess.MySql;
 
 namespace Newcats.WebApi.Controllers
 {
@@ -20,7 +20,9 @@ namespace Newcats.WebApi.Controllers
         //private readonly DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase> _repository;
         //private readonly DataAccess.SqlServer.IRepository<TwoDbContext> _user;
 
-        private readonly DataAccess.MySql.IRepository<MySqlDbContext> _repository;
+        //private readonly DataAccess.MySql.IRepository<MySqlDbContext> _repository;
+
+        private readonly DataAccess.PostgreSql.IRepository<PgContext> _repository;
 
         private static readonly string[] Summaries = new[]
         {
@@ -29,10 +31,15 @@ namespace Newcats.WebApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(DataAccess.MySql.IRepository<MySqlDbContext> repository)
+        public WeatherForecastController(DataAccess.PostgreSql.IRepository<PgContext> repository)
         {
             _repository = repository;
         }
+
+        //public WeatherForecastController(DataAccess.MySql.IRepository<MySqlDbContext> repository)
+        //{
+        //    _repository = repository;
+        //}
 
         //public WeatherForecastController(DataAccess.SqlServer.IRepository<DataAccess.SqlServer.DbContextBase> repository, DataAccess.SqlServer.IRepository<TwoDbContext> user)
         //{
@@ -64,11 +71,11 @@ namespace Newcats.WebApi.Controllers
         [HttpGet]
         public async Task<string> Get()
         {
-            var r1 = _repository.GetTop<MySqlUserInfo>(10);
-            var r3 = _repository.Insert(new MySqlUserInfo { Id = 1, Name = "Newcats" });
+            var r1 = _repository.GetTop<UserInfo>(10);
+            var r3 = _repository.Insert(new UserInfo { Id = Random.Shared.NextInt64(1, 3000), Name = "Newcats", JoinTime = DateTime.Now });
 
-            var r2 = await _repository.GetTopAsync<MySqlUserInfo>(20);
-            var r4 = await _repository.InsertAsync<MySqlUserInfo>(new MySqlUserInfo { Id = 2, Name = "huang" });
+            var r2 = await _repository.GetTopAsync<UserInfo>(20);
+            var r4 = await _repository.InsertAsync<UserInfo>(new UserInfo { Id = Random.Shared.NextInt64(1, 3000), Name = "huang", JoinTime = DateTime.Now });
 
             return $"r1:{r1.Count()}\r\nr3:{r3}\r\nr2:{r2.Count()}\r\nr4:{r4}";
         }
@@ -140,7 +147,7 @@ namespace Newcats.WebApi.Controllers
     [Table("UserInfo")]
     public class UserInfo
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
         public string Name { get; set; }

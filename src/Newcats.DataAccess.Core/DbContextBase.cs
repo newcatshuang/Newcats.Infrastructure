@@ -23,7 +23,7 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="connectionString">连接字符串</param>
         /// <returns>数据库连接</returns>
-        protected abstract IDbConnection CreateConnection(string connectionString);
+        public abstract IDbConnection CreateConnection(string connectionString);
 
         /// <summary>
         /// 构造函数
