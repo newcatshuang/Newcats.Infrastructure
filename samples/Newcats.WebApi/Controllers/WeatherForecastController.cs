@@ -77,6 +77,19 @@ namespace Newcats.WebApi.Controllers
             var r2 = await _repository.GetTopAsync<UserInfo>(20);
             var r4 = await _repository.InsertAsync<UserInfo>(new UserInfo { Id = Random.Shared.NextInt64(1, 3000), Name = "huang", JoinTime = DateTime.Now });
 
+            _repository.Delete<UserInfo>(2658);
+
+            _repository.Update<UserInfo>(1367, new List<DbUpdate<UserInfo>>
+            {
+                new DbUpdate<UserInfo>(r=>r.Name,"NewcatsHuang")
+            });
+
+            _repository.GetPage<UserInfo>(2, 5);
+
+            _repository.Count<UserInfo>();
+
+            _repository.Exists<UserInfo>();
+
             return $"r1:{r1.Count()}\r\nr3:{r3}\r\nr2:{r2.Count()}\r\nr4:{r4}";
         }
 
