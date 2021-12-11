@@ -120,14 +120,24 @@ namespace Newcats.Utils.Extensions
         /// <param name="item">要加入的元素</param>
         /// <param name="condition">是否加入集合</param>
         /// <returns>加入了元素的集合</returns>
-        public static IList<T> AddIf<T>(this IList<T> list, T item, bool condition)
+        public static IEnumerable<T> AddIf<T>(this IEnumerable<T> list, T item, bool condition)
         {
-            if (item == null)
+            if (condition)
+                return list.Append(item);
+            else
                 return list;
-            if (!condition)
-                return list;
-            list.Add(item);
-            return list;
+        }
+
+        /// <summary>
+        /// 元素不为null，则加入当前list集合
+        /// </summary>
+        /// <typeparam name="T">集合的元素类型</typeparam>
+        /// <param name="list">当前集合</param>
+        /// <param name="item">要加入的元素</param>
+        /// <returns>加入了元素的集合</returns>
+        public static IEnumerable<T> AddIfNotNull<T>(this IEnumerable<T> list, T item)
+        {
+            return list.AddIf(item, item != null);
         }
 
         #region WhereIf
