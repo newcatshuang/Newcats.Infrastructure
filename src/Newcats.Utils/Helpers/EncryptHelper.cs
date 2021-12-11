@@ -25,7 +25,7 @@ namespace Newcats.Utils.Helpers
            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','Q','P','R','T','S','V','U','W','X','Y','Z'
           };
 
-            StringBuilder num = new StringBuilder();
+            StringBuilder num = new();
 
             for (int i = 0; i < length; i++)
             {
@@ -41,7 +41,7 @@ namespace Newcats.Utils.Helpers
         public static string GetRandomNumber(int length)
         {
             char[] arrChar = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-            StringBuilder num = new StringBuilder();
+            StringBuilder num = new();
 
             for (int i = 0; i < length; i++)
             {
@@ -63,7 +63,7 @@ namespace Newcats.Utils.Helpers
            '!','@','#','$','%','^','&','*','(',')','_','+','=','|','.',',','/'
           };
 
-            StringBuilder num = new StringBuilder();
+            StringBuilder num = new();
 
             for (int i = 0; i < length; i++)
             {
@@ -147,7 +147,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACMD5(string str, string key)
         {
             byte[] secrectKey = Encoding.UTF8.GetBytes(key);
-            using (HMACMD5 md5 = new HMACMD5(secrectKey))
+            using (HMACMD5 md5 = new(secrectKey))
             {
                 byte[] bytes_md5_in = Encoding.UTF8.GetBytes(str);
                 byte[] bytes_md5_out = md5.ComputeHash(bytes_md5_in);
@@ -167,7 +167,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACMD5(string str, string key, Encoding encoding)
         {
             byte[] secrectKey = encoding.GetBytes(key);
-            using (HMACMD5 md5 = new HMACMD5(secrectKey))
+            using (HMACMD5 md5 = new(secrectKey))
             {
                 byte[] bytes_md5_in = encoding.GetBytes(str);
                 byte[] bytes_md5_out = md5.ComputeHash(bytes_md5_in);
@@ -336,7 +336,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA1(string str, string key)
         {
             byte[] secrectKey = Encoding.UTF8.GetBytes(key);
-            using (HMACSHA1 hmac = new HMACSHA1(secrectKey))
+            using (HMACSHA1 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -360,7 +360,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA1(string str, string key, Encoding encoding)
         {
             byte[] secrectKey = encoding.GetBytes(key);
-            using (HMACSHA1 hmac = new HMACSHA1(secrectKey))
+            using (HMACSHA1 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -385,7 +385,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA256(string str, string key)
         {
             byte[] secrectKey = Encoding.UTF8.GetBytes(key);
-            using (HMACSHA256 hmac = new HMACSHA256(secrectKey))
+            using (HMACSHA256 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -409,7 +409,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA256(string str, string key, Encoding encoding)
         {
             byte[] secrectKey = encoding.GetBytes(key);
-            using (HMACSHA256 hmac = new HMACSHA256(secrectKey))
+            using (HMACSHA256 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -434,7 +434,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA384(string str, string key)
         {
             byte[] secrectKey = Encoding.UTF8.GetBytes(key);
-            using (HMACSHA384 hmac = new HMACSHA384(secrectKey))
+            using (HMACSHA384 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -459,7 +459,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA384(string str, string key, Encoding encoding)
         {
             byte[] secrectKey = encoding.GetBytes(key);
-            using (HMACSHA384 hmac = new HMACSHA384(secrectKey))
+            using (HMACSHA384 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -485,7 +485,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA512(string str, string key)
         {
             byte[] secrectKey = Encoding.UTF8.GetBytes(key);
-            using (HMACSHA512 hmac = new HMACSHA512(secrectKey))
+            using (HMACSHA512 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -509,7 +509,7 @@ namespace Newcats.Utils.Helpers
         public static string HMACSHA512(string str, string key, Encoding encoding)
         {
             byte[] secrectKey = encoding.GetBytes(key);
-            using (HMACSHA512 hmac = new HMACSHA512(secrectKey))
+            using (HMACSHA512 hmac = new(secrectKey))
             {
                 hmac.Initialize();
 
@@ -540,15 +540,15 @@ namespace Newcats.Utils.Helpers
         /// <returns>明文</returns>
         public static string DESDecrypt(string Data, string key)
         {
-            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            DESCryptoServiceProvider des = new();
 
             des.Key = ASCIIEncoding.ASCII.GetBytes(key);
             des.IV = ASCIIEncoding.ASCII.GetBytes(key);
 
             byte[] inputByteArray = HexStringToBytes(Data);
 
-            System.IO.MemoryStream ms = new System.IO.MemoryStream();
-            CryptoStream cs = new CryptoStream(ms, des.CreateDecryptor(), CryptoStreamMode.Write);
+            System.IO.MemoryStream ms = new();
+            CryptoStream cs = new(ms, des.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(inputByteArray, 0, inputByteArray.Length);
             cs.FlushFinalBlock();
 

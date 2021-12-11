@@ -10,7 +10,7 @@ namespace Newcats.Utils.Extensions
     public static class CollectionExtensions
     {
         /// <summary>
-        /// IEnumerable<T>数据转为DataTable
+        /// IEnumerable数据转为DataTable
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="collection">数据源</param>
@@ -43,14 +43,14 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// DataTable数据转为List<T>
+        /// DataTable数据转为List
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="source">数据源</param>
-        /// <returns>List<T>数据</returns>
+        /// <returns>List数据</returns>
         public static List<T> ToList<T>(this DataTable source) where T : class, new()
         {
-            List<T> list = new List<T>();
+            List<T> list = new();
             if (source == null || source.Rows.Count == 0)
                 return list;
 
@@ -60,7 +60,7 @@ namespace Newcats.Utils.Extensions
 
             foreach (DataRow dr in source.Rows)
             {
-                T t = new T();
+                T t = new();
                 //获得此模型的公共属性      
                 PropertyInfo[] propertys = t.GetType().GetProperties();
                 foreach (PropertyInfo pi in propertys)

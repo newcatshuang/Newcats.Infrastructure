@@ -17,7 +17,7 @@ namespace Newcats.AspNetCore
         /// <returns>The JSON string representation of the value.</returns>
         internal static string ToJson(this object value)
         {
-            JsonSerializerOptions opt = new JsonSerializerOptions()
+            JsonSerializerOptions opt = new()
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };
@@ -34,7 +34,7 @@ namespace Newcats.AspNetCore
         /// <returns>A JSON string representation of the value.</returns>
         internal static string ToJson<TValue>(this TValue value)
         {
-            JsonSerializerOptions opt = new JsonSerializerOptions()
+            JsonSerializerOptions opt = new()
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };

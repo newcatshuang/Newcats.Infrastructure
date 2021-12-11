@@ -261,7 +261,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>The JSON string representation of the value.</returns>
         public static string ToJson(this object value)
         {
-            JsonSerializerOptions opt = new JsonSerializerOptions()
+            JsonSerializerOptions opt = new()
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };
@@ -289,7 +289,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>The JSON string representation of the value.</returns>
         public static string ToJson(this object value, Type inputType)
         {
-            JsonSerializerOptions opt = new JsonSerializerOptions()
+            JsonSerializerOptions opt = new()
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };
@@ -318,7 +318,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>A JSON string representation of the value.</returns>
         public static string ToJson<TValue>(this TValue value)
         {
-            JsonSerializerOptions opt = new JsonSerializerOptions()
+            JsonSerializerOptions opt = new()
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)//不转义编码字符集(可以输出中文)
             };
@@ -349,7 +349,7 @@ namespace Newcats.Utils.Extensions
         /// <exception cref="JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
         public static object Deserialize(this string json, Type returnType)
         {
-            JsonSerializerOptions opt = new JsonSerializerOptions()
+            JsonSerializerOptions opt = new()
             {
                 PropertyNameCaseInsensitive = true//大小写不敏感
             };
@@ -385,7 +385,7 @@ namespace Newcats.Utils.Extensions
         /// <exception cref="JsonException">The JSON is invalid. -or- TValue is not compatible with the JSON. -or- There is remaining data in the string beyond a single JSON value.</exception>
         public static TValue Deserialize<TValue>(this string json)
         {
-            JsonSerializerOptions opt = new JsonSerializerOptions()
+            JsonSerializerOptions opt = new()
             {
                 PropertyNameCaseInsensitive = true//大小写不敏感
             };
@@ -445,7 +445,7 @@ namespace Newcats.Utils.Extensions
         public static DateTime GetTimeFromUnixTimestamp(this long timestamp)
         {
             var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
-            TimeSpan span = new TimeSpan(long.Parse(timestamp + "0000000"));
+            TimeSpan span = new(long.Parse(timestamp + "0000000"));
             return start.Add(span).Add(new TimeSpan(8, 0, 0));
         }
         #endregion

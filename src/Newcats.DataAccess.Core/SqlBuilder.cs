@@ -22,8 +22,8 @@ namespace Newcats.DataAccess.Core
                 sqlWhere = string.Empty;
                 return null;
             }
-            DynamicParameters dp = new DynamicParameters();
-            StringBuilder sb = new StringBuilder();
+            DynamicParameters dp = new();
+            StringBuilder sb = new();
             int index = 0;
             foreach (DbWhere<TEntity> item in dbWheres)
             {
@@ -150,8 +150,8 @@ namespace Newcats.DataAccess.Core
         {
             if (dbUpdates == null || !dbUpdates.Any())
                 throw new ArgumentNullException(nameof(dbUpdates));
-            DynamicParameters db = new DynamicParameters();
-            StringBuilder builder = new StringBuilder();
+            DynamicParameters db = new();
+            StringBuilder builder = new();
             int index = 0;
             foreach (var item in dbUpdates)
             {
@@ -173,7 +173,7 @@ namespace Newcats.DataAccess.Core
         {
             if (dbOrderBy == null || dbOrderBy.Length == 0)
                 return string.Empty;
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             foreach (var item in dbOrderBy)
             {
                 builder.AppendFormat(" {0} {1},", item.PropertyName, item.OrderByType);

@@ -52,7 +52,7 @@ namespace Newcats.Office
         public static DataTable ReadExcelToTable(string fullFilePath)
         {
             IWorkbook wk = null;
-            using (FileStream file = new FileStream(fullFilePath, FileMode.Open, FileAccess.Read))
+            using (FileStream file = new(fullFilePath, FileMode.Open, FileAccess.Read))
             {
                 file.Position = 0;
                 string fileExtension = Path.GetExtension(file.Name).ToLower();
@@ -101,7 +101,7 @@ namespace Newcats.Office
             if (file == null || file.Length == 0)
                 throw new FileNotFoundException("The excel file do not exist!");
             IWorkbook wk = null;
-            using (MemoryStream stream = new MemoryStream())
+            using (MemoryStream stream = new())
             {
                 file.CopyTo(stream);
                 stream.Position = 0;
@@ -284,7 +284,7 @@ namespace Newcats.Office
             if (sheet == null)
                 throw new FileNotFoundException("The excel file do not exist!");
 
-            DataTable dt = new DataTable();
+            DataTable dt = new();
 
             IRow headerRow = sheet.GetRow(0);
             int cellCount = headerRow.LastCellNum;
@@ -346,7 +346,7 @@ namespace Newcats.Office
                         case CellType.Formula:
                             try
                             {
-                                HSSFFormulaEvaluator e = new HSSFFormulaEvaluator(cell.Sheet.Workbook);
+                                HSSFFormulaEvaluator e = new(cell.Sheet.Workbook);
                                 e.EvaluateInCell(cell);
                                 dataRow[j] = cell.ToString();
                             }
@@ -386,7 +386,7 @@ namespace Newcats.Office
         public static DataTable ReadExcelToTable(string fullFilePath)
         {
             IWorkbook wk = null;
-            using (FileStream file = new FileStream(fullFilePath, FileMode.Open, FileAccess.Read))
+            using (FileStream file = new(fullFilePath, FileMode.Open, FileAccess.Read))
             {
                 file.Position = 0;
                 string fileExtension = Path.GetExtension(file.Name).ToLower();
@@ -435,7 +435,7 @@ namespace Newcats.Office
             if (file == null || file.Length == 0)
                 throw new FileNotFoundException("The excel file do not exist!");
             IWorkbook wk = null;
-            using (MemoryStream stream = new MemoryStream())
+            using (MemoryStream stream = new())
             {
                 file.CopyTo(stream);
                 stream.Position = 0;
@@ -618,7 +618,7 @@ namespace Newcats.Office
             if (sheet == null)
                 throw new FileNotFoundException("The excel file do not exist!");
 
-            DataTable dt = new DataTable();
+            DataTable dt = new();
 
             IRow headerRow = sheet.GetRow(0);
             int cellCount = headerRow.LastCellNum;
@@ -680,7 +680,7 @@ namespace Newcats.Office
                         case CellType.Formula:
                             try
                             {
-                                HSSFFormulaEvaluator e = new HSSFFormulaEvaluator(cell.Sheet.Workbook);
+                                HSSFFormulaEvaluator e = new(cell.Sheet.Workbook);
                                 e.EvaluateInCell(cell);
                                 dataRow[j] = cell.ToString();
                             }

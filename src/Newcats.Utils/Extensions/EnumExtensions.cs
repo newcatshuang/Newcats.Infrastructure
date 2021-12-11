@@ -13,7 +13,7 @@ namespace Newcats.Utils.Extensions
         /// <summary>
         /// 缓存，键为类的全名+值的名字
         /// </summary>
-        private static readonly ConcurrentDictionary<string, string> _cacheDes = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> _cacheDes = new();
 
         /// <summary>
         /// 获取描述,使用System.ComponentModel.Description特性设置描述

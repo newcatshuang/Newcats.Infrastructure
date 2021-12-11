@@ -73,7 +73,7 @@ namespace Newcats.DataAccess.Core
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("@p_1", primaryKeyValue);
             return Connection.Execute(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
@@ -458,7 +458,7 @@ namespace Newcats.DataAccess.Core
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" DELETE FROM {tableName} WHERE {pkName}=@p_1 ;";
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("@p_1", primaryKeyValue);
             return await Connection.ExecuteAsync(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }

@@ -67,7 +67,7 @@ namespace Newcats.DataAccess.MySql
         {
             if (Connection.State == ConnectionState.Closed)
                 Connection.Open();
-            MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
+            MySqlBulkCopy copy = new((MySqlConnection)Connection, (MySqlTransaction?)transaction);
             copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
             copy.BulkCopyTimeout = commandTimeout ?? 0;
 
@@ -93,7 +93,7 @@ namespace Newcats.DataAccess.MySql
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("@p_1", primaryKeyValue);
             return Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
@@ -141,7 +141,7 @@ namespace Newcats.DataAccess.MySql
             string tableName = RepositoryHelper.GetTableName(type);
             string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = string.Empty, sqlWhere = string.Empty, sqlOrderBy = string.Empty;
-            DynamicParameters pars = new DynamicParameters();
+            DynamicParameters pars = new();
             if (dbWheres != null && dbWheres.Any())
                 pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             sqlOrderBy = SqlBuilder.GetOrderBySql(dbOrderBy);
@@ -192,7 +192,7 @@ namespace Newcats.DataAccess.MySql
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("@p_1", primaryKeyValue);
             object o = Connection.ExecuteScalar(sqlText, parameters, null, null, CommandType.Text);
             if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
@@ -252,7 +252,7 @@ namespace Newcats.DataAccess.MySql
         {
             if (Connection.State == ConnectionState.Closed)
                 Connection.Open();
-            MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
+            MySqlBulkCopy copy = new((MySqlConnection)Connection, (MySqlTransaction?)transaction);
             copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
             copy.BulkCopyTimeout = commandTimeout ?? 0;
 
@@ -278,7 +278,7 @@ namespace Newcats.DataAccess.MySql
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("@p_1", primaryKeyValue);
             return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
         }
@@ -325,7 +325,7 @@ namespace Newcats.DataAccess.MySql
             string tableName = RepositoryHelper.GetTableName(type);
             string fields = RepositoryHelper.GetTableFieldsQuery(type);
             string sqlText = string.Empty, sqlWhere = string.Empty, sqlOrderBy = string.Empty;
-            DynamicParameters pars = new DynamicParameters();
+            DynamicParameters pars = new();
             if (dbWheres != null && dbWheres.Any())
                 pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             sqlOrderBy = SqlBuilder.GetOrderBySql(dbOrderBy);
@@ -377,7 +377,7 @@ namespace Newcats.DataAccess.MySql
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
             string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("@p_1", primaryKeyValue);
             object o = await Connection.ExecuteScalarAsync(sqlText, parameters, null, null, CommandType.Text);
             if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)

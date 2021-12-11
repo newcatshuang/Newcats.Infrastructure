@@ -21,7 +21,7 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 缓存，键为类的全名
         /// </summary>
-        private static readonly ConcurrentDictionary<string, List<EnumDescription>> _cache = new ConcurrentDictionary<string, List<EnumDescription>>();
+        private static readonly ConcurrentDictionary<string, List<EnumDescription>> _cache = new();
 
         /// <summary>
         /// 获取当前枚举项所在的枚举的所有枚举项描述类
@@ -43,7 +43,7 @@ namespace Newcats.Utils.Helpers
         {
             if (!enumType.IsEnum)
                 return null;
-            List<EnumDescription> list = new List<EnumDescription>();
+            List<EnumDescription> list = new();
             if (_cache.TryGetValue(enumType.FullName, out list))
             {
                 if (list != null && list.Count > 0)

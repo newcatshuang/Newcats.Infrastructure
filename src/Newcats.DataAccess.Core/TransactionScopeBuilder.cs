@@ -25,7 +25,7 @@ namespace Newcats.DataAccess.Core
         /// <returns>TransactionScope</returns>
         public static TransactionScope Create(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted, bool enabledAsync = true)
         {
-            TransactionOptions options = new TransactionOptions
+            TransactionOptions options = new()
             {
                 IsolationLevel = isolationLevel,
                 Timeout = TransactionManager.DefaultTimeout

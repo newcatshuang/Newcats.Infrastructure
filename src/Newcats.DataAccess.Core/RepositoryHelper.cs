@@ -16,22 +16,22 @@ namespace Newcats.DataAccess.Core
         /// <summary>
         /// 实体类对应的insert语句字典，键为实体类全名（命名空间+类名+插入？批量插入？）
         /// </summary>
-        private static readonly ConcurrentDictionary<string, string> _sqlInsertDic = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> _sqlInsertDic = new();
 
         /// <summary>
         /// 实体类对应的数据库表名字典，键为实体类全名（命名空间+类名）
         /// </summary>
-        private static readonly ConcurrentDictionary<string, string> _tableNameDic = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> _tableNameDic = new();
 
         /// <summary>
         /// 实体类包含的所有有效字段的字典，键为实体类全名（命名空间+类名+插入?查询?）
         /// </summary>
-        private static readonly ConcurrentDictionary<string, string> _tableFieldsDic = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> _tableFieldsDic = new();
 
         /// <summary>
         /// 实体类对应的数据库表的主键名，键为实体类全名（命名空间+类名）
         /// </summary>
-        private static readonly ConcurrentDictionary<string, string> _tablePrimaryKeyDic = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> _tablePrimaryKeyDic = new();
 
         /// <summary>
         /// 获取实体类的表名
@@ -99,7 +99,7 @@ namespace Newcats.DataAccess.Core
             var pros = type.GetProperties();
             if (pros == null || pros.Length == 0)
                 throw new ArgumentException("No Fields found in this Entity", nameof(type));
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (var pro in pros)
             {
                 //1.排除NotMappedAttribute特性的字段
@@ -150,7 +150,7 @@ namespace Newcats.DataAccess.Core
             var pros = type.GetProperties();
             if (pros == null || pros.Length == 0)
                 throw new ArgumentException("No Fields found in this Entity", nameof(type));
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (var pro in pros)
             {
                 //1.排除NotMappedAttribute特性的字段
@@ -192,7 +192,7 @@ namespace Newcats.DataAccess.Core
             var pros = type.GetProperties();
             if (pros == null || pros.Length == 0)
                 throw new ArgumentException("No Fields found in this Entity", nameof(type));
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (var pro in pros)
             {
                 //1.排除NotMappedAttribute特性的字段

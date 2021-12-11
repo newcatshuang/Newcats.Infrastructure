@@ -30,7 +30,7 @@ namespace Newcats.AspNetCore.Filters
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             // do something before the action executes
-            Stopwatch stopwatch = new Stopwatch();
+            Stopwatch stopwatch = new();
             stopwatch.Start();
 
             ActionExecutedContext resultContext = await next();//执行Action
@@ -41,7 +41,7 @@ namespace Newcats.AspNetCore.Filters
             {
                 try
                 {
-                    AuditLogModel model = new AuditLogModel
+                    AuditLogModel model = new()
                     {
                         CurrentUserId = context.HttpContext.User.Identity.IsAuthenticated ? context.HttpContext.User.FindFirst("sub").Value : string.Empty,
                         Action = context.ActionDescriptor.DisplayName.ToSubstring(127),

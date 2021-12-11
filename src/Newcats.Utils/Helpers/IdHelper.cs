@@ -33,7 +33,7 @@
         /// <summary>
         /// 雪花算法ID
         /// </summary>
-        private readonly SnowflakeId _id = new SnowflakeId(1, 1);
+        private readonly SnowflakeId _id = new(1, 1);
 
         /// <summary>
         /// 获取<see cref="SnowflakeIdGenerator"/>类型的实例
@@ -162,7 +162,7 @@
         /// <summary>
         /// 对象锁
         /// </summary>
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         /// <summary>
         /// 获取下一个ID
@@ -264,7 +264,7 @@
             return new DisposableAction(() => { CurrentTimeFunc = InternalCurrentTimeMillis; });
         }
 
-        private static readonly DateTime Jan1St1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Jan1St1970 = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// 默认当前时间戳

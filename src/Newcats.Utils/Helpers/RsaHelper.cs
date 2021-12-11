@@ -115,7 +115,7 @@ namespace Newcats.Utils.Helpers
             var rsa = RSA.Create();
             var rsaParameters = new RSAParameters();
 
-            using (BinaryReader binr = new BinaryReader(new MemoryStream(privateKeyBits)))
+            using (BinaryReader binr = new(new MemoryStream(privateKeyBits)))
             {
                 byte bt = 0;
                 ushort twobytes = 0;
@@ -162,9 +162,9 @@ namespace Newcats.Utils.Helpers
             var x509Key = System.Convert.FromBase64String(publicKeyString);
 
             // ---------  Set up stream to read the asn.1 encoded SubjectPublicKeyInfo blob  ------
-            using (MemoryStream mem = new MemoryStream(x509Key))
+            using (MemoryStream mem = new(x509Key))
             {
-                using (BinaryReader binr = new BinaryReader(mem))  //wrap Memory Stream with BinaryReader for easy reading
+                using (BinaryReader binr = new(mem))  //wrap Memory Stream with BinaryReader for easy reading
                 {
                     byte bt = 0;
                     ushort twobytes = 0;
@@ -233,7 +233,7 @@ namespace Newcats.Utils.Helpers
 
                     // ------- create RSACryptoServiceProvider instance and initialize with public key -----
                     var rsa = RSA.Create();
-                    RSAParameters rsaKeyInfo = new RSAParameters
+                    RSAParameters rsaKeyInfo = new()
                     {
                         Modulus = modulus,
                         Exponent = exponent

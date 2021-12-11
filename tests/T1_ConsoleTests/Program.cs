@@ -36,7 +36,7 @@ namespace T1_ConsoleTests
             //Console.WriteLine(list.ToJson());
 
 
-            User u = new User()
+            User u = new()
             {
                 Id = 1,
                 Name = "newcats",
