@@ -59,7 +59,7 @@ namespace Newcats.DataAccess.Core
                 {
                     if (item is TableAttribute tabAttr)
                     {
-                        tableName = tabAttr.Name;
+                        tableName = string.IsNullOrWhiteSpace(tabAttr.Schema) ? tabAttr.Name : $"{tabAttr.Schema}.{tabAttr.Name}";
                         break;
                     }
                 }
@@ -87,7 +87,7 @@ namespace Newcats.DataAccess.Core
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <returns>数据库表字段(逗号(,)分割)</returns>
-        private static string GetTableFieldsInsert(Type type)
+        public static string GetTableFieldsInsert(Type type)
         {
             string key = $"{type.FullName}_InsertFields";
             string fields = string.Empty;

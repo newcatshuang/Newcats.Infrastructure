@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.DataAccess.Core</Title>
 		<PackageId>Newcats.DataAccess.Core</PackageId>
-		<Version>1.1.7</Version>
+		<Version>1.1.9</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -18,6 +18,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2021-12-12
+			1.增加TableAttribute.Schema支持
+
 			2021-12-09
 			1.修复访问修饰符bug
 

@@ -10,6 +10,7 @@
 using System.Data;
 using Dapper;
 using Newcats.DataAccess.Core;
+using Npgsql;
 
 namespace Newcats.DataAccess.PostgreSql
 {
@@ -74,18 +75,11 @@ namespace Newcats.DataAccess.PostgreSql
         /// <returns>成功的条数</returns>
         public override int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            //TODO:参考 https://github.com/PostgreSQLCopyHelper/PostgreSQLCopyHelper 实现
-            return InsertBulk<TEntity>(list, transaction, commandTimeout);
-
-            //throw new NotImplementedException("2021-12-05,v1.0.0暂未实现SqlBulkCopy方法");
-            //if (Connection.State == ConnectionState.Closed)
-            //    Connection.Open();
-            //MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
-            //copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
-            //copy.BulkCopyTimeout = commandTimeout ?? 0;
-
-            //var r = copy.WriteToServer(RepositoryHelper.ToDataTable<TEntity>(list));
-            //return r.RowsInserted;
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            NpgSqlBulkCopy<TEntity> copy = new((NpgsqlConnection)Connection);
+            ulong r = copy.WriteToServer(list);
+            return Convert.ToInt32(r);
         }
 
         /// <summary>
@@ -262,18 +256,11 @@ namespace Newcats.DataAccess.PostgreSql
         /// <returns>成功的条数</returns>
         public override async Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            //TODO:参考 https://github.com/PostgreSQLCopyHelper/PostgreSQLCopyHelper 实现
-            return await InsertBulkAsync<TEntity>(list, transaction, commandTimeout);
-
-            //throw new NotImplementedException("2021-12-05,v1.0.0暂未实现SqlBulkCopy方法");
-            //if (Connection.State == ConnectionState.Closed)
-            //    Connection.Open();
-            //MySqlBulkCopy copy = new MySqlBulkCopy((MySqlConnection)Connection, (MySqlTransaction?)transaction);
-            //copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
-            //copy.BulkCopyTimeout = commandTimeout ?? 0;
-
-            //var r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
-            //return r.RowsInserted;
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            NpgSqlBulkCopy<TEntity> copy = new((NpgsqlConnection)Connection);
+            ulong r = await copy.WriteToServerAsync(list);
+            return Convert.ToInt32(r);
         }
 
         /// <summary>

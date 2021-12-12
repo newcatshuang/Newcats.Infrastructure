@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newcats.AspNetCore.Filters;
 using Newcats.DataAccess;
 using Newcats.DataAccess.Core;
+using Newcats.Utils.Helpers;
 //using Newcats.DataAccess.MySql;
 
 namespace Newcats.WebApi.Controllers
@@ -71,26 +72,51 @@ namespace Newcats.WebApi.Controllers
         [HttpGet]
         public async Task<string> Get()
         {
-            var r1 = _repository.GetTop<UserInfo>(10);
-            var r3 = _repository.Insert(new UserInfo { Id = Random.Shared.NextInt64(1, 3000), Name = "Newcats", JoinTime = DateTime.Now });
-
-            var r2 = await _repository.GetTopAsync<UserInfo>(20);
-            var r4 = await _repository.InsertAsync<UserInfo>(new UserInfo { Id = Random.Shared.NextInt64(1, 3000), Name = "huang", JoinTime = DateTime.Now });
-
-            _repository.Delete<UserInfo>(2658);
-
-            _repository.Update<UserInfo>(1367, new List<DbUpdate<UserInfo>>
+            List<PgUserInfo> list = new List<PgUserInfo>();
+            Stopwatch sw = Stopwatch.StartNew();
+            sw.Start();
+            for (int i = 0; i < 2000; i++)
             {
-                new DbUpdate<UserInfo>(r=>r.Name,"NewcatsHuang")
-            });
+                PgUserInfo u = new PgUserInfo()
+                {
+                    Id = IdHelper.Create(),
+                    Name = EncryptHelper.GetRandomString(Random.Shared.Next(20)),
+                    CreateTime = DateTime.Now
+                };
+                list.Add(u);
+            }
+            sw.Stop();
+            var t1 = sw.ElapsedMilliseconds;
+            sw.Restart();
+            var r = await _repository.InsertSqlBulkCopyAsync<PgUserInfo>(list);
+            sw.Stop();
+            var t2 = sw.ElapsedMilliseconds;
+            return r.ToString();
 
-            _repository.GetPage<UserInfo>(2, 5);
+            //TODO: bug待修复
+            //InvalidOperationException: The binary import operation was started with 3 column(s), but 0 value(s) were provided.
+            //Npgsql.ThrowHelper.ThrowInvalidOperationException_BinaryImportParametersMismatch(int columnCount, int valueCount)
 
-            _repository.Count<UserInfo>();
+            //var r1 = _repository.GetTop<UserInfo>(10);
+            //var r3 = _repository.Insert(new UserInfo { Id = Random.Shared.NextInt64(1, 3000), Name = "Newcats", JoinTime = DateTime.Now });
 
-            _repository.Exists<UserInfo>();
+            //var r2 = await _repository.GetTopAsync<UserInfo>(20);
+            //var r4 = await _repository.InsertAsync<UserInfo>(new UserInfo { Id = Random.Shared.NextInt64(1, 3000), Name = "huang", JoinTime = DateTime.Now });
 
-            return $"r1:{r1.Count()}\r\nr3:{r3}\r\nr2:{r2.Count()}\r\nr4:{r4}";
+            //_repository.Delete<UserInfo>(2658);
+
+            //_repository.Update<UserInfo>(1367, new List<DbUpdate<UserInfo>>
+            //{
+            //    new DbUpdate<UserInfo>(r=>r.Name,"NewcatsHuang")
+            //});
+
+            //_repository.GetPage<UserInfo>(2, 5);
+
+            //_repository.Count<UserInfo>();
+
+            //_repository.Exists<UserInfo>();
+
+            //return $"r1:{r1.Count()}\r\nr3:{r3}\r\nr2:{r2.Count()}\r\nr4:{r4}";
         }
 
         //[Audit]
@@ -155,6 +181,15 @@ namespace Newcats.WebApi.Controllers
         {
             return "hello";
         }
+    }
+
+    [Table("UserInfo")]
+    public class PgUserInfo
+    {
+        public long Id { get; set; }
+
+        public string Name { get; set; }
+        public DateTime CreateTime { get; set; }
     }
 
     [Table("UserInfo")]
