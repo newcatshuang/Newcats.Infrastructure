@@ -77,8 +77,9 @@ namespace Newcats.DataAccess.PostgreSql
         {
             if (Connection.State == ConnectionState.Closed)
                 Connection.Open();
-            NpgSqlBulkCopy<TEntity> copy = new((NpgsqlConnection)Connection);
-            ulong r = copy.WriteToServer(list);
+            NpgSqlBulkCopy copy = transaction == null ? new((NpgsqlConnection)Connection) : new((NpgsqlConnection)Connection, (NpgsqlTransaction)transaction);
+
+            ulong r = copy.WriteToServer(RepositoryHelper.ToDataTable(list));
             return Convert.ToInt32(r);
         }
 
@@ -258,8 +259,9 @@ namespace Newcats.DataAccess.PostgreSql
         {
             if (Connection.State == ConnectionState.Closed)
                 Connection.Open();
-            NpgSqlBulkCopy<TEntity> copy = new((NpgsqlConnection)Connection);
-            ulong r = await copy.WriteToServerAsync(list);
+            NpgSqlBulkCopy copy = transaction == null ? new((NpgsqlConnection)Connection) : new((NpgsqlConnection)Connection, (NpgsqlTransaction)transaction);
+
+            ulong r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
             return Convert.ToInt32(r);
         }
 

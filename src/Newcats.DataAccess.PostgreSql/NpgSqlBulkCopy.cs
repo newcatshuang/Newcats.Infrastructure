@@ -123,7 +123,9 @@ namespace Newcats.DataAccess.PostgreSql
         public ulong WriteToServer(IDataReader reader)
         {
             ArgumentNullException.ThrowIfNull(nameof(reader));
-            return WriteToServer(reader.ToDataTable());
+            var dt = new DataTable();
+            dt.Load(reader);
+            return WriteToServer(dt);
         }
 
         /// <summary>
@@ -136,7 +138,9 @@ namespace Newcats.DataAccess.PostgreSql
         public async Task<ulong> WriteToServerAsync(IDataReader reader, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(nameof(reader));
-            return await WriteToServerAsync(reader.ToDataTable(), cancellationToken);
+            var dt = new DataTable();
+            dt.Load(reader);
+            return await WriteToServerAsync(dt, cancellationToken);
         }
 
         /// <summary>
