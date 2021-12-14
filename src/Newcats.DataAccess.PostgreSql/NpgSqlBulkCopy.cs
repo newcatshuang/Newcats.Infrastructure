@@ -9,6 +9,8 @@
 *****************************************************************************/
 using System.Data;
 using Npgsql;
+using NpgsqlTypes;
+using static Npgsql.Replication.PgOutput.Messages.RelationMessage;
 
 namespace Newcats.DataAccess.PostgreSql
 {
@@ -74,6 +76,8 @@ namespace Newcats.DataAccess.PostgreSql
             foreach (DataRow dataRow in table.Rows)
             {
                 writer.StartRow();
+                //writer.WriteRow(dataRow);
+
                 foreach (var colName in colNames)
                 {
                     writer.Write(dataRow[colName]);//TODO:此处需要明确的PgsqlDbType
@@ -190,3 +194,62 @@ namespace Newcats.DataAccess.PostgreSql
         }
     }
 }
+
+
+//var dbtype = column.DbTypeText;
+//var isarray = dbtype.EndsWith("[]");
+//if (isarray) dbtype = dbtype.Remove(dbtype.Length - 2);
+//NpgsqlDbType ret = NpgsqlDbType.Unknown;
+//switch (dbtype.ToLower().TrimStart('_'))
+//{
+//    case "int2": ret = NpgsqlDbType.Smallint; break;
+//    case "int4": ret = NpgsqlDbType.Integer; break;
+//    case "int8": ret = NpgsqlDbType.Bigint; break;
+//    case "numeric": ret = NpgsqlDbType.Numeric; break;
+//    case "float4": ret = NpgsqlDbType.Real; break;
+//    case "float8": ret = NpgsqlDbType.Double; break;
+//    case "money": ret = NpgsqlDbType.Money; break;
+
+//    case "bpchar": ret = NpgsqlDbType.Char; break;
+//    case "varchar": ret = NpgsqlDbType.Varchar; break;
+//    case "text": ret = NpgsqlDbType.Text; break;
+
+//    case "timestamp": ret = NpgsqlDbType.Timestamp; break;
+//    case "timestamptz": ret = NpgsqlDbType.TimestampTz; break;
+//    case "date": ret = NpgsqlDbType.Date; break;
+//    case "time": ret = NpgsqlDbType.Time; break;
+//    case "timetz": ret = NpgsqlDbType.TimeTz; break;
+//    case "interval": ret = NpgsqlDbType.Interval; break;
+
+//    case "bool": ret = NpgsqlDbType.Boolean; break;
+//    case "bytea": ret = NpgsqlDbType.Bytea; break;
+//    case "bit": ret = NpgsqlDbType.Bit; break;
+//    case "varbit": ret = NpgsqlDbType.Varbit; break;
+
+//    case "point": ret = NpgsqlDbType.Point; break;
+//    case "line": ret = NpgsqlDbType.Line; break;
+//    case "lseg": ret = NpgsqlDbType.LSeg; break;
+//    case "box": ret = NpgsqlDbType.Box; break;
+//    case "path": ret = NpgsqlDbType.Path; break;
+//    case "polygon": ret = NpgsqlDbType.Polygon; break;
+//    case "circle": ret = NpgsqlDbType.Circle; break;
+
+//    case "cidr": ret = NpgsqlDbType.Cidr; break;
+//    case "inet": ret = NpgsqlDbType.Inet; break;
+//    case "macaddr": ret = NpgsqlDbType.MacAddr; break;
+
+//    case "json": ret = NpgsqlDbType.Json; break;
+//    case "jsonb": ret = NpgsqlDbType.Jsonb; break;
+//    case "uuid": ret = NpgsqlDbType.Uuid; break;
+
+//    case "int4range": ret = NpgsqlDbType.Range | NpgsqlDbType.Integer; break;
+//    case "int8range": ret = NpgsqlDbType.Range | NpgsqlDbType.Bigint; break;
+//    case "numrange": ret = NpgsqlDbType.Range | NpgsqlDbType.Numeric; break;
+//    case "tsrange": ret = NpgsqlDbType.Range | NpgsqlDbType.Timestamp; break;
+//    case "tstzrange": ret = NpgsqlDbType.Range | NpgsqlDbType.TimestampTz; break;
+//    case "daterange": ret = NpgsqlDbType.Range | NpgsqlDbType.Date; break;
+
+//    case "hstore": ret = NpgsqlDbType.Hstore; break;
+//    case "geometry": ret = NpgsqlDbType.Geometry; break;
+//}
+//return isarray ? (ret | NpgsqlDbType.Array) : ret;
