@@ -75,12 +75,15 @@ namespace Newcats.DataAccess.PostgreSql
         /// <returns>成功的条数</returns>
         public override int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (Connection.State == ConnectionState.Closed)
-                Connection.Open();
-            NpgSqlBulkCopy copy = transaction == null ? new((NpgsqlConnection)Connection) : new((NpgsqlConnection)Connection, (NpgsqlTransaction)transaction);
-
-            ulong r = copy.WriteToServer(RepositoryHelper.ToDataTable(list));
-            return Convert.ToInt32(r);
+            NpgsqlConnection conn = (NpgsqlConnection)Connection;
+            NpgsqlTransaction? tran = transaction == null ? null : (NpgsqlTransaction)transaction;
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+            using (NpgSqlBulkCopy copy = new(conn, tran))
+            {
+                ulong r = copy.WriteToServer(RepositoryHelper.ToDataTable(list));
+                return Convert.ToInt32(r);
+            }
         }
 
         /// <summary>
@@ -257,12 +260,15 @@ namespace Newcats.DataAccess.PostgreSql
         /// <returns>成功的条数</returns>
         public override async Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (Connection.State == ConnectionState.Closed)
-                Connection.Open();
-            NpgSqlBulkCopy copy = transaction == null ? new((NpgsqlConnection)Connection) : new((NpgsqlConnection)Connection, (NpgsqlTransaction)transaction);
-
-            ulong r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
-            return Convert.ToInt32(r);
+            NpgsqlConnection conn = (NpgsqlConnection)Connection;
+            NpgsqlTransaction? tran = transaction == null ? null : (NpgsqlTransaction)transaction;
+            if (conn.State == ConnectionState.Closed)
+                await conn.OpenAsync();
+            using (NpgSqlBulkCopy copy = new(conn, tran))
+            {
+                ulong r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
+                return Convert.ToInt32(r);
+            }
         }
 
         /// <summary>
