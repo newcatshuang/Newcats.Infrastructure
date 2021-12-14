@@ -91,7 +91,7 @@ namespace Newcats.WebApi.Controllers
             var r = await _repository.InsertSqlBulkCopyAsync<PgUserInfo>(list);
             sw.Stop();
             var t2 = sw.ElapsedMilliseconds;
-            return r.ToString();
+            return $"t1:{t1}\r\nt2:{t2}";
 
             //TODO: bug待修复
             //InvalidOperationException: The binary import operation was started with 3 column(s), but 0 value(s) were provided.

@@ -76,7 +76,7 @@ namespace Newcats.DataAccess.PostgreSql
                 writer.StartRow();
                 foreach (var colName in colNames)
                 {
-                    writer.Write(dataRow[colName]);
+                    writer.Write(dataRow[colName]);//TODO:此处需要明确的PgsqlDbType
                 }
             }
             return writer;

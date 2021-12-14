@@ -264,7 +264,7 @@ namespace Newcats.DataAccess.PostgreSql
             NpgsqlTransaction? tran = transaction == null ? null : (NpgsqlTransaction)transaction;
             if (conn.State == ConnectionState.Closed)
                 await conn.OpenAsync();
-            using (NpgSqlBulkCopy copy = new(conn, tran))
+            using (NpgSqlBulkCopy copy = new(conn, RepositoryHelper.GetTableName(typeof(TEntity)), tran))
             {
                 ulong r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
                 return Convert.ToInt32(r);
