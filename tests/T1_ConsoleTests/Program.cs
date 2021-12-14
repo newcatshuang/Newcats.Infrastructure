@@ -17,6 +17,9 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            ReadExcel.Read();
+
+            return;
 
             //EnumHelper.ConvertToList<Season>();
             //EnumHelper.ConvertToList<Season>();

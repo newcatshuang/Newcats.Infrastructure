@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Newcats.DataAccess.Core\Newcats.DataAccess.Core.csproj" />
-    <ProjectReference Include="..\..\src\Newcats.Utils\Newcats.Utils.csproj" />
+    <ProjectReference Include="..\..\src\Newcats.Office\Newcats.Office.csproj" />
   </ItemGroup>
 
   <ItemGroup>
