@@ -76,7 +76,7 @@ namespace Newcats.Office
         public static DataTable ReadExcelToTable(string fullFilePath)
         {
             IWorkbook? wk = null;
-            using (FileStream file = new(fullFilePath, FileMode.Open, FileAccess.Read))
+            using (FileStream file = new(fullFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))//FileShare.ReadWrite运行读取被占用的文件
             {
                 file.Position = 0;
                 string fileExtension = Path.GetExtension(file.Name).ToLower();
