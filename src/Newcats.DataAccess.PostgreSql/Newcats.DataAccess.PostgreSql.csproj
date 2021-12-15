@@ -6,11 +6,11 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.DataAccess.PostgreSql</Title>
 		<PackageId>Newcats.DataAccess.PostgreSql</PackageId>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
-		<PackageTags>Dapper;DataAccess;Helpers;PostgreSql</PackageTags>
+		<PackageTags>Dapper;DataAccess;Helpers;PostgreSql;NpgSqlBulkCopy;SqlBulkCopy</PackageTags>
 		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.DataAccess.PostgreSql</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
 		<Description>Some common functions(CRUD etc) to make data access easy.Check detail from github for how to use.</Description>
@@ -19,7 +19,10 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
-			2021-12-09
+			2021-12-16 v1.0.1
+			1.完成SqlBulkCopy实现
+
+			2021-12-09 v1.0.0
 			1.完成基本的CRUD方法(SqlBulkCopy暂未实现)
 			2.增加详细的使用说明文档，详见github
 		</PackageReleaseNotes>
