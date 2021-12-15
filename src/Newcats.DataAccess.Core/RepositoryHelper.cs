@@ -59,7 +59,10 @@ namespace Newcats.DataAccess.Core
                 {
                     if (item is TableAttribute tabAttr)
                     {
-                        tableName = string.IsNullOrWhiteSpace(tabAttr.Schema) ? tabAttr.Name : $"{tabAttr.Schema}.{tabAttr.Name}";
+                        if (tabAttr.Name.Contains("join"))
+                            tableName = tabAttr.Name;
+                        else
+                            tableName = string.IsNullOrWhiteSpace(tabAttr.Schema) ? tabAttr.Name : $"{tabAttr.Schema}.{tabAttr.Name}";
                         break;
                     }
                 }

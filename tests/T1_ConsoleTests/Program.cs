@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
@@ -10,6 +12,7 @@ using Newcats.DataAccess.Core;
 using Newcats.Utils.Extensions;
 using Newcats.Utils.Helpers;
 using Newcats.Utils.Models;
+using NpgsqlTypes;
 
 namespace T1_ConsoleTests
 {
@@ -17,6 +20,17 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            var type = NpgsqlDbType.Bigint.GetType();
+            string memberName = Enum.GetName(NpgsqlDbType.Bigint);
+            MemberInfo memberInfo = type.GetTypeInfo().GetMember(memberName).FirstOrDefault();
+            var attrs = memberInfo.GetCustomAttributes();
+            //if (attrs != null && attrs.Any())
+            var a1 = attrs.First();
+            var a2 = attrs.First().GetType().GetProperty("Name", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(a1);
+
+            return;
+
+
             ReadExcel.Read();
 
             return;

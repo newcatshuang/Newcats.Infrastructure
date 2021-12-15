@@ -79,7 +79,7 @@ namespace Newcats.DataAccess.PostgreSql
             NpgsqlTransaction? tran = transaction == null ? null : (NpgsqlTransaction)transaction;
             if (conn.State == ConnectionState.Closed)
                 conn.Open();
-            using (NpgSqlBulkCopy copy = new(conn, tran))
+            using (NpgSqlBulkCopy copy = new(conn, RepositoryHelper.GetTableName(typeof(TEntity)), tran))
             {
                 ulong r = copy.WriteToServer(RepositoryHelper.ToDataTable(list));
                 return Convert.ToInt32(r);

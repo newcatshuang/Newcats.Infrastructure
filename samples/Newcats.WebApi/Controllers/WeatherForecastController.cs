@@ -75,7 +75,7 @@ namespace Newcats.WebApi.Controllers
             List<PgUserInfo> list = new List<PgUserInfo>();
             Stopwatch sw = Stopwatch.StartNew();
             sw.Start();
-            for (int i = 0; i < 2000; i++)
+            for (int i = 0; i < 200; i++)
             {
                 PgUserInfo u = new PgUserInfo()
                 {
@@ -84,6 +84,7 @@ namespace Newcats.WebApi.Controllers
                     CreateTime = DateTime.Now
                 };
                 list.Add(u);
+                //await _repository.InsertAsync<PgUserInfo>(u);
             }
             sw.Stop();
             var t1 = sw.ElapsedMilliseconds;
@@ -91,7 +92,7 @@ namespace Newcats.WebApi.Controllers
             var r = await _repository.InsertSqlBulkCopyAsync<PgUserInfo>(list);
             sw.Stop();
             var t2 = sw.ElapsedMilliseconds;
-            return $"t1:{t1}\r\nt2:{t2}";
+            return $"t1:{t1}\r\nt2:{t2}\r\nt3:{(_repository.Count<PgUserInfo>()).ToString()}";
 
             //TODO: bug待修复
             //InvalidOperationException: The binary import operation was started with 3 column(s), but 0 value(s) were provided.
@@ -183,7 +184,7 @@ namespace Newcats.WebApi.Controllers
         }
     }
 
-    [Table("UserInfo")]
+    [Table("userinfo")]
     public class PgUserInfo
     {
         public long Id { get; set; }

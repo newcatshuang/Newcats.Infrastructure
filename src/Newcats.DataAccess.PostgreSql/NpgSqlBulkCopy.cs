@@ -8,9 +8,9 @@
  *Copyright NewcatsHuang All rights reserved.
 *****************************************************************************/
 using System.Data;
+using Dapper;
 using Npgsql;
 using NpgsqlTypes;
-using static Npgsql.Replication.PgOutput.Messages.RelationMessage;
 
 namespace Newcats.DataAccess.PostgreSql
 {
@@ -23,6 +23,24 @@ namespace Newcats.DataAccess.PostgreSql
         /// 目标表名(若包含架构，则为 Schema.TableName)
         /// </summary>
         public string? DestinationTableName { get; set; }
+
+        /// <summary>
+        /// 去除架构名的表名
+        /// </summary>
+        private string? shortName
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(DestinationTableName))
+                    return DestinationTableName.Contains('.') ? DestinationTableName.Split('.').Last() : DestinationTableName;
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 字段定义
+        /// </summary>
+        private List<FieldDefinition>? FieldDefinitions { get; set; }
 
         /// <summary>
         /// 数据库连接
@@ -38,27 +56,18 @@ namespace Newcats.DataAccess.PostgreSql
         /// 构造函数 <see cref="NpgSqlBulkCopy"/>
         /// </summary>
         /// <param name="connection">数据库连接</param>
-        /// <param name="transaction">数据库事务</param>
-        public NpgSqlBulkCopy(NpgsqlConnection connection, NpgsqlTransaction? transaction = null)
-        {
-            ArgumentNullException.ThrowIfNull(nameof(connection));
-            Connection = connection;
-            Transaction = transaction;
-            DestinationTableName = string.Empty;
-        }
-
-        /// <summary>
-        /// 构造函数 <see cref="NpgSqlBulkCopy"/>
-        /// </summary>
-        /// <param name="connection">数据库连接</param>
         /// <param name="destinationTableName">目标表名(若包含架构，则为 Schema.TableName)</param>
         /// <param name="transaction">数据库事务</param>
         public NpgSqlBulkCopy(NpgsqlConnection connection, string destinationTableName, NpgsqlTransaction? transaction = null)
         {
             ArgumentNullException.ThrowIfNull(nameof(connection));
+            ArgumentNullException.ThrowIfNull(nameof(destinationTableName));
+            if (string.IsNullOrWhiteSpace(destinationTableName))
+                throw new ArgumentNullException(nameof(destinationTableName));
             Connection = connection;
             Transaction = transaction;
             DestinationTableName = destinationTableName;
+            GetFieldDefinitions();
         }
 
         /// <summary>
@@ -80,7 +89,7 @@ namespace Newcats.DataAccess.PostgreSql
 
                 foreach (var colName in colNames)
                 {
-                    writer.Write(dataRow[colName]);//TODO:此处需要明确的PgsqlDbType
+                    writer.Write(dataRow[colName], GetNpgFieldType(colName));
                 }
             }
             return writer;
@@ -192,64 +201,63 @@ namespace Newcats.DataAccess.PostgreSql
                 }
             }
         }
+
+        /// <summary>
+        /// 获取所有的字段定义
+        /// </summary>
+        /// <returns></returns>
+        private void GetFieldDefinitions()
+        {
+            ArgumentNullException.ThrowIfNull(nameof(shortName));
+            string sql = @$"
+            SELECT a.attname AS FieldName, t.typname AS FieldType,a.attnotnull AS NotNull, b.description AS Description
+            FROM 
+            pg_class c, pg_attribute a
+            LEFT JOIN pg_description b ON a.attrelid = b.objoid
+            AND a.attnum = b.objsubid, pg_type t
+            WHERE c.relname = '{shortName}' AND a.attnum > 0 AND a.attrelid = c.oid AND a.atttypid = t.oid ORDER BY a.attnum;";//此处shortName是大小写敏感的
+            this.FieldDefinitions = Connection.Query<FieldDefinition>(sql).ToList();
+        }
+
+        private NpgsqlDbType GetNpgFieldType(string fieldName)
+        {
+            string fieldType = FieldDefinitions.FirstOrDefault(r => r.FieldName.Equals(fieldName, StringComparison.OrdinalIgnoreCase)).FieldType;
+            var dbTypes = NpgsqlTypeHelper.GetAllNpgsqlTypes(typeof(NpgsqlDbType));
+            return dbTypes.First(r => r.PostgresType.Equals(fieldType, StringComparison.OrdinalIgnoreCase)).NpgType;
+        }
+
+        /// <summary>
+        /// 字段定义
+        /// </summary>
+        private class FieldDefinition
+        {
+            //const string sql = @"
+            //SELECT a.attname AS FieldName, t.typname AS FieldType,a.attnotnull AS NotNull, b.description AS Description
+            //FROM 
+            //pg_class c, pg_attribute a
+            //LEFT JOIN pg_description b ON a.attrelid = b.objoid
+            //AND a.attnum = b.objsubid, pg_type t
+            //WHERE c.relname = 'userinfo' AND a.attnum > 0 AND a.attrelid = c.oid AND a.atttypid = t.oid ORDER BY a.attnum;";
+
+            /// <summary>
+            /// 字段名
+            /// </summary>
+            public string FieldName { get; set; }
+
+            /// <summary>
+            /// 字段类型
+            /// </summary>
+            public string FieldType { get; set; }
+
+            /// <summary>
+            /// 是否不可null
+            /// </summary>
+            public bool NotNull { get; set; }
+
+            /// <summary>
+            /// 字段注释
+            /// </summary>
+            public string? Description { get; set; }
+        }
     }
 }
-
-
-//var dbtype = column.DbTypeText;
-//var isarray = dbtype.EndsWith("[]");
-//if (isarray) dbtype = dbtype.Remove(dbtype.Length - 2);
-//NpgsqlDbType ret = NpgsqlDbType.Unknown;
-//switch (dbtype.ToLower().TrimStart('_'))
-//{
-//    case "int2": ret = NpgsqlDbType.Smallint; break;
-//    case "int4": ret = NpgsqlDbType.Integer; break;
-//    case "int8": ret = NpgsqlDbType.Bigint; break;
-//    case "numeric": ret = NpgsqlDbType.Numeric; break;
-//    case "float4": ret = NpgsqlDbType.Real; break;
-//    case "float8": ret = NpgsqlDbType.Double; break;
-//    case "money": ret = NpgsqlDbType.Money; break;
-
-//    case "bpchar": ret = NpgsqlDbType.Char; break;
-//    case "varchar": ret = NpgsqlDbType.Varchar; break;
-//    case "text": ret = NpgsqlDbType.Text; break;
-
-//    case "timestamp": ret = NpgsqlDbType.Timestamp; break;
-//    case "timestamptz": ret = NpgsqlDbType.TimestampTz; break;
-//    case "date": ret = NpgsqlDbType.Date; break;
-//    case "time": ret = NpgsqlDbType.Time; break;
-//    case "timetz": ret = NpgsqlDbType.TimeTz; break;
-//    case "interval": ret = NpgsqlDbType.Interval; break;
-
-//    case "bool": ret = NpgsqlDbType.Boolean; break;
-//    case "bytea": ret = NpgsqlDbType.Bytea; break;
-//    case "bit": ret = NpgsqlDbType.Bit; break;
-//    case "varbit": ret = NpgsqlDbType.Varbit; break;
-
-//    case "point": ret = NpgsqlDbType.Point; break;
-//    case "line": ret = NpgsqlDbType.Line; break;
-//    case "lseg": ret = NpgsqlDbType.LSeg; break;
-//    case "box": ret = NpgsqlDbType.Box; break;
-//    case "path": ret = NpgsqlDbType.Path; break;
-//    case "polygon": ret = NpgsqlDbType.Polygon; break;
-//    case "circle": ret = NpgsqlDbType.Circle; break;
-
-//    case "cidr": ret = NpgsqlDbType.Cidr; break;
-//    case "inet": ret = NpgsqlDbType.Inet; break;
-//    case "macaddr": ret = NpgsqlDbType.MacAddr; break;
-
-//    case "json": ret = NpgsqlDbType.Json; break;
-//    case "jsonb": ret = NpgsqlDbType.Jsonb; break;
-//    case "uuid": ret = NpgsqlDbType.Uuid; break;
-
-//    case "int4range": ret = NpgsqlDbType.Range | NpgsqlDbType.Integer; break;
-//    case "int8range": ret = NpgsqlDbType.Range | NpgsqlDbType.Bigint; break;
-//    case "numrange": ret = NpgsqlDbType.Range | NpgsqlDbType.Numeric; break;
-//    case "tsrange": ret = NpgsqlDbType.Range | NpgsqlDbType.Timestamp; break;
-//    case "tstzrange": ret = NpgsqlDbType.Range | NpgsqlDbType.TimestampTz; break;
-//    case "daterange": ret = NpgsqlDbType.Range | NpgsqlDbType.Date; break;
-
-//    case "hstore": ret = NpgsqlDbType.Hstore; break;
-//    case "geometry": ret = NpgsqlDbType.Geometry; break;
-//}
-//return isarray ? (ret | NpgsqlDbType.Array) : ret;
