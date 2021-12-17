@@ -94,6 +94,11 @@ namespace Newcats.DataAccess.PostgreSql
             return writer;
         }
 
+        /// <summary>
+        /// 构建NpgsqlBinaryImporter
+        /// </summary>
+        /// <param name="table">数据源</param>
+        /// <returns>NpgsqlBinaryImporter</returns>
         private async Task<NpgsqlBinaryImporter> BuildImporterAsync(DataTable table)
         {
             var colNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName).ToArray();
