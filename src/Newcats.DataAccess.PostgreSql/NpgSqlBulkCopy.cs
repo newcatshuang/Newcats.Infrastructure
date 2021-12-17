@@ -85,11 +85,29 @@ namespace Newcats.DataAccess.PostgreSql
             foreach (DataRow dataRow in table.Rows)
             {
                 writer.StartRow();
-                //writer.WriteRow(dataRow);
 
                 foreach (var colName in colNames)
                 {
                     writer.Write(dataRow[colName], GetNpgFieldType(colName));
+                }
+            }
+            return writer;
+        }
+
+        private async Task<NpgsqlBinaryImporter> BuildImporterAsync(DataTable table)
+        {
+            var colNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName).ToArray();
+            var colNameSegment = string.Join(',', colNames);
+
+            var writer = await Connection.BeginBinaryImportAsync($"COPY {DestinationTableName} ({colNameSegment}) FROM STDIN (FORMAT BINARY)");
+
+            foreach (DataRow dataRow in table.Rows)
+            {
+                await writer.StartRowAsync();
+
+                foreach (var colName in colNames)
+                {
+                    await writer.WriteAsync(dataRow[colName], GetNpgFieldType(colName));
                 }
             }
             return writer;
@@ -171,7 +189,7 @@ namespace Newcats.DataAccess.PostgreSql
 
             try
             {
-                await using (var writer = BuildImporter(table))
+                await using (var writer = await BuildImporterAsync(table))
                 {
                     result = await writer.CompleteAsync(cancellationToken);
                     await writer.CloseAsync(cancellationToken);
