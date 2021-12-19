@@ -81,7 +81,7 @@ namespace Newcats.WebApi.Controllers
                 {
                     Id = IdHelper.Create(),
                     Name = EncryptHelper.GetRandomString(Random.Shared.Next(20)),
-                    CreateTime = DateTime.Now
+                    JoinTime = DateTime.Now
                 };
                 list.Add(u);
                 //await _repository.InsertAsync<PgUserInfo>(u);
@@ -184,13 +184,15 @@ namespace Newcats.WebApi.Controllers
         }
     }
 
-    [Table("userinfo")]
+    [Table("userinfo", Schema = "public")]
     public class PgUserInfo
     {
         public long Id { get; set; }
 
         public string Name { get; set; }
-        public DateTime CreateTime { get; set; }
+
+        [Column("CreateTime")]
+        public DateTime JoinTime { get; set; }
     }
 
     [Table("UserInfo")]
