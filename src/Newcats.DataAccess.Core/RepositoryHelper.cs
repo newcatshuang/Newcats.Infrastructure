@@ -36,7 +36,7 @@ namespace Newcats.DataAccess.Core
         /// <summary>
         /// 获取实体类的表名
         /// 获取优先级为：
-        /// 1.获取TableAttribute特性的表名
+        /// 1.获取TableAttribute特性的表名（单表时为Schema.TableName，表连接时为TableName）
         /// 2.若类名以Entity结尾，则获取类名（去除Entity名称）
         /// 3.前面都不满足，则直接获取类名
         /// </summary>
@@ -59,7 +59,7 @@ namespace Newcats.DataAccess.Core
                 {
                     if (item is TableAttribute tabAttr)
                     {
-                        if (tabAttr.Name.Contains("join"))
+                        if (tabAttr.Name.Contains("join", StringComparison.OrdinalIgnoreCase))
                             tableName = tabAttr.Name;
                         else
                             tableName = string.IsNullOrWhiteSpace(tabAttr.Schema) ? tabAttr.Name : $"{tabAttr.Schema}.{tabAttr.Name}";
@@ -92,7 +92,7 @@ namespace Newcats.DataAccess.Core
         /// <returns>数据库表字段(逗号(,)分割)</returns>
         public static string GetTableFieldsInsert(Type type)
         {
-            string key = $"{type.FullName}_InsertFields";
+            string key = $"{type.FullName}:InsertFields";
             string fields = string.Empty;
             if (_tableFieldsDic.TryGetValue(key, out fields))
             {
@@ -143,7 +143,7 @@ namespace Newcats.DataAccess.Core
         /// <exception cref="ArgumentException"></exception>
         public static string GetTableFieldsInsertParameter(Type type)
         {
-            string key = $"{type.FullName}_InsertFieldsParameter";
+            string key = $"{type.FullName}:InsertFieldsParameter";
             string fields = string.Empty;
             if (_tableFieldsDic.TryGetValue(key, out fields))
             {
@@ -185,7 +185,7 @@ namespace Newcats.DataAccess.Core
         /// <returns>数据库表字段(逗号(,)分割)</returns>
         public static string GetTableFieldsQuery(Type type)
         {
-            string key = $"{type.FullName}_QueryFields";
+            string key = $"{type.FullName}:QueryFields";
             string fields = string.Empty;
             if (_tableFieldsDic.TryGetValue(key, out fields))
             {
@@ -297,7 +297,7 @@ namespace Newcats.DataAccess.Core
         /// <returns>insert语句</returns>
         public static string GetInsertSqlText(Type type)
         {
-            string key = $"{type.FullName}_Insert";
+            string key = $"{type.FullName}:Insert";
             string sqlText = string.Empty;
             if (_sqlInsertDic.TryGetValue(key, out sqlText))
             {
@@ -321,17 +321,20 @@ namespace Newcats.DataAccess.Core
 
         #region IEnumerable转DataTable
         /// <summary>
-        /// IEnumerable<T>数据转为DataTable
+        /// IEnumerable数据转为DataTable
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="collection">数据源</param>
         /// <returns>DataTable数据</returns>
         public static DataTable ToDataTable<T>(IEnumerable<T> collection) where T : class
         {
-            var tb = new DataTable(typeof(T).Name);
+            Type entityType = typeof(T);
+            string fullTableName = GetTableName(entityType);
+            string tableName = fullTableName.Contains('.') ? fullTableName.Split('.').Last() : fullTableName;
+            DataTable tb = new DataTable(tableName);
             if (collection == null || !collection.Any())
                 return tb;
-            List<PropertyInfo> props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+            List<PropertyInfo> props = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
             for (int i = 0; i < props.Count; i++)
             {
                 var attrsNot = props[i].GetCustomAttributes(typeof(NotMappedAttribute), false);

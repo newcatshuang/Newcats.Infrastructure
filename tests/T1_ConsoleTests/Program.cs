@@ -20,6 +20,13 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+
+            var tn = RepositoryHelper.GetTableName(typeof(UserInfo));
+            RepositoryHelper.GetTableName(typeof(UserInfo));
+            Console.WriteLine(tn);
+
+            return;
+
             var type = NpgsqlDbType.Bigint.GetType();
             string memberName = Enum.GetName(NpgsqlDbType.Bigint);
             MemberInfo memberInfo = type.GetTypeInfo().GetMember(memberName).FirstOrDefault();
