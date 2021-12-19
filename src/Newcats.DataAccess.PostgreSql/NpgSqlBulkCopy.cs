@@ -246,7 +246,7 @@ namespace Newcats.DataAccess.PostgreSql
         private NpgsqlDbType GetNpgFieldType(string fieldName)
         {
             string fieldType = FieldDefinitions.FirstOrDefault(r => r.FieldName.Equals(fieldName, StringComparison.OrdinalIgnoreCase)).FieldType;
-            var dbTypes = NpgsqlTypeHelper.GetAllNpgsqlTypes(typeof(NpgsqlDbType));
+            var dbTypes = NpgsqlTypeHelper.GetAllNpgsqlTypes();
             return dbTypes.FirstOrDefault(r => r.PostgresType.Equals(fieldType, StringComparison.OrdinalIgnoreCase)).NpgType;
         }
 

@@ -54,7 +54,7 @@ namespace Newcats.DataAccess.PostgreSql
         /// </summary>
         /// <param name="value">当前枚举项</param>
         /// <returns>Description特性描述</returns>
-        private static string GetDescription(this Enum value)
+        private static string GetPostgresType(this Enum value)
         {
             string r = string.Empty;
             Type type = value.GetType();
@@ -78,13 +78,13 @@ namespace Newcats.DataAccess.PostgreSql
         /// </summary>
         /// <param name="value">当前枚举项</param>
         /// <returns>枚举项描述类EnumDescription</returns>
-        private static NpgsqlTypeDescription GetEnumDescription(this Enum value)
+        private static NpgsqlTypeDescription GetNpgsqlTypeDescription(this Enum value)
         {
             NpgsqlTypeDescription description = new()
             {
                 Value = Convert.ToInt32(value),
                 Name = value.ToString(),
-                PostgresType = value.GetDescription(),
+                PostgresType = value.GetPostgresType(),
                 NpgType = (NpgsqlDbType)value
             };
             return description;
@@ -95,8 +95,9 @@ namespace Newcats.DataAccess.PostgreSql
         /// </summary>
         /// <param name="type">当前枚举项</param>
         /// <returns>枚举项描述类集合EnumDescription</returns>
-        internal static List<NpgsqlTypeDescription> GetAllNpgsqlTypes(Type type)
+        internal static List<NpgsqlTypeDescription> GetAllNpgsqlTypes()
         {
+            Type type = typeof(NpgsqlDbType);
             List<NpgsqlTypeDescription> list = new();
             if (_cache.TryGetValue(type.FullName, out list))
             {
@@ -106,7 +107,7 @@ namespace Newcats.DataAccess.PostgreSql
             list = new List<NpgsqlTypeDescription>();
             foreach (Enum e in Enum.GetValues(type))
             {
-                list.Add(e.GetEnumDescription());
+                list.Add(e.GetNpgsqlTypeDescription());
             }
 
             _cache.TryAdd(type.FullName, list);
