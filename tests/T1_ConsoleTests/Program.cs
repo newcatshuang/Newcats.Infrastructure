@@ -150,7 +150,7 @@ namespace T1_ConsoleTests
     }
 
 
-    [Table("UserInfo")]
+    [Table("UserInfo", Schema = "public")]
     public class UserInfo
     {
         public long Id { get; set; }

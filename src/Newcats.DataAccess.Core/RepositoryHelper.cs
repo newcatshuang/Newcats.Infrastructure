@@ -52,19 +52,16 @@ namespace Newcats.DataAccess.Core
                     return tableName;
             }
 
-            var attrs = type.GetCustomAttributes(typeof(TableAttribute), false);
-            if (attrs != null && attrs.Length > 0)
+            var attrs = type.GetCustomAttributes<TableAttribute>(false);
+            if (attrs != null && attrs.Any())
             {
                 foreach (var item in attrs)
                 {
-                    if (item is TableAttribute tabAttr)
-                    {
-                        if (tabAttr.Name.Contains("join", StringComparison.OrdinalIgnoreCase))
-                            tableName = tabAttr.Name;
-                        else
-                            tableName = string.IsNullOrWhiteSpace(tabAttr.Schema) ? tabAttr.Name : $"{tabAttr.Schema}.{tabAttr.Name}";
-                        break;
-                    }
+                    if (item.Name.Contains("join", StringComparison.OrdinalIgnoreCase))
+                        tableName = item.Name;
+                    else
+                        tableName = string.IsNullOrWhiteSpace(item.Schema) ? item.Name : $"{item.Schema}.{item.Name}";
+                    break;
                 }
             }
             if (!string.IsNullOrWhiteSpace(tableName))//1.判断TableAttribute特性
@@ -106,24 +103,24 @@ namespace Newcats.DataAccess.Core
             foreach (var pro in pros)
             {
                 //1.排除NotMappedAttribute特性的字段
-                var attrsNot = pro.GetCustomAttributes(typeof(NotMappedAttribute), false);
-                if (attrsNot != null && attrsNot.Length > 0)
+                var attrsNot = pro.GetCustomAttributes<NotMappedAttribute>(false);
+                if (attrsNot != null && attrsNot.Any())
                 {
                     continue;
                 }
 
                 //2.插入时，排除自增类型字段
-                var attrAuto = pro.GetCustomAttributes(typeof(DatabaseGeneratedAttribute), false);
-                if (attrAuto != null && attrAuto.Length > 0)
+                var attrAuto = pro.GetCustomAttributes<DatabaseGeneratedAttribute>(false);
+                if (attrAuto != null && attrAuto.Any())
                 {
                     continue;
                 }
 
                 //获取实际字段
-                var attrReal = pro.GetCustomAttributes(typeof(ColumnAttribute), false);
-                if (attrReal != null && attrReal.Length > 0)
+                var attrReal = pro.GetCustomAttributes<ColumnAttribute>(false);
+                if (attrReal != null && attrReal.Any())
                 {
-                    sb.AppendFormat("{0}", ((ColumnAttribute)attrReal[0]).Name);
+                    sb.AppendFormat("{0}", attrReal.FirstOrDefault().Name);
                 }
                 else
                 {
@@ -157,15 +154,15 @@ namespace Newcats.DataAccess.Core
             foreach (var pro in pros)
             {
                 //1.排除NotMappedAttribute特性的字段
-                var attrsNot = pro.GetCustomAttributes(typeof(NotMappedAttribute), false);
-                if (attrsNot != null && attrsNot.Length > 0)
+                var attrsNot = pro.GetCustomAttributes<NotMappedAttribute>(false);
+                if (attrsNot != null && attrsNot.Any())
                 {
                     continue;
                 }
 
                 //2.插入时，排除自增类型字段
-                var attrAuto = pro.GetCustomAttributes(typeof(DatabaseGeneratedAttribute), false);
-                if (attrAuto != null && attrAuto.Length > 0)
+                var attrAuto = pro.GetCustomAttributes<DatabaseGeneratedAttribute>(false);
+                if (attrAuto != null && attrAuto.Any())
                 {
                     continue;
                 }
@@ -199,16 +196,16 @@ namespace Newcats.DataAccess.Core
             foreach (var pro in pros)
             {
                 //1.排除NotMappedAttribute特性的字段
-                var attrsNot = pro.GetCustomAttributes(typeof(NotMappedAttribute), false);
-                if (attrsNot != null && attrsNot.Length > 0)
+                var attrsNot = pro.GetCustomAttributes<NotMappedAttribute>(false);
+                if (attrsNot != null && attrsNot.Any())
                 {
                     continue;
                 }
                 //3.判断表连接时候的实际字段
-                var attrReal = pro.GetCustomAttributes(typeof(ColumnAttribute), false);
-                if (attrReal != null && attrReal.Length > 0)
+                var attrReal = pro.GetCustomAttributes<ColumnAttribute>(false);
+                if (attrReal != null && attrReal.Any())
                 {
-                    sb.AppendFormat("{0} as {1},", ((ColumnAttribute)attrReal[0]).Name, pro.Name);//表连接查询时候的字段
+                    sb.AppendFormat("{0} as {1},", attrReal.FirstOrDefault().Name, pro.Name);//表连接查询时候的字段
                 }
                 else
                 {
@@ -245,12 +242,12 @@ namespace Newcats.DataAccess.Core
             //1.获取Key特性的字段
             foreach (var p in pros)
             {
-                var pkAttrs = p.GetCustomAttributes(typeof(KeyAttribute), false);
-                if (pkAttrs != null && pkAttrs.Length > 0)
+                var pkAttrs = p.GetCustomAttributes<KeyAttribute>(false);
+                if (pkAttrs != null && pkAttrs.Any())
                 {
-                    var realAttr = p.GetCustomAttributes(typeof(ColumnAttribute), false);
-                    if (realAttr != null && realAttr.Length > 0)
-                        pkName = ((ColumnAttribute)realAttr[0]).Name;
+                    var realAttr = p.GetCustomAttributes<ColumnAttribute>(false);
+                    if (realAttr != null && realAttr.Any())
+                        pkName = realAttr.FirstOrDefault().Name;
                     else
                         pkName = p.Name;
                     _tablePrimaryKeyDic.TryAdd(key, pkName);
@@ -262,9 +259,9 @@ namespace Newcats.DataAccess.Core
             {
                 if (p.Name.Equals("id", StringComparison.OrdinalIgnoreCase))
                 {
-                    var realAttr = p.GetCustomAttributes(typeof(ColumnAttribute), false);
-                    if (realAttr != null && realAttr.Length > 0)
-                        pkName = ((ColumnAttribute)realAttr[0]).Name;
+                    var realAttr = p.GetCustomAttributes<ColumnAttribute>(false);
+                    if (realAttr != null && realAttr.Any())
+                        pkName = realAttr.FirstOrDefault().Name;
                     else
                         pkName = p.Name;
                     _tablePrimaryKeyDic.TryAdd(key, pkName);
@@ -276,9 +273,9 @@ namespace Newcats.DataAccess.Core
             {
                 if (p.Name.EndsWith("id", StringComparison.OrdinalIgnoreCase))
                 {
-                    var realAttr = p.GetCustomAttributes(typeof(ColumnAttribute), false);
-                    if (realAttr != null && realAttr.Length > 0)
-                        pkName = ((ColumnAttribute)realAttr[0]).Name;
+                    var realAttr = p.GetCustomAttributes<ColumnAttribute>(false);
+                    if (realAttr != null && realAttr.Any())
+                        pkName = realAttr.FirstOrDefault().Name;
                     else
                         pkName = p.Name;
                     _tablePrimaryKeyDic.TryAdd(key, pkName);
@@ -337,17 +334,17 @@ namespace Newcats.DataAccess.Core
             List<PropertyInfo> props = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
             for (int i = 0; i < props.Count; i++)
             {
-                var attrsNot = props[i].GetCustomAttributes(typeof(NotMappedAttribute), false);
-                if (attrsNot != null && attrsNot.Length > 0)
+                var attrsNot = props[i].GetCustomAttributes<NotMappedAttribute>(false);
+                if (attrsNot != null && attrsNot.Any())
                 {
                     props.Remove(props[i]);
                     i--;
                     continue;
                 }
-                var attrReal = props[i].GetCustomAttributes(typeof(ColumnAttribute), false);
-                if (attrReal != null && attrReal.Length > 0)
+                var attrReal = props[i].GetCustomAttributes<ColumnAttribute>(false);
+                if (attrReal != null && attrReal.Any())
                 {
-                    tb.Columns.Add(((ColumnAttribute)attrReal[0]).Name, GetCoreType(props[i].PropertyType));
+                    tb.Columns.Add(attrReal.FirstOrDefault().Name, GetCoreType(props[i].PropertyType));
                 }
                 else
                 {
