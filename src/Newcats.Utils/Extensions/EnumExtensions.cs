@@ -32,7 +32,11 @@ namespace Newcats.Utils.Extensions
 
             string memberName = Enum.GetName(type, value);
             MemberInfo memberInfo = type.GetTypeInfo().GetMember(memberName).FirstOrDefault();
-            des = memberInfo.GetCustomAttribute(typeof(DescriptionAttribute)) is DescriptionAttribute attribute ? attribute.Description : memberInfo.Name;
+            var desAttr = memberInfo.GetCustomAttribute<DescriptionAttribute>();
+            if (desAttr != null && !string.IsNullOrWhiteSpace(desAttr.Description))
+                des = desAttr.Description;
+            else
+                des = memberInfo.Name;
             _cacheDes.TryAdd(key, des);
             return des;
         }

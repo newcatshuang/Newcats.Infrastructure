@@ -21,26 +21,26 @@ namespace T1_ConsoleTests
         static void Main(string[] args)
         {
 
-            var tn = RepositoryHelper.GetTableName(typeof(UserInfo));
-            RepositoryHelper.GetTableName(typeof(UserInfo));
-            Console.WriteLine(tn);
+            //var tn = RepositoryHelper.GetTableName(typeof(UserInfo));
+            //RepositoryHelper.GetTableName(typeof(UserInfo));
+            //Console.WriteLine(tn);
 
-            return;
+            //return;
 
-            var type = NpgsqlDbType.Bigint.GetType();
-            string memberName = Enum.GetName(NpgsqlDbType.Bigint);
-            MemberInfo memberInfo = type.GetTypeInfo().GetMember(memberName).FirstOrDefault();
-            var attrs = memberInfo.GetCustomAttributes();
-            //if (attrs != null && attrs.Any())
-            var a1 = attrs.First();
-            var a2 = attrs.First().GetType().GetProperty("Name", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(a1);
+            //var type = NpgsqlDbType.Bigint.GetType();
+            //string memberName = Enum.GetName(NpgsqlDbType.Bigint);
+            //MemberInfo memberInfo = type.GetTypeInfo().GetMember(memberName).FirstOrDefault();
+            //var attrs = memberInfo.GetCustomAttributes();
+            ////if (attrs != null && attrs.Any())
+            //var a1 = attrs.First();
+            //var a2 = attrs.First().GetType().GetProperty("Name", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(a1);
 
-            return;
+            //return;
 
 
-            ReadExcel.Read();
+            //ReadExcel.Read();
 
-            return;
+            //return;
 
             //EnumHelper.ConvertToList<Season>();
             //EnumHelper.ConvertToList<Season>();
@@ -71,9 +71,8 @@ namespace T1_ConsoleTests
                 IsMan = true
             };
 
-            var sss1 = u.Season.GetAllEnumDescriptions();
-            var s2222 = Season.Summer.GetAllEnumDescriptions();
-
+            //var sss1 = u.Season.GetAllEnumDescriptions();
+            //var s2222 = Season.Summer.GetAllEnumDescriptions();
             var s = u.Season.GetDescription();
             var s2 = u.Season.GetEnumDescription();
 
