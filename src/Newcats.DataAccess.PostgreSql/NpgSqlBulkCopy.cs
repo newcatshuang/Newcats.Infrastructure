@@ -71,54 +71,6 @@ namespace Newcats.DataAccess.PostgreSql
         }
 
         /// <summary>
-        /// 构建NpgsqlBinaryImporter
-        /// </summary>
-        /// <param name="table">数据源</param>
-        /// <returns>NpgsqlBinaryImporter</returns>
-        private NpgsqlBinaryImporter BuildImporter(DataTable table)
-        {
-            var colNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName).ToArray();
-            var colNameSegment = string.Join(',', colNames);
-
-            var writer = Connection.BeginBinaryImport($"COPY {DestinationTableName} ({colNameSegment}) FROM STDIN (FORMAT BINARY)");
-
-            foreach (DataRow dataRow in table.Rows)
-            {
-                writer.StartRow();
-
-                foreach (var colName in colNames)
-                {
-                    writer.Write(dataRow[colName], GetNpgFieldType(colName));
-                }
-            }
-            return writer;
-        }
-
-        /// <summary>
-        /// 构建NpgsqlBinaryImporter
-        /// </summary>
-        /// <param name="table">数据源</param>
-        /// <returns>NpgsqlBinaryImporter</returns>
-        private async Task<NpgsqlBinaryImporter> BuildImporterAsync(DataTable table)
-        {
-            var colNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName).ToArray();
-            var colNameSegment = string.Join(',', colNames);
-
-            var writer = await Connection.BeginBinaryImportAsync($"COPY {DestinationTableName} ({colNameSegment}) FROM STDIN (FORMAT BINARY)");
-
-            foreach (DataRow dataRow in table.Rows)
-            {
-                await writer.StartRowAsync();
-
-                foreach (var colName in colNames)
-                {
-                    await writer.WriteAsync(dataRow[colName], GetNpgFieldType(colName));
-                }
-            }
-            return writer;
-        }
-
-        /// <summary>
         /// 写入数据库
         /// </summary>
         /// <param name="table">数据源</param>
@@ -225,6 +177,55 @@ namespace Newcats.DataAccess.PostgreSql
             }
         }
 
+        #region 私有方法
+        /// <summary>
+        /// 构建NpgsqlBinaryImporter
+        /// </summary>
+        /// <param name="table">数据源</param>
+        /// <returns>NpgsqlBinaryImporter</returns>
+        private NpgsqlBinaryImporter BuildImporter(DataTable table)
+        {
+            var colNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName).ToArray();
+            var colNameSegment = string.Join(',', colNames);
+
+            var writer = Connection.BeginBinaryImport($"COPY {DestinationTableName} ({colNameSegment}) FROM STDIN (FORMAT BINARY)");
+
+            foreach (DataRow dataRow in table.Rows)
+            {
+                writer.StartRow();
+
+                foreach (var colName in colNames)
+                {
+                    writer.Write(dataRow[colName], GetNpgFieldType(colName));
+                }
+            }
+            return writer;
+        }
+
+        /// <summary>
+        /// 构建NpgsqlBinaryImporter
+        /// </summary>
+        /// <param name="table">数据源</param>
+        /// <returns>NpgsqlBinaryImporter</returns>
+        private async Task<NpgsqlBinaryImporter> BuildImporterAsync(DataTable table)
+        {
+            var colNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName).ToArray();
+            var colNameSegment = string.Join(',', colNames);
+
+            var writer = await Connection.BeginBinaryImportAsync($"COPY {DestinationTableName} ({colNameSegment}) FROM STDIN (FORMAT BINARY)");
+
+            foreach (DataRow dataRow in table.Rows)
+            {
+                await writer.StartRowAsync();
+
+                foreach (var colName in colNames)
+                {
+                    await writer.WriteAsync(dataRow[colName], GetNpgFieldType(colName));
+                }
+            }
+            return writer;
+        }
+
         /// <summary>
         /// 获取所有的字段定义
         /// </summary>
@@ -246,7 +247,7 @@ namespace Newcats.DataAccess.PostgreSql
         {
             string fieldType = FieldDefinitions.FirstOrDefault(r => r.FieldName.Equals(fieldName, StringComparison.OrdinalIgnoreCase)).FieldType;
             var dbTypes = NpgsqlTypeHelper.GetAllNpgsqlTypes(typeof(NpgsqlDbType));
-            return dbTypes.First(r => r.PostgresType.Equals(fieldType, StringComparison.OrdinalIgnoreCase)).NpgType;
+            return dbTypes.FirstOrDefault(r => r.PostgresType.Equals(fieldType, StringComparison.OrdinalIgnoreCase)).NpgType;
         }
 
         /// <summary>
@@ -282,5 +283,6 @@ namespace Newcats.DataAccess.PostgreSql
             /// </summary>
             public string? Description { get; set; }
         }
+        #endregion
     }
 }
