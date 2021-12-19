@@ -47,8 +47,7 @@ namespace Newcats.DataAccess.MySql
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
         public override object Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(nameof(entity));
 
             string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT LAST_INSERT_ID();";
             return Connection.ExecuteScalar<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
@@ -65,13 +64,15 @@ namespace Newcats.DataAccess.MySql
         /// <returns>成功的条数</returns>
         public override int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (Connection.State == ConnectionState.Closed)
-                Connection.Open();
-            MySqlBulkCopy copy = new((MySqlConnection)Connection, (MySqlTransaction?)transaction);
+            MySqlConnection conn = (MySqlConnection)Connection;
+            MySqlTransaction? trans = transaction == null ? null : (MySqlTransaction)transaction;
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+            MySqlBulkCopy copy = new(conn, trans);
             copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
             copy.BulkCopyTimeout = commandTimeout ?? 0;
 
-            var r = copy.WriteToServer(RepositoryHelper.ToDataTable<TEntity>(list));
+            var r = copy.WriteToServer(RepositoryHelper.ToDataTable(list));
             return r.RowsInserted;
         }
 
@@ -85,8 +86,7 @@ namespace Newcats.DataAccess.MySql
         /// <returns>数据库实体或null</returns>
         public override TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
 
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
@@ -186,8 +186,7 @@ namespace Newcats.DataAccess.MySql
         /// <returns>是否存在</returns>
         public override bool Exists<TEntity>(object primaryKeyValue) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
@@ -232,8 +231,7 @@ namespace Newcats.DataAccess.MySql
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
         public override async Task<object> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(nameof(entity));
 
             string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT LAST_INSERT_ID();";
             return await Connection.ExecuteScalarAsync<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
@@ -250,9 +248,11 @@ namespace Newcats.DataAccess.MySql
         /// <returns>成功的条数</returns>
         public override async Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (Connection.State == ConnectionState.Closed)
-                Connection.Open();
-            MySqlBulkCopy copy = new((MySqlConnection)Connection, (MySqlTransaction?)transaction);
+            MySqlConnection conn = (MySqlConnection)Connection;
+            MySqlTransaction? trans = transaction == null ? null : (MySqlTransaction)transaction;
+            if (conn.State == ConnectionState.Closed)
+                await conn.OpenAsync();
+            MySqlBulkCopy copy = new(conn, trans);
             copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
             copy.BulkCopyTimeout = commandTimeout ?? 0;
 
@@ -270,8 +270,7 @@ namespace Newcats.DataAccess.MySql
         /// <returns>数据库实体或null</returns>
         public override async Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
 
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
@@ -371,8 +370,7 @@ namespace Newcats.DataAccess.MySql
         /// <returns>是否存在</returns>
         public override async Task<bool> ExistsAsync<TEntity>(object primaryKeyValue) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
