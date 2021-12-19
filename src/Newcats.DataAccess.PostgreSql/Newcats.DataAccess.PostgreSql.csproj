@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.DataAccess.PostgreSql</Title>
 		<PackageId>Newcats.DataAccess.PostgreSql</PackageId>
-		<Version>1.0.1</Version>
+		<Version>1.2.0</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -19,6 +19,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2021-12-12
+			1.增加TableAttribute.Schema支持
+
 			2021-12-16 v1.0.1
 			1.完成SqlBulkCopy实现
 
@@ -30,7 +33,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.9" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.0" />
 		<PackageReference Include="Npgsql" Version="6.0.1" />
 		<None Update="README.md">
 			<Pack>True</Pack>

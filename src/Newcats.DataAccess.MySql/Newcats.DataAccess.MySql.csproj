@@ -6,11 +6,11 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.DataAccess.MySql</Title>
 		<PackageId>Newcats.DataAccess.MySql</PackageId>
-		<Version>1.1.7</Version>
+		<Version>1.2.0</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
-		<PackageTags>Dapper;DataAccess;Helpers;MySql</PackageTags>
+		<PackageTags>Dapper;DataAccess;Helpers;MySql;SqlBulkCopy</PackageTags>
 		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.DataAccess.MySql</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
 		<Description>Some common functions(CRUD etc) to make data access easy.Check detail from github for how to use.</Description>
@@ -18,6 +18,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2021-12-12
+			1.增加TableAttribute.Schema支持
+
 			2021-12-09
 			1.修复访问修饰符bug
 
@@ -39,7 +42,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="MySqlConnector" Version="2.1.0" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.1.7" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
