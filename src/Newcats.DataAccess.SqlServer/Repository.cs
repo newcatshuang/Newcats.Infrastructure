@@ -47,8 +47,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
         public override object Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(nameof(entity));
 
             string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT SCOPE_IDENTITY();";
             return Connection.ExecuteScalar<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
@@ -65,13 +64,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>成功的条数</returns>
         public override int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (Connection.State == ConnectionState.Closed)
-                Connection.Open();
-            SqlBulkCopy copy = null;
-            if (transaction == null)
-                copy = new SqlBulkCopy((SqlConnection)Connection);
+            SqlConnection conn = (SqlConnection)Connection;
+            SqlTransaction? tran = transaction == null ? null : (SqlTransaction)transaction;
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+            SqlBulkCopy copy;
+            if (tran == null)
+                copy = new SqlBulkCopy(conn);
             else
-                copy = new SqlBulkCopy((SqlConnection)Connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction);
+                copy = new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, tran);
             using (copy)
             {
                 copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
@@ -92,8 +93,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>数据库实体或null</returns>
         public override TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
 
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
@@ -194,8 +194,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>是否存在</returns>
         public override bool Exists<TEntity>(object primaryKeyValue) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
@@ -240,8 +239,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
         public override async Task<object> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(nameof(entity));
 
             string sqlText = $"{RepositoryHelper.GetInsertSqlText(typeof(TEntity))} SELECT SCOPE_IDENTITY();";
             return await Connection.ExecuteScalarAsync<object>(sqlText, entity, transaction, commandTimeout, CommandType.Text);
@@ -258,13 +256,15 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>成功的条数</returns>
         public override async Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (Connection.State == ConnectionState.Closed)
-                Connection.Open();
-            SqlBulkCopy copy = null;
+            SqlConnection conn = (SqlConnection)Connection;
+            SqlTransaction? tran = transaction == null ? null : (SqlTransaction)transaction;
+            if (conn.State == ConnectionState.Closed)
+                await conn.OpenAsync();
+            SqlBulkCopy copy;
             if (transaction == null)
-                copy = new SqlBulkCopy((SqlConnection)Connection);
+                copy = new SqlBulkCopy(conn);
             else
-                copy = new SqlBulkCopy((SqlConnection)Connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction);
+                copy = new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, tran);
             using (copy)
             {
                 copy.DestinationTableName = RepositoryHelper.GetTableName(typeof(TEntity));
@@ -285,8 +285,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>数据库实体或null</returns>
         public override async Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
 
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
@@ -387,8 +386,7 @@ namespace Newcats.DataAccess.SqlServer
         /// <returns>是否存在</returns>
         public override async Task<bool> ExistsAsync<TEntity>(object primaryKeyValue) where TEntity : class
         {
-            if (primaryKeyValue == null)
-                throw new ArgumentNullException(nameof(primaryKeyValue));
+            ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
             string pkName = RepositoryHelper.GetTablePrimaryKey(type);
