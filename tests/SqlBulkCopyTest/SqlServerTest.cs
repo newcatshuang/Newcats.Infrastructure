@@ -7,31 +7,74 @@
  *Github: https://github.com/newcatshuang
  *Copyright NewcatsHuang All rights reserved.
 *****************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
+using Dapper;
+using Microsoft.Data.SqlClient;
+using Newcats.DataAccess.Core;
 
 namespace SqlBulkCopyTest
 {
     internal class SqlServerTest
     {
-        const string ConnectionString = "";
+        const string ConnectionString = "Data Source=.;Initial Catalog=NewcatsDB20170627;User ID=sa;Password=123456;TrustServerCertificate=True";
+        const string TableName = "UserInfoTest";
+        const string SqlText = "INSERT INTO UserInfoTest (Id,Name,CreateTime) VALUES (@Id,@Name,@CreateTime)";
 
-        internal long Insert(List<UserInfo> list)
+        internal long InsertOne(UserInfoTest model)
         {
-            return 0;
+            int result = 0;
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                result += conn.Execute(SqlText, model, commandType: System.Data.CommandType.Text);
+            }
+            return result;
         }
 
-        internal long InsertBulk(List<UserInfo> list)
+        internal long Insert(List<UserInfoTest> list)
         {
-            return 0;
+            int result = 0;
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
+            {
+                foreach (UserInfoTest test in list)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+                    result += conn.Execute(SqlText, test, commandType: System.Data.CommandType.Text);
+                }
+            }
+            return result;
         }
 
-        internal long SqlBulkCopy(List<UserInfo> list)
+        internal long InsertBulk(List<UserInfoTest> list)
         {
-            return 0;
+            int result = 0;
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                result = conn.Execute(SqlText, list, commandType: System.Data.CommandType.Text);
+            }
+            return result;
+        }
+
+        internal long SqlBulkCopy(List<UserInfoTest> list)
+        {
+            int result = 0;
+            using (SqlConnection conn = new SqlConnection(ConnectionString))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                using (SqlBulkCopy copy = new SqlBulkCopy(conn))
+                {
+                    copy.DestinationTableName = TableName;
+                    copy.BatchSize = list.Count;
+                    copy.WriteToServer(RepositoryHelper.ToDataTable(list));
+                    result = copy.RowsCopied;
+                }
+            }
+            return (long)result;
         }
     }
 }
