@@ -29,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess.Core", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess.SqlServer", "src\Newcats.DataAccess.SqlServer\Newcats.DataAccess.SqlServer.csproj", "{24C0B7FB-4AA2-4E76-8354-FB8170FBF86B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newcats.DataAccess.PostgreSql", "src\Newcats.DataAccess.PostgreSql\Newcats.DataAccess.PostgreSql.csproj", "{D54C9D04-42BC-4403-98A8-A5BED0A40227}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess.PostgreSql", "src\Newcats.DataAccess.PostgreSql\Newcats.DataAccess.PostgreSql.csproj", "{D54C9D04-42BC-4403-98A8-A5BED0A40227}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlBulkCopyTest", "tests\SqlBulkCopyTest\SqlBulkCopyTest.csproj", "{DE8B1AD1-DBE2-436A-A037-197D4B931352}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{D54C9D04-42BC-4403-98A8-A5BED0A40227}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D54C9D04-42BC-4403-98A8-A5BED0A40227}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D54C9D04-42BC-4403-98A8-A5BED0A40227}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE8B1AD1-DBE2-436A-A037-197D4B931352}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE8B1AD1-DBE2-436A-A037-197D4B931352}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE8B1AD1-DBE2-436A-A037-197D4B931352}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE8B1AD1-DBE2-436A-A037-197D4B931352}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +103,7 @@ Global
 		{A286210F-F101-40BC-B6E3-EC265D5C8F5C} = {98EE4B75-AED3-4D0F-BA3C-A0432473229D}
 		{24C0B7FB-4AA2-4E76-8354-FB8170FBF86B} = {98EE4B75-AED3-4D0F-BA3C-A0432473229D}
 		{D54C9D04-42BC-4403-98A8-A5BED0A40227} = {98EE4B75-AED3-4D0F-BA3C-A0432473229D}
+		{DE8B1AD1-DBE2-436A-A037-197D4B931352} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B820ECAE-681C-4186-91AF-AA66A4EF0FB2}
