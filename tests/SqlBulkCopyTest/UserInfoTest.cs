@@ -19,8 +19,8 @@ using System.Threading.Tasks;
 
 namespace SqlBulkCopyTest
 {
-    [Table("UserInfoTest")]
-    internal class UserInfoTest
+    [Table("NewcatsUserInfoTest")]
+    internal class NewcatsUserInfoTest
     {
         [Key]
         public long Id { get; set; }
@@ -34,7 +34,7 @@ namespace SqlBulkCopyTest
 
     internal static class DataTableEx
     {
-        const string TableName = "UserInfoTest";
+        const string TableName = "NewcatsUserInfoTest";
 
         internal static DataTable ToDataTable<T>(this List<T> list)
         {

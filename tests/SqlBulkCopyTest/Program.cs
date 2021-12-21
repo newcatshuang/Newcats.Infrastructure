@@ -1,48 +1,48 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Newcats.Utils.Helpers;
 using SqlBulkCopyTest;
 
+namespace SqlBulkCopyTest;
 
-const int TotalCount = 5000;
-List<UserInfoTest> list = new List<UserInfoTest>();
-for (int i = 0; i < TotalCount; i++)
+class Program
 {
-    UserInfoTest u = new UserInfoTest()
+
+    const int TotalCount = 50;
+
+    static void Main(string[] args)
     {
-        Id = IdHelper.Create(),
-        Name = EncryptHelper.GetRandomString(Random.Shared.Next(20)),
-        CreateTime = DateTime.Now
-    };
-    list.Add(u);
+        List<NewcatsUserInfoTest> list = new List<NewcatsUserInfoTest>();
+        for (int i = 0; i < TotalCount; i++)
+        {
+            NewcatsUserInfoTest u = new NewcatsUserInfoTest()
+            {
+                Id = IdHelper.Create(),
+                Name = EncryptHelper.GetRandomString(Random.Shared.Next(20)),
+                CreateTime = DateTime.Now
+            };
+            list.Add(u);
+        }
+
+        RunSqlServerTest(list);
+
+    }
+
+    static void RunSqlServerTest(List<NewcatsUserInfoTest> list)
+    {
+        SqlServerTest sqlServer = new SqlServerTest();
+        sqlServer.Init();
+
+        var t1 = sqlServer.InsertForEach(list);
+
+        var t2 = sqlServer.InsertForEachNative(list);
+
+        var t3 = sqlServer.InsertBulk(list);
+
+        var t4 = sqlServer.InsertAppend(list);
+
+        var t5 = sqlServer.SqlBulkCopy(list);
+
+        Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
+    }
 }
-
-SqlServerTest sqlServer = new SqlServerTest();
-Stopwatch sw = new Stopwatch();
-sqlServer.InsertOne(new UserInfoTest
-{
-    Id = IdHelper.Create(),
-    Name = EncryptHelper.GetRandomString(Random.Shared.Next(20)),
-    CreateTime = DateTime.Now
-});
-
-sw.Start();
-sqlServer.InsertForEach(list);
-sw.Stop();
-var t1 = sw.ElapsedMilliseconds;
-
-sw.Restart();
-sqlServer.InsertBulk(list);
-sw.Stop();
-var t2 = sw.ElapsedMilliseconds;
-
-sw.Restart();
-sqlServer.InsertAppend(list);
-sw.Stop();
-var t3 = sw.ElapsedMilliseconds;
-
-sw.Restart();
-sqlServer.SqlBulkCopy(list);
-sw.Stop();
-var t4 = sw.ElapsedMilliseconds;
-
-Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertBulk方法耗时:{t2}ms\r\n\n3.InsertAppend方法耗时:{t3}\r\n\n4.SqlBulkCopy方法耗时:{t4}ms");
