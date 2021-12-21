@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using Newcats.Utils.Helpers;
-using SqlBulkCopyTest;
+﻿using Newcats.Utils.Helpers;
 
 namespace SqlBulkCopyTest;
 
@@ -25,6 +22,7 @@ class Program
         }
 
         RunSqlServerTest(list);
+        RunMySqlTest(list);
 
     }
 
@@ -43,6 +41,28 @@ class Program
 
         var t5 = sqlServer.SqlBulkCopy(list);
 
+        Console.WriteLine("\r\nSqlServer测试结果如下：");
         Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
+        Console.WriteLine("==========================================================");
+    }
+
+    static void RunMySqlTest(List<NewcatsUserInfoTest> list)
+    {
+        MySqlTest mySql = new MySqlTest();
+        mySql.Init();
+
+        var t1 = mySql.InsertForEach(list);
+
+        var t2 = mySql.InsertForEachNative(list);
+
+        var t3 = mySql.InsertBulk(list);
+
+        var t4 = mySql.InsertAppend(list);
+
+        var t5 = mySql.SqlBulkCopy(list);
+
+        Console.WriteLine("\r\nMySql测试结果如下：");
+        Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
+        Console.WriteLine("==========================================================");
     }
 }

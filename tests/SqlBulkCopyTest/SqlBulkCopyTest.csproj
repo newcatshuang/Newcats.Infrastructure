@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0" />
-    <PackageReference Include="MyConnector" Version="1.0.118" />
+    <PackageReference Include="MySqlConnector" Version="2.1.0" />
     <PackageReference Include="Npgsql" Version="6.0.1" />
   </ItemGroup>
 

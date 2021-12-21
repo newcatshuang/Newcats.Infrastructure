@@ -25,8 +25,6 @@ internal class SqlServerTest
     /// <summary>
     /// 初始化
     /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
     internal void Init()
     {
         using (SqlConnection conn = new SqlConnection(ConnectionString))
@@ -51,8 +49,6 @@ CREATE TABLE [dbo].[{TableName}](
     /// <summary>
     /// dapper执行foreach循环插入数据
     /// </summary>
-    /// <param name="list"></param>
-    /// <returns></returns>
     internal long InsertForEach(List<NewcatsUserInfoTest> list)
     {
         Stopwatch sw = new Stopwatch();
@@ -74,8 +70,6 @@ CREATE TABLE [dbo].[{TableName}](
     /// <summary>
     /// ADO.NET的foreach循环插入数据
     /// </summary>
-    /// <param name="list"></param>
-    /// <returns></returns>
     internal long InsertForEachNative(List<NewcatsUserInfoTest> list)
     {
         Stopwatch sw = new Stopwatch();
@@ -106,8 +100,6 @@ CREATE TABLE [dbo].[{TableName}](
     /// <summary>
     /// dapper直接传list参数
     /// </summary>
-    /// <param name="list"></param>
-    /// <returns></returns>
     internal long InsertBulk(List<NewcatsUserInfoTest> list)
     {
         Stopwatch sw = new Stopwatch();
@@ -126,8 +118,6 @@ CREATE TABLE [dbo].[{TableName}](
     /// <summary>
     /// dapper拼接sql语句
     /// </summary>
-    /// <param name="list"></param>
-    /// <returns></returns>
     internal long InsertAppend(List<NewcatsUserInfoTest> list)
     {
         Stopwatch sw = new Stopwatch();
@@ -164,8 +154,6 @@ CREATE TABLE [dbo].[{TableName}](
     /// <summary>
     /// SqlBulkCopy插入
     /// </summary>
-    /// <param name="list"></param>
-    /// <returns></returns>
     internal long SqlBulkCopy(List<NewcatsUserInfoTest> list)
     {
         Stopwatch sw = new Stopwatch();
