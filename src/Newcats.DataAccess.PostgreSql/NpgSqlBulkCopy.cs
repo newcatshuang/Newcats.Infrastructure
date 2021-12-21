@@ -16,6 +16,7 @@ namespace Newcats.DataAccess.PostgreSql
 {
     /// <summary>
     /// PostgreSql的SqlBulkCopy实现
+    /// 注:copy语句的表名对大小写有要求，建议建表时的表名和copy的表名都为小写
     /// </summary>
     public class NpgSqlBulkCopy : IDisposable
     {
