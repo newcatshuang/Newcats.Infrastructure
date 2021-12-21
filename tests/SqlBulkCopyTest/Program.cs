@@ -4,11 +4,14 @@ namespace SqlBulkCopyTest;
 
 class Program
 {
-
-    const int TotalCount = 50;
-
     static void Main(string[] args)
     {
+        int TotalCount = 50;
+        Console.Write("输入需要测试的数据量：");
+        string countStr = Console.ReadLine();
+        Console.WriteLine("=========================================");
+        int.TryParse(countStr, out TotalCount);
+
         List<NewcatsUserInfoTest> list = new List<NewcatsUserInfoTest>();
         for (int i = 0; i < TotalCount; i++)
         {
@@ -43,7 +46,7 @@ class Program
 
         Console.WriteLine("\r\nSqlServer测试结果如下：");
         Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
-        Console.WriteLine("==========================================================");
+        Console.WriteLine("=========================================");
     }
 
     static void RunMySqlTest(List<NewcatsUserInfoTest> list)
@@ -63,7 +66,7 @@ class Program
 
         Console.WriteLine("\r\nMySql测试结果如下：");
         Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
-        Console.WriteLine("==========================================================");
+        Console.WriteLine("=========================================");
     }
 
     static void RunPostgreSqlTest(List<NewcatsUserInfoTest> list)
@@ -83,6 +86,6 @@ class Program
 
         Console.WriteLine("\r\nPostgreSql测试结果如下：");
         Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
-        Console.WriteLine("==========================================================");
+        Console.WriteLine("=========================================");
     }
 }

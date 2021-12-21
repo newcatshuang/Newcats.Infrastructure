@@ -23,7 +23,7 @@ namespace Newcats.DataAccess.PostgreSql
         /// <summary>
         /// 目标表名(若包含架构，则为 Schema.TableName)
         /// </summary>
-        public string? DestinationTableName { get; set; }
+        private string? DestinationTableName { get; set; }
 
         /// <summary>
         /// 去除架构名的表名
@@ -46,12 +46,12 @@ namespace Newcats.DataAccess.PostgreSql
         /// <summary>
         /// 数据库连接
         /// </summary>
-        public NpgsqlConnection? Connection { get; set; }
+        private NpgsqlConnection? Connection { get; set; }
 
         /// <summary>
         /// 数据库事务
         /// </summary>
-        public NpgsqlTransaction? Transaction { get; set; }
+        private NpgsqlTransaction? Transaction { get; set; }
 
         /// <summary>
         /// 构造函数 <see cref="NpgSqlBulkCopy"/>
@@ -80,6 +80,8 @@ namespace Newcats.DataAccess.PostgreSql
         public ulong WriteToServer(DataTable table)
         {
             ArgumentNullException.ThrowIfNull(nameof(table));
+            if (table.Rows.Count == 0)
+                return 0;
             var tran = Transaction ?? Connection.BeginTransaction();
             ulong result = 0;
             using (tran)
@@ -114,6 +116,8 @@ namespace Newcats.DataAccess.PostgreSql
             ArgumentNullException.ThrowIfNull(nameof(reader));
             var dt = new DataTable(shortName);
             dt.Load(reader);
+            if (dt.Rows.Count == 0)
+                return 0;
             return WriteToServer(dt);
         }
 
@@ -129,6 +133,8 @@ namespace Newcats.DataAccess.PostgreSql
             ArgumentNullException.ThrowIfNull(nameof(reader));
             var dt = new DataTable(shortName);
             dt.Load(reader);
+            if (dt.Rows.Count == 0)
+                return 0;
             return await WriteToServerAsync(dt, cancellationToken);
         }
 
@@ -142,6 +148,8 @@ namespace Newcats.DataAccess.PostgreSql
         public async Task<ulong> WriteToServerAsync(DataTable table, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(nameof(table));
+            if (table.Rows.Count == 0)
+                return 0;
             var tran = Transaction ?? await Connection.BeginTransactionAsync(cancellationToken);
             ulong result;
 
