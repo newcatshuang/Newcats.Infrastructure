@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Text;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Newcats.DataAccess.Core;
 
 namespace SqlBulkCopyTest;
 
@@ -167,7 +166,7 @@ CREATE TABLE [dbo].[{TableName}](
             {
                 copy.DestinationTableName = TableName;
                 copy.BatchSize = list.Count;
-                copy.WriteToServer(RepositoryHelper.ToDataTable(list));
+                copy.WriteToServer(list.ToDataTable());
                 result = copy.RowsCopied;
             }
         }

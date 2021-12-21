@@ -23,7 +23,7 @@ class Program
 
         RunSqlServerTest(list);
         RunMySqlTest(list);
-
+        RunPostgreSqlTest(list);
     }
 
     static void RunSqlServerTest(List<NewcatsUserInfoTest> list)
@@ -62,6 +62,26 @@ class Program
         var t5 = mySql.SqlBulkCopy(list);
 
         Console.WriteLine("\r\nMySql测试结果如下：");
+        Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
+        Console.WriteLine("==========================================================");
+    }
+
+    static void RunPostgreSqlTest(List<NewcatsUserInfoTest> list)
+    {
+        PostgreSqlTest pgSql = new PostgreSqlTest();
+        pgSql.Init();
+
+        var t1 = pgSql.InsertForEach(list);
+
+        var t2 = pgSql.InsertForEachNative(list);
+
+        var t3 = pgSql.InsertBulk(list);
+
+        var t4 = pgSql.InsertAppend(list);
+
+        var t5 = pgSql.SqlBulkCopy(list);
+
+        Console.WriteLine("\r\nPostgreSql测试结果如下：");
         Console.WriteLine($"集合大小:{list.Count}\r\n\n1.InsertForEach方法耗时:{t1}ms\r\n\n2.InsertForEachNative方法耗时:{t2}ms\r\n\n3.InsertBulk方法耗时:{t3}ms\r\n\n4.InsertAppend方法耗时:{t4}ms\r\n\n5.SqlBulkCopy方法耗时:{t5}ms");
         Console.WriteLine("==========================================================");
     }

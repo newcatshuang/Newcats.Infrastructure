@@ -7,17 +7,11 @@
  *Github: https://github.com/newcatshuang
  *Copyright NewcatsHuang All rights reserved.
 *****************************************************************************/
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Dapper;
-using Microsoft.Data.SqlClient;
 using MySqlConnector;
-using Newcats.DataAccess.Core;
 
 namespace SqlBulkCopyTest
 {
@@ -166,7 +160,7 @@ CREATE TABLE {TableName}(
                     conn.Open();
                 MySqlBulkCopy copy = new MySqlBulkCopy(conn);
                 copy.DestinationTableName = TableName;
-                var r = copy.WriteToServer(RepositoryHelper.ToDataTable(list));
+                var r = copy.WriteToServer(list.ToDataTable());
                 result = r.RowsInserted;
             }
             sw.Stop();
