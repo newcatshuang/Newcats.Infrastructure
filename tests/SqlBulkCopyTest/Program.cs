@@ -10,7 +10,9 @@ class Program
         Console.Write("输入需要测试的数据量：");
         string countStr = Console.ReadLine();
         Console.WriteLine("=========================================");
-        int.TryParse(countStr, out TotalCount);
+        int outer = 0;
+        if (int.TryParse(countStr, out outer))
+            TotalCount = outer;
 
         List<NewcatsUserInfoTest> list = new List<NewcatsUserInfoTest>();
         for (int i = 0; i < TotalCount; i++)

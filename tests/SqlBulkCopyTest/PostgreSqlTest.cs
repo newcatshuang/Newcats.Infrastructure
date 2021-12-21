@@ -11,6 +11,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Text;
 using Dapper;
+using Newcats.DataAccess.PostgreSql;
 using Npgsql;
 
 namespace SqlBulkCopyTest
