@@ -11,6 +11,7 @@ class Program
     {
         Console.WriteLine("1.使用for循环测试SqlServer、MySql、ostgreSql");
         Console.WriteLine("2.使用BenchmarkDotNet测试SqlServer的InsertForEach、SqlBulkCopy");
+        Console.Write("请选择1或者2：");
         string select = Console.ReadLine();
         if (select == "1")
         {
