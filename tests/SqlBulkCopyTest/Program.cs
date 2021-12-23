@@ -11,7 +11,7 @@ class Program
     {
         Console.WriteLine("1.使用for循环测试SqlServer、MySql、ostgreSql");
         Console.WriteLine("2.使用BenchmarkDotNet测试SqlServer的InsertForEach、SqlBulkCopy");
-        Console.Write("请选择1或者2：");
+        Console.Write("请选择(1or2)：");
         string select = Console.ReadLine();
         if (select == "1")
         {
@@ -41,7 +41,7 @@ class Program
         }
         else if (select == "2")
         {
-            Summary summary = BenchmarkRunner.Run<BulkCopyContext>();
+            Summary summary = BenchmarkRunner.Run<SqlServerBulkCopyContext>();
             Console.ReadLine();
         }
         else
@@ -116,16 +116,16 @@ class Program
 /// <summary>
 /// SqlBulkCopy测试
 /// </summary>
-public class BulkCopyContext
+public class SqlServerBulkCopyContext
 {
     /// <summary>
     /// ForEach
     /// </summary>
     [Benchmark]
-    public void InsertForEach()
+    public void SqlServerInsertForEach()
     {
         List<NewcatsUserInfoTest> list = new List<NewcatsUserInfoTest>();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 5000; i++)
         {
             NewcatsUserInfoTest u = new NewcatsUserInfoTest()
             {
@@ -144,10 +144,10 @@ public class BulkCopyContext
     /// SqlBulkCopy
     /// </summary>
     [Benchmark]
-    public void SqlBulkCopy()
+    public void SqlServerSqlBulkCopy()
     {
         List<NewcatsUserInfoTest> list = new List<NewcatsUserInfoTest>();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 5000; i++)
         {
             NewcatsUserInfoTest u = new NewcatsUserInfoTest()
             {
