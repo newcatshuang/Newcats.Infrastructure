@@ -147,9 +147,9 @@ CREATE TABLE {TableName}(
         }
 
         /// <summary>
-        /// SqlBulkCopy插入
+        /// SqlBulkCopy插入-FromList
         /// </summary>
-        internal long SqlBulkCopy(List<NewcatsUserInfoTest> list)
+        internal long SqlBulkCopyFromList(List<NewcatsUserInfoTest> list)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -161,6 +161,27 @@ CREATE TABLE {TableName}(
                 MySqlBulkCopy copy = new MySqlBulkCopy(conn);
                 copy.DestinationTableName = TableName;
                 var r = copy.WriteToServer(list.ToDataTable());
+                result = r.RowsInserted;
+            }
+            sw.Stop();
+            return sw.ElapsedMilliseconds;
+        }
+
+        /// <summary>
+        /// SqlBulkCopy插入-FromDataTable
+        /// </summary>
+        internal long SqlBulkCopyFromDataTable(DataTable dt)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            int result = 0;
+            using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                MySqlBulkCopy copy = new MySqlBulkCopy(conn);
+                copy.DestinationTableName = TableName;
+                var r = copy.WriteToServer(dt);
                 result = r.RowsInserted;
             }
             sw.Stop();

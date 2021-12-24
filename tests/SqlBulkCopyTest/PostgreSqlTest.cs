@@ -149,9 +149,9 @@ CREATE TABLE {TableName}(
         }
 
         /// <summary>
-        /// SqlBulkCopy插入
+        /// SqlBulkCopy插入-FromList
         /// </summary>
-        internal long SqlBulkCopy(List<NewcatsUserInfoTest> list)
+        internal long SqlBulkCopyFromList(List<NewcatsUserInfoTest> list)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -163,6 +163,27 @@ CREATE TABLE {TableName}(
                 using (NpgSqlBulkCopy copy = new NpgSqlBulkCopy(conn, TableName))
                 {
                     copy.WriteToServer(list.ToDataTable());
+                }
+            }
+            sw.Stop();
+            return sw.ElapsedMilliseconds;
+        }
+
+        /// <summary>
+        /// SqlBulkCopy插入-FromDataTable
+        /// </summary>
+        internal long SqlBulkCopyFromDataTable(DataTable dt)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            int result = 0;
+            using (NpgsqlConnection conn = new NpgsqlConnection(ConnectionString))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                using (NpgSqlBulkCopy copy = new NpgSqlBulkCopy(conn, TableName))
+                {
+                    copy.WriteToServer(dt);
                 }
             }
             sw.Stop();

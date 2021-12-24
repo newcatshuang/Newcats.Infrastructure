@@ -151,9 +151,9 @@ CREATE TABLE [dbo].[{TableName}](
     }
 
     /// <summary>
-    /// SqlBulkCopy插入
+    /// SqlBulkCopy插入-FromList
     /// </summary>
-    internal long SqlBulkCopy(List<NewcatsUserInfoTest> list)
+    internal long SqlBulkCopyFromList(List<NewcatsUserInfoTest> list)
     {
         Stopwatch sw = new Stopwatch();
         sw.Start();
@@ -167,6 +167,30 @@ CREATE TABLE [dbo].[{TableName}](
                 copy.DestinationTableName = TableName;
                 copy.BatchSize = list.Count;
                 copy.WriteToServer(list.ToDataTable());
+                result = copy.RowsCopied;
+            }
+        }
+        sw.Stop();
+        return sw.ElapsedMilliseconds;
+    }
+
+    /// <summary>
+    /// SqlBulkCopy插入-FromDataTable
+    /// </summary>
+    internal long SqlBulkCopyFromDataTable(DataTable dt)
+    {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        int result = 0;
+        using (SqlConnection conn = new SqlConnection(ConnectionString))
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+            using (SqlBulkCopy copy = new SqlBulkCopy(conn))
+            {
+                copy.DestinationTableName = TableName;
+                copy.BatchSize = dt.Rows.Count;
+                copy.WriteToServer(dt);
                 result = copy.RowsCopied;
             }
         }
