@@ -21,6 +21,15 @@ namespace Newcats.DataAccess.Core
         object Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
 
         /// <summary>
+        /// 插入一条数据，返回是否成功
+        /// </summary>
+        /// <param name="entity">要插入的数据实体</param>
+        /// <param name="transaction">事务</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
+        /// <returns>成功时返回true，否则返回false</returns>
+        bool Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null) where TEntity : class;
+
+        /// <summary>
         /// 批量插入数据，返回成功的条数
         /// </summary>
         /// <param name="list">要插入的数据实体集合</param>
@@ -279,6 +288,15 @@ namespace Newcats.DataAccess.Core
         /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>成功时返回当前主键的值，否则返回主键类型的默认值</returns>
         Task<object> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
+
+        /// <summary>
+        /// 插入一条数据，返回是否成功
+        /// </summary>
+        /// <param name="entity">要插入的数据实体</param>
+        /// <param name="transaction">事务</param>
+        /// <typeparam name="TEntity">数据库实体类</typeparam>
+        /// <returns>成功时返回true，否则返回false</returns>
+        Task<bool> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null) where TEntity : class;
 
         /// <summary>
         /// 批量插入数据，返回成功的条数
