@@ -135,7 +135,6 @@ namespace Newcats.DataAccess.Core
         /// <summary>
         /// 获取实体表的所有字段（insert语句时使用）(使用ColumnAttribute时，插入的变量名应为属性名，而不是ColumnAttribute.Name)
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         public static string GetTableFieldsInsertParameter(Type type)
