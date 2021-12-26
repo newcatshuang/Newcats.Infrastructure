@@ -191,9 +191,10 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="dbOrderBy">排序</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public abstract (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    public abstract (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
     /// <summary>
     /// 分页获取数据
@@ -201,11 +202,47 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="pageInfo">分页信息</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据</returns>
-    public (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
     {
-        return GetPage(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, pageInfo.OrderBy?.ToArray());
+        return GetPage(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
+    }
+
+    /// <summary>
+    /// 根据给定的条件及排序，分页获取数据
+    /// </summary>
+    /// <typeparam name="TEntity">数据库实体类</typeparam>
+    /// <param name="pageIndex">页码索引（从0开始）（pageIndex小于等于0，返回第0页数据）</param>
+    /// <param name="pageSize">页大小(pageSize小于等于0，返回所有数据)</param>
+    /// <param name="dbWheres">条件集合</param>
+    /// <param name="transaction">事务</param>
+    /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="dbOrderBy">排序</param>
+    /// <returns>分页数据集合</returns>
+    public PageInfo<TEntity> GetPageInfo<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    {
+        var r = GetPage(pageIndex, pageSize, dbWheres, transaction, commandTimeout, returnTotal, dbOrderBy);
+        PageInfo<TEntity> page = new PageInfo<TEntity>(pageIndex, pageSize);
+        page.TotalRecords = r.totalCount;
+        page.Data = r.list == null ? null : r.list.ToList();
+        return page;
+    }
+
+    /// <summary>
+    /// 根据给定的条件及排序，分页获取数据
+    /// </summary>
+    /// <typeparam name="TEntity">数据库实体类</typeparam>
+    /// <param name="pageInfo">分页信息</param>
+    /// <param name="transaction">事务</param>
+    /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
+    /// <returns>分页数据集合</returns>
+    public PageInfo<TEntity> GetPageInfo<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
+    {
+        return GetPageInfo(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
     }
 
     /// <summary>
@@ -215,7 +252,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>数据集合</returns>
     public IEnumerable<TEntity> GetAll<TEntity>() where TEntity : class
     {
-        var (list, _) = GetPage<TEntity>(0, 0, null, null, null);
+        var (list, _) = GetPage<TEntity>(0, 0, null, null, null, false);
         return list;
     }
 
@@ -230,7 +267,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>分页数据集合</returns>
     public IEnumerable<TEntity> GetAll<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = GetPage(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
+        var (list, _) = GetPage(0, 0, dbWheres, transaction, commandTimeout, false, dbOrderBy);
         return list;
     }
 
@@ -242,7 +279,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>指定数量的数据集合</returns>
     public IEnumerable<TEntity> GetTop<TEntity>(int top) where TEntity : class
     {
-        var (list, _) = GetPage<TEntity>(0, top, null, null, null);
+        var (list, _) = GetPage<TEntity>(0, top, null, null, null, false);
         return list;
     }
 
@@ -258,7 +295,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>分页数据集合</returns>
     public IEnumerable<TEntity> GetTop<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = GetPage(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
+        var (list, _) = GetPage(0, top, dbWheres, transaction, commandTimeout, false, dbOrderBy);
         return list;
     }
 
@@ -366,7 +403,6 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <summary>
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
     /// </summary>
-    /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
@@ -590,9 +626,10 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="dbOrderBy">排序</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public abstract Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    public abstract Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
     /// <summary>
     /// 分页获取数据
@@ -600,11 +637,47 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="pageInfo">分页信息</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据</returns>
-    public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
     {
-        return await GetPageAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, pageInfo.OrderBy?.ToArray());
+        return await GetPageAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
+    }
+
+    /// <summary>
+    /// 根据给定的条件及排序，分页获取数据
+    /// </summary>
+    /// <typeparam name="TEntity">数据库实体类</typeparam>
+    /// <param name="pageIndex">页码索引（从0开始）（pageIndex小于等于0，返回第0页数据）</param>
+    /// <param name="pageSize">页大小(pageSize小于等于0，返回所有数据)</param>
+    /// <param name="dbWheres">条件集合</param>
+    /// <param name="transaction">事务</param>
+    /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="dbOrderBy">排序</param>
+    /// <returns>分页数据集合</returns>
+    public async Task<PageInfo<TEntity>> GetPageInfoAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    {
+        var r = await GetPageAsync(pageIndex, pageSize, dbWheres, transaction, commandTimeout, returnTotal, dbOrderBy);
+        PageInfo<TEntity> page = new PageInfo<TEntity>(pageIndex, pageSize);
+        page.TotalRecords = r.totalCount;
+        page.Data = r.list == null ? null : r.list.ToList();
+        return page;
+    }
+
+    /// <summary>
+    /// 根据给定的条件及排序，分页获取数据
+    /// </summary>
+    /// <typeparam name="TEntity">数据库实体类</typeparam>
+    /// <param name="pageInfo">分页信息</param>
+    /// <param name="transaction">事务</param>
+    /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="returnTotal">是否查询总记录数</param>
+    /// <returns>分页数据集合</returns>
+    public async Task<PageInfo<TEntity>> GetPageInfoAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
+    {
+        return await GetPageInfoAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
     }
 
     /// <summary>
@@ -614,7 +687,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>数据集合</returns>
     public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>() where TEntity : class
     {
-        var (list, _) = await GetPageAsync<TEntity>(0, 0, null, null, null);
+        var (list, _) = await GetPageAsync<TEntity>(0, 0, null, null, null, false);
         return list;
     }
 
@@ -629,7 +702,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>数据集合</returns>
     public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = await GetPageAsync(0, 0, dbWheres, transaction, commandTimeout, dbOrderBy);
+        var (list, _) = await GetPageAsync(0, 0, dbWheres, transaction, commandTimeout, false, dbOrderBy);
         return list;
     }
 
@@ -641,7 +714,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>指定数量的数据集合</returns>
     public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top) where TEntity : class
     {
-        var (list, _) = await GetPageAsync<TEntity>(0, top, null, null, null);
+        var (list, _) = await GetPageAsync<TEntity>(0, top, null, null, null, false);
         return list;
     }
 
@@ -657,7 +730,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <returns>指定数量的数据集合</returns>
     public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = await GetPageAsync(0, top, dbWheres, transaction, commandTimeout, dbOrderBy);
+        var (list, _) = await GetPageAsync(0, top, dbWheres, transaction, commandTimeout, false, dbOrderBy);
         return list;
     }
 
