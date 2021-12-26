@@ -131,10 +131,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <param name="returnTotal">是否查询总记录数</param>
         /// <param name="dbOrderBy">排序</param>
         /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        public override (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+        public override (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
             int totalCount = 0;
             Type type = typeof(TEntity);
@@ -174,7 +175,8 @@ namespace Newcats.DataAccess.MySql
                 }
             }
             IEnumerable<TEntity> list = Connection.Query<TEntity>(sqlText, pars, transaction, true, commandTimeout, CommandType.Text);
-            totalCount = Connection.ExecuteScalar<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
+            if (returnTotal.HasValue && returnTotal.Value)
+                totalCount = Connection.ExecuteScalar<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
             return (list, totalCount);
         }
 
@@ -315,10 +317,11 @@ namespace Newcats.DataAccess.MySql
         /// <param name="dbWheres">条件集合</param>
         /// <param name="transaction">事务</param>
         /// <param name="commandTimeout">超时时间(单位：秒)</param>
+        /// <param name="returnTotal">是否查询总记录数</param>
         /// <param name="dbOrderBy">排序</param>
         /// <typeparam name="TEntity">数据库实体类</typeparam>
         /// <returns>分页数据集合</returns>
-        public override async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+        public override async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
         {
             Type type = typeof(TEntity);
             string tableName = RepositoryHelper.GetTableName(type);
@@ -358,7 +361,8 @@ namespace Newcats.DataAccess.MySql
                 }
             }
             IEnumerable<TEntity> list = await Connection.QueryAsync<TEntity>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
-            totalCount = await Connection.ExecuteScalarAsync<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
+            if (returnTotal.HasValue && returnTotal.Value)
+                totalCount = await Connection.ExecuteScalarAsync<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
             return (list, totalCount);
         }
 
