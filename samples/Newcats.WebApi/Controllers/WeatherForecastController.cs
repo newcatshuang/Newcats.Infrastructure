@@ -72,6 +72,16 @@ namespace Newcats.WebApi.Controllers
         [HttpGet]
         public async Task<string> Get()
         {
+            (IEnumerable<PgUserInfo> list, int totalCount) r111 = _repository.GetPage<PgUserInfo>(1, 10);
+            (IEnumerable<PgUserInfo> list, int totalCount) r222 = _repository.GetPage<PgUserInfo>(new PageInfo<PgUserInfo>(2, 20));
+            PageInfo<PgUserInfo> r333 = _repository.GetPageInfo<PgUserInfo>(3, 30, returnTotal: false);
+            PageInfo<PgUserInfo> r444 = _repository.GetPageInfo<PgUserInfo>(4, 40, returnTotal: true);
+            PageInfo<PgUserInfo> r555 = _repository.GetPageInfo<PgUserInfo>(new PageInfo<PgUserInfo>(5, 50), returnTotal: true);
+            PageInfo<PgUserInfo> r666 = _repository.GetPageInfo<PgUserInfo>(new PageInfo<PgUserInfo>(5, 50), returnTotal: false);
+            object r777 = _repository.Insert<PgUserInfo>(new PgUserInfo() { Id = IdHelper.Create(), Name = EncryptHelper.GetRandomString(Random.Shared.Next(20)), JoinTime = DateTime.Now });
+            bool r888 = _repository.Insert<PgUserInfo>(new PgUserInfo() { Id = IdHelper.Create(), Name = EncryptHelper.GetRandomString(Random.Shared.Next(20)), JoinTime = DateTime.Now }, null);
+            return r111.ToString();
+
             List<PgUserInfo> list = new List<PgUserInfo>();
             Stopwatch sw = Stopwatch.StartNew();
             sw.Start();

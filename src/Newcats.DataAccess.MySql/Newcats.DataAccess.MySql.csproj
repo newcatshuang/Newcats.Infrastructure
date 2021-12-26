@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.DataAccess.MySql</Title>
 		<PackageId>Newcats.DataAccess.MySql</PackageId>
-		<Version>1.2.2</Version>
+		<Version>1.2.3</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -45,7 +45,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="MySqlConnector" Version="2.1.2" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.2" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.3" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -26,7 +26,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="transaction">事务</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>成功时返回true，否则返回false</returns>
-    bool Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null) where TEntity : class;
+    bool Insert<TEntity>(TEntity entity, IDbTransaction transaction) where TEntity : class;
 
     /// <summary>
     /// 批量插入数据，返回成功的条数
@@ -322,7 +322,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="transaction">事务</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>成功时返回true，否则返回false</returns>
-    Task<bool> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null) where TEntity : class;
+    Task<bool> InsertAsync<TEntity>(TEntity entity, IDbTransaction transaction) where TEntity : class;
 
     /// <summary>
     /// 批量插入数据，返回成功的条数

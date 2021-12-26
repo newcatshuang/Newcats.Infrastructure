@@ -34,7 +34,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>成功时返回true，否则返回false</returns>
-    public bool Insert<TEntity>(TEntity entity, IDbTransaction? transaction = null) where TEntity : class
+    public bool Insert<TEntity>(TEntity entity, IDbTransaction transaction) where TEntity : class
     {
         ArgumentNullException.ThrowIfNull(nameof(entity));
         string sqlText = RepositoryHelper.GetInsertSqlText(typeof(TEntity));
@@ -469,7 +469,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>成功时返回true，否则返回false</returns>
-    public async Task<bool> InsertAsync<TEntity>(TEntity entity, IDbTransaction? transaction = null) where TEntity : class
+    public async Task<bool> InsertAsync<TEntity>(TEntity entity, IDbTransaction transaction) where TEntity : class
     {
         ArgumentNullException.ThrowIfNull(nameof(entity));
         string sqlText = RepositoryHelper.GetInsertSqlText(typeof(TEntity));
