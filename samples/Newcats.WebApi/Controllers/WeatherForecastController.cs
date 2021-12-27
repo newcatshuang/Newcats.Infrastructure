@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newcats.AspNetCore.Filters;
@@ -68,6 +69,59 @@ namespace Newcats.WebApi.Controllers
 
         //    return "ok";
         //}
+
+        public async Task<string> Index()
+        {
+            //1.插入数据，返回主键
+            object r1 = _repository.Insert<UserInfo>(new UserInfo { Name = "Newcats", CreateTime = DateTime.Now });
+
+            //2.插入数据，返回是否成功
+            bool r2 = _repository.Insert<UserInfo>(new UserInfo { Id = 1, Name = "Huang", CreateTime = DateTime.UtcNow }, null);
+
+            //3.批量插入，返回成功的条数
+            //int r3 = _repository.InsertBulk<UserInfo>(new List<UserInfo>() { new UserInfo { Name = "Newcats", CreateTime = DateTime.Now } }, transaction, 600);
+
+            //4.使用SqlBulkCopy批量插入数据
+            //int r4 = _repository.InsertSqlBulkCopy<UserInfo>(new List<UserInfo>() { new UserInfo { Name = "Newcats", CreateTime = DateTime.Now } }, transaction, 600);
+
+            //5.根据主键删除一条数据(delete from userinfo where id=1;)
+            int r5 = _repository.Delete<UserInfo>(1);
+
+            //6.根据给定的条件，删除记录(删除CreateTime>=2021-12-12的记录)(delete from userinfo where createtime>='2021-12-12';)
+            int r6 = _repository.Delete<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.CreateTime, new DateTime(2021, 12, 12), OperateTypeEnum.GreaterEqual, LogicTypeEnum.And) });
+
+            //7.根据主键，更新一条记录(update userinfo set Name='NewcatsHuang' where id=2;)
+            //int r7 = _repository.Update<UserInfo>(2, new List<DbUpdate<UserInfo>>() { new DbUpdate<UserInfo>(s => s.Name, "NewcatsHuang") }, transaction, 60);
+
+            //8.根据给定的条件，更新记录(update userinfo set Name='Newcats',CreateTime='2021-12-31' where CreateTime>='2021-12-12' and CreateTime<'2021-12-30';)
+            int r8 = _repository.Update<UserInfo>(
+                new List<DbWhere<UserInfo>>
+                {
+                    new DbWhere<UserInfo>(s => s.CreateTime, new DateTime(2021, 12, 12), OperateTypeEnum.GreaterEqual, LogicTypeEnum.And),
+                    new DbWhere<UserInfo>(s=>s.CreateTime,new DateTime(2021,12,30), OperateTypeEnum.Less, LogicTypeEnum.And)
+                },
+                new List<DbUpdate<UserInfo>>
+                {
+                    new DbUpdate<UserInfo>(s => s.Name,"Newcats"),
+                    new DbUpdate<UserInfo>(s=>s.CreateTime,new DateTime(2021,12,31))
+                });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            return "ok";
+        }
+
 
         [HttpGet]
         public async Task<string> Get()
@@ -213,11 +267,11 @@ namespace Newcats.WebApi.Controllers
 
         public string Name { get; set; }
 
-        [NotMapped]
-        public long? UserId { get; set; }
+        //[NotMapped]
+        //public long? UserId { get; set; }
 
         [Column("CreateTime")]
-        public DateTime JoinTime { get; set; }
+        public DateTime CreateTime { get; set; }
     }
 
     [Table("UserInfo")]
