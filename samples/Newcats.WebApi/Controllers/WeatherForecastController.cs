@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newcats.AspNetCore.Filters;
@@ -106,7 +108,119 @@ namespace Newcats.WebApi.Controllers
                     new DbUpdate<UserInfo>(s=>s.CreateTime,new DateTime(2021,12,31))
                 });
 
+            //9.根据主键，获取一条记录(select * from userinfo where id=1;)
+            UserInfo r9 = _repository.Get<UserInfo>(1);
 
+            //10.根据给定条件，获取一条记录(select top 1 * from userinfo where Name='Newcats' order by CreateTime desc;)
+            UserInfo r10 = _repository.Get<UserInfo>(new List<DbWhere<UserInfo>>
+            {
+                new DbWhere<UserInfo> (s=>s.Name,"Newcats", OperateTypeEnum.Equal, LogicTypeEnum.And)
+            }, null, null, new DbOrderBy<UserInfo>(s => s.CreateTime, SortTypeEnum.DESC));
+
+            //11.根据给定的条件及排序，分页获取数据(获取Name包含'newcats'字符串的第2页的20条数据)
+            (IEnumerable<UserInfo> list, int totalCount) r11 = _repository.GetPage<UserInfo>(1, 20, new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) });
+
+            //12.分页获取数据，逻辑同上
+            var p = new PageInfo<UserInfo>(1, 20);
+            p.Where = new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) };
+            (IEnumerable<UserInfo> list, int totalCount) r12 = _repository.GetPage<UserInfo>(p);
+
+            //13.根据给定的条件及排序，分页获取数据，逻辑同上
+            PageInfo<UserInfo> r13 = _repository.GetPageInfo<UserInfo>(1, 20, new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) });
+
+            //14.根据给定的条件及排序，分页获取数据，逻辑同上
+            PageInfo<UserInfo> r14 = _repository.GetPageInfo<UserInfo>(p);
+
+            //15.获取所有数据
+            IEnumerable<UserInfo> r15 = _repository.GetAll<UserInfo>();
+
+            //16.根据给定的条件及排序，获取所有数据(获取Name包含'newcats'字符串的所有数据)
+            IEnumerable<UserInfo> r16 = _repository.GetAll<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) });
+
+            //17.根据默认排序，获取指定数量的数据(select top 10 * from userinfo;)
+            IEnumerable<UserInfo> r17 = _repository.GetTop<UserInfo>(10);
+
+            //18.根据给定的条件及排序，获取指定数量的数据(select top 10 * from userinfo where Name like '%newcats%' order by Id;)
+            IEnumerable<UserInfo> r18 = _repository.GetTop<UserInfo>(10, new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) }, null, null, new DbOrderBy<UserInfo>(s => s.Id, SortTypeEnum.ASC));
+
+            //19.获取记录总数量(select count(1) from userinfo;)
+            int r19 = _repository.Count<UserInfo>();
+
+            //20.根据给定的条件，获取记录数量(select count(1) from userinfo where Name like '%newcats%')
+            int r20 = _repository.Count<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) });
+
+            //21.根据主键，判断数据是否存在(select top 1 1 from userinfo where Id=2021;=>r==1?)
+            bool r21 = _repository.Exists<UserInfo>(2021);
+
+            //22.根据给定的条件，判断数据是否存在(select top 1 1 from userinfo where Name like '%newcats%';=>r==1?)
+            bool r22 = _repository.Exists<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) });
+
+            //23.执行存储过程
+            DynamicParameters dp = new Dapper.DynamicParameters();
+            dp.Add("@id", 1);
+            int r23 = _repository.ExecuteStoredProcedure("Usp_GetUserName", dp);
+
+            //24.执行sql语句，返回受影响的行数
+            int r24 = _repository.Execute("delete from userinfo where Id=@id;", dp);
+
+            //25.执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
+            string r25 = _repository.ExecuteScalar<string>("select Name from userinfo where Id=@id;", dp);
+
+            //26.执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
+            object r26 = _repository.ExecuteScalar("select Name from userinfo where Id=@id;", dp);
+
+            //27.执行查询，返回结果集
+            IEnumerable<UserInfo> r27 = _repository.Query<UserInfo>("select * from userinfo where Id=@id;", dp);
+
+            //28.执行单行查询，返回结果
+            UserInfo r28 = _repository.QueryFirstOrDefault<UserInfo>("select * from userinfo where Id=@id;", dp);
+
+            //29.事务一
+            using (var tran = _repository.BeginTransaction())
+            {
+                try
+                {
+                    _repository.Delete<UserInfo>(1);
+                    _repository.Delete<UserInfo>(2);
+                    tran.Commit();
+                }
+                catch (Exception)
+                {
+                    tran.Rollback();
+                    throw;
+                }
+            }
+
+            //30.事务二
+            using (var tran = _repository.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+            {
+                try
+                {
+                    _repository.Delete<UserInfo>(1);
+                    _repository.Delete<UserInfo>(2);
+                    tran.Commit();
+                }
+                catch (Exception)
+                {
+                    tran.Rollback();
+                    throw;
+                }
+            }
+
+            //31.事务三
+            using (TransactionScope scope = TransactionScopeBuilder.Create(IsolationLevel.ReadUncommitted, true))
+            {
+                try
+                {
+                    _repository.Delete<UserInfo>(1);
+                    _repository.Delete<UserInfo>(2);
+                    scope.Complete();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
 
 
 
