@@ -1,7 +1,7 @@
 ﻿# Newcats.DataAccess.Core 使用说明
 
 [![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
-[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.1.7&color=blue)](https://www.nuget.org/packages/Newcats.DataAccess.Core)
+[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.2.3&color=blue)](https://www.nuget.org/packages/Newcats.DataAccess.Core)
 [![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
 
 # 示例代码：
@@ -115,8 +115,8 @@ using (var tran = _repository.BeginTransaction())
 {
     try
     {
-        _repository.Delete<UserInfo>(1);
-        _repository.Delete<UserInfo>(2);
+        _repository.Delete<UserInfo>(1, tran);
+        _repository.Delete<UserInfo>(2, tran);
         tran.Commit();
     }
     catch (Exception)
@@ -131,8 +131,8 @@ using (var tran = _repository.BeginTransaction(System.Data.IsolationLevel.ReadCo
 {
     try
     {
-        _repository.Delete<UserInfo>(1);
-        _repository.Delete<UserInfo>(2);
+        _repository.Delete<UserInfo>(1, tran);
+        _repository.Delete<UserInfo>(2, tran);
         tran.Commit();
     }
     catch (Exception)

@@ -180,8 +180,8 @@ namespace Newcats.WebApi.Controllers
             {
                 try
                 {
-                    _repository.Delete<UserInfo>(1);
-                    _repository.Delete<UserInfo>(2);
+                    _repository.Delete<UserInfo>(1, tran);
+                    _repository.Delete<UserInfo>(2, tran);
                     tran.Commit();
                 }
                 catch (Exception)
@@ -196,8 +196,8 @@ namespace Newcats.WebApi.Controllers
             {
                 try
                 {
-                    _repository.Delete<UserInfo>(1);
-                    _repository.Delete<UserInfo>(2);
+                    _repository.Delete<UserInfo>(1, tran);
+                    _repository.Delete<UserInfo>(2, tran);
                     tran.Commit();
                 }
                 catch (Exception)
