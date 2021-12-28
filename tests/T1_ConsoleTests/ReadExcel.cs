@@ -9,6 +9,8 @@
 *****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +22,13 @@ namespace T1_ConsoleTests
         public static void Read()
         {
             const string fullFileName = @"C:\Users\Newcats\Desktop\Result_108.xlsx";
+            DataTable r1 = Newcats.Office.Excel.ReadExcelToTable(fullFileName);
+
+            using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                DataTable r2 = Newcats.Office.Excel.ReadExcelToTable(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
+            }
+
             var list = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fullFileName);
 
             Newcats.Office.Excel.ReadListToExcel(list, Newcats.Office.Excel.ExcelFormatEnum.xls);

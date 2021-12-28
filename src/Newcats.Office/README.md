@@ -1,11 +1,24 @@
-# Newcats.Infrastructure
-[![Net Core](https://img.shields.io/badge/.NET%20Core-3.1-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
-[![GitHub license](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
+# Newcats.Office 使用说明
 
-README: [中文](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/README.md) | [English](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/README-en.md)
+[![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
+[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.0.7&color=blue)](https://www.nuget.org/packages/Newcats.Office)
+[![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
 
----
-The new infrastructure to launch a new era of the great .NET Core.
+## 示例代码：
+
+### Newcats.Office.Excel
+
+```c#
+//1.读取Excel到DataTable(默认获取第一个Sheet)(第一行为表头,不记录数据)
+const string fullFileName = @"C:\Users\Newcats\Desktop\Result_108.xlsx";
+DataTable r1 = Newcats.Office.Excel.ReadExcelToTable(fullFileName);
+
+//2.从流读取Excel到DataTable(默认获取第一个Sheet)(第一行为表头,不记录数据)
+using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+{
+    DataTable r2 = Newcats.Office.Excel.ReadExcelToTable(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
+}
+```
 
 ---
 

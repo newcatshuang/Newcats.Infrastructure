@@ -158,6 +158,8 @@ using (TransactionScope scope = TransactionScopeBuilder.Create(IsolationLevel.Re
 }
 ```
 
+---
+
 # 使用说明：
 
 ## 1.实体类

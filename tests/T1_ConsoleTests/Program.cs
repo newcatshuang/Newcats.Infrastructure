@@ -20,6 +20,9 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            ReadExcel.Read();
+
+            return;
 
             //var tn = RepositoryHelper.GetTableName(typeof(UserInfo));
             //RepositoryHelper.GetTableName(typeof(UserInfo));
