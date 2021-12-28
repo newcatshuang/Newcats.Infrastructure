@@ -29,10 +29,25 @@ namespace T1_ConsoleTests
                 DataTable r2 = Newcats.Office.Excel.ReadExcelToTable(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
             }
 
-            var list = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fullFileName);
+            using (MemoryStream r4 = Newcats.Office.Excel.ReadDataTableToExcel(r1))
+            {
 
-            Newcats.Office.Excel.ReadListToExcel(list, Newcats.Office.Excel.ExcelFormatEnum.xls);
-            foreach (var item in list.Where(r => r.IsOnline != 0))
+            }
+
+            using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                List<DepartmentInfo> r6 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
+            }
+
+            List<DepartmentInfo> r5 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fullFileName);
+
+            using (MemoryStream r8 = Newcats.Office.Excel.ReadListToExcel<DepartmentInfo>(r5, Newcats.Office.Excel.ExcelFormatEnum.xlsx))
+            {
+
+            }
+
+            Newcats.Office.Excel.ReadListToExcel(r5, Newcats.Office.Excel.ExcelFormatEnum.xls);
+            foreach (var item in r5.Where(r => r.IsOnline != 0))
             {
                 Console.WriteLine($"-- {item.DepartmentName}");
                 Console.WriteLine($"update departmentinfo set OnlineOffline={item.IsOnline} where DepartmentID='{item.DepartmentID}';\r\n");

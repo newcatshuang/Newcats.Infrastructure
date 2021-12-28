@@ -18,6 +18,43 @@ using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileSha
 {
     DataTable r2 = Newcats.Office.Excel.ReadExcelToTable(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
 }
+
+//3.从Http读取Excel到DataTable(默认获取第一个Sheet)(第一行为表头,不记录数据)
+[HttpPost]
+public async Task<IActionResult> UploadFile(IFormFile file)
+{
+    DataTable r3 = Newcats.Office.Excel.ReadExcelToTable(file);
+    return Ok(r3);
+}
+
+//4.读取DataTable数据源到Excel内存流
+using (MemoryStream r4 = Newcats.Office.Excel.ReadDataTableToExcel(r1))
+{
+
+}
+
+//5.读取Excel到List
+List<DepartmentInfo> r5 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fullFileName);
+
+//6.读取Excel到List
+using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+{
+    List<DepartmentInfo> r6 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
+}
+
+//7.读取Excel到List
+[HttpPost]
+public async Task<IActionResult> UploadFile(IFormFile file)
+{
+    List<DepartmentInfo> r7 = Newcats.Office.Excel.ReadExcelToTable<DepartmentInfo>(file);
+    return Ok(r7);
+}
+
+//8.读取List数据源到Excel内存流
+using (MemoryStream r8 = Newcats.Office.Excel.ReadListToExcel<DepartmentInfo>(r5, Newcats.Office.Excel.ExcelFormatEnum.xlsx))
+{
+
+}
 ```
 
 ---
