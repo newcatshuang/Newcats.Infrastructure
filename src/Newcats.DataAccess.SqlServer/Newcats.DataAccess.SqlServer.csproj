@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.DataAccess.SqlServer</Title>
 		<PackageId>Newcats.DataAccess.SqlServer</PackageId>
-		<Version>1.2.3</Version>
+		<Version>1.2.5</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -18,6 +18,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2021-12-28
+			1.ReadMe文档增加示例代码
+
 			2021-12-26
 			1.增加insert及getpageinfo分页方法
 
@@ -45,7 +48,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.3" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.5" />
 	</ItemGroup>
 
 	<ItemGroup>
