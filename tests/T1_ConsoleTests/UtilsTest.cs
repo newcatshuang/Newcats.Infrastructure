@@ -88,6 +88,9 @@ namespace T1_ConsoleTests
             //21.转换为Unix时间戳(秒)
             long r16 = DateTime.Now.ToUnixTimestamp();//1640788430
 
+            //22.从Unix时间戳获取时间(秒)(默认返回北京时间)
+            1640788430L.GetTimeFromUnixTimestamp(beijingTimeZone: true);
+
         }
     }
 }

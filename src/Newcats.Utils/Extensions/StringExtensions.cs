@@ -453,27 +453,25 @@ namespace Newcats.Utils.Extensions
             const long std = 621355968000000000L;//new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
             long give = time.ToUniversalTime().Ticks;
             return (give - std) / TimeSpan.TicksPerSecond;
-
-
-            //var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
-            //long ticks = (time - start.Add(new TimeSpan(8, 0, 0))).Ticks;
-            //return Convert.ToInt64(ticks / TimeSpan.TicksPerSecond);
         }
         #endregion
 
         #region System.Int64
         /// <summary>
-        /// 从Unix时间戳获取时间(秒)(北京时间)
+        /// 从Unix时间戳获取时间(秒)(默认返回北京时间)
         /// </summary>
-        /// <param name="timestamp">Unix时间戳(秒)</param>
+        /// <param name="timestamp">UTC时间的Unix时间戳(秒)</param>
+        /// <param name="beijingTimeZone">是否转换成北京时间</param>
         /// <returns>DateTime时间</returns>
-        public static DateTime GetTimeFromUnixTimestamp(this long timestamp)
+        public static DateTime GetTimeFromUnixTimestamp(this long timestamp, bool beijingTimeZone = true)
         {
-            var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Utc);
+            //var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Utc);
+            //TimeSpan span = new(long.Parse(timestamp + "0000000"));
+            //return start.Add(span).Add(new TimeSpan(8, 0, 0));
+
+            var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             TimeSpan span = new(long.Parse(timestamp + "0000000"));
-            return start.Add(span).Add(new TimeSpan(8, 0, 0));
-
-
+            return beijingTimeZone ? start.Add(span).Add(new TimeSpan(8, 0, 0)) : start.Add(span);
         }
         #endregion
 
