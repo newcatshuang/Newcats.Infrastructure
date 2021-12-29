@@ -531,36 +531,6 @@ namespace Newcats.Utils.Helpers
         /// </summary>
         public const string DESKey = "AU5f6ImsFb,3@6z57j%Y_g7&";
 
-        /// <summary>
-        /// DES 解密算法,密钥长度为8个字符
-        /// </summary>
-        /// <param name="Data">密文</param>
-        /// <param name="key">密钥长度为8个字符</param>
-        /// <param name="charset">字符编码</param>
-        /// <returns>明文</returns>
-        public static string DESDecrypt(string Data, string key)
-        {
-            DESCryptoServiceProvider des = new();
-
-            des.Key = ASCIIEncoding.ASCII.GetBytes(key);
-            des.IV = ASCIIEncoding.ASCII.GetBytes(key);
-
-            byte[] inputByteArray = HexStringToBytes(Data);
-
-            System.IO.MemoryStream ms = new();
-            CryptoStream cs = new(ms, des.CreateDecryptor(), CryptoStreamMode.Write);
-            cs.Write(inputByteArray, 0, inputByteArray.Length);
-            cs.FlushFinalBlock();
-
-
-            byte[] ret = ms.ToArray();
-
-            cs.Close();
-            ms.Close();
-            var result = Encoding.GetEncoding("utf-8").GetString(ret);
-            return result;
-        }
-
         private static byte[] HexStringToBytes(string hexString)
         {
             if (hexString == null)

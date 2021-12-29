@@ -207,6 +207,16 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
+        /// 获取此字符串的DES加密结果(使用默认的24位密钥)
+        /// </summary>
+        /// <param name="value">字符串(明文)</param>
+        /// <returns>DES加密结果</returns>
+        public static string DesEncrypt(this string value)
+        {
+            return Helpers.EncryptHelper.DESEncrypt(value);
+        }
+
+        /// <summary>
         /// 获取此字符串的DES加密结果
         /// </summary>
         /// <param name="value">字符串(明文)</param>
@@ -230,6 +240,16 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
+        /// 获取此字符串的DES解密结果(使用默认的24位密钥)
+        /// </summary>
+        /// <param name="value">字符串(密文)</param>
+        /// <returns>DES解密结果</returns>
+        public static string DesDecrypt(this string value)
+        {
+            return Helpers.EncryptHelper.DESDecrypt(value);
+        }
+
+        /// <summary>
         /// 获取此字符串的DES解密结果
         /// </summary>
         /// <param name="value">字符串(密文)</param>
@@ -237,7 +257,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>DES解密结果</returns>
         public static string DesDecrypt(this string value, string key)
         {
-            return Helpers.EncryptHelper.DESDecrypt(value, key);
+            return Helpers.EncryptHelper.DESDecrypt(value, key, Encoding.UTF8);
         }
 
         /// <summary>
@@ -430,23 +450,30 @@ namespace Newcats.Utils.Extensions
         /// <returns>Unix时间戳(秒)</returns>
         public static long ToUnixTimestamp(this DateTime time)
         {
-            var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
-            long ticks = (time - start.Add(new TimeSpan(8, 0, 0))).Ticks;
-            return Convert.ToInt64(ticks / TimeSpan.TicksPerSecond);
+            const long std = 621355968000000000L;//new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+            long give = time.ToUniversalTime().Ticks;
+            return (give - std) / TimeSpan.TicksPerSecond;
+
+
+            //var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
+            //long ticks = (time - start.Add(new TimeSpan(8, 0, 0))).Ticks;
+            //return Convert.ToInt64(ticks / TimeSpan.TicksPerSecond);
         }
         #endregion
 
         #region System.Int64
         /// <summary>
-        /// 从Unix时间戳获取时间(秒)
+        /// 从Unix时间戳获取时间(秒)(北京时间)
         /// </summary>
         /// <param name="timestamp">Unix时间戳(秒)</param>
         /// <returns>DateTime时间</returns>
         public static DateTime GetTimeFromUnixTimestamp(this long timestamp)
         {
-            var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
+            var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Utc);
             TimeSpan span = new(long.Parse(timestamp + "0000000"));
             return start.Add(span).Add(new TimeSpan(8, 0, 0));
+
+
         }
         #endregion
 

@@ -19,40 +19,40 @@ namespace T1_ConsoleTests
 {
     internal class ReadExcel
     {
-        public static void Read()
-        {
-            const string fullFileName = @"C:\Users\Newcats\Desktop\Result_108.xlsx";
-            DataTable r1 = Newcats.Office.Excel.ReadExcelToTable(fullFileName);
+        //public static void Read()
+        //{
+        //    const string fullFileName = @"C:\Users\Newcats\Desktop\Result_108.xlsx";
+        //    DataTable r1 = Newcats.Office.Excel.ReadExcelToTable(fullFileName);
 
-            using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                DataTable r2 = Newcats.Office.Excel.ReadExcelToTable(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
-            }
+        //    using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        //    {
+        //        DataTable r2 = Newcats.Office.Excel.ReadExcelToTable(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
+        //    }
 
-            using (MemoryStream r4 = Newcats.Office.Excel.ReadDataTableToExcel(r1))
-            {
+        //    using (MemoryStream r4 = Newcats.Office.Excel.ReadDataTableToExcel(r1))
+        //    {
 
-            }
+        //    }
 
-            using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                List<DepartmentInfo> r6 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
-            }
+        //    using (FileStream fs = new(fullFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        //    {
+        //        List<DepartmentInfo> r6 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fs, Newcats.Office.Excel.ExcelFormatEnum.xlsx);
+        //    }
 
-            List<DepartmentInfo> r5 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fullFileName);
+        //    List<DepartmentInfo> r5 = Newcats.Office.Excel.ReadExcelToList<DepartmentInfo>(fullFileName);
 
-            using (MemoryStream r8 = Newcats.Office.Excel.ReadListToExcel<DepartmentInfo>(r5, Newcats.Office.Excel.ExcelFormatEnum.xlsx))
-            {
+        //    using (MemoryStream r8 = Newcats.Office.Excel.ReadListToExcel<DepartmentInfo>(r5, Newcats.Office.Excel.ExcelFormatEnum.xlsx))
+        //    {
 
-            }
+        //    }
 
-            Newcats.Office.Excel.ReadListToExcel(r5, Newcats.Office.Excel.ExcelFormatEnum.xls);
-            foreach (var item in r5.Where(r => r.IsOnline != 0))
-            {
-                Console.WriteLine($"-- {item.DepartmentName}");
-                Console.WriteLine($"update departmentinfo set OnlineOffline={item.IsOnline} where DepartmentID='{item.DepartmentID}';\r\n");
-            }
-        }
+        //    Newcats.Office.Excel.ReadListToExcel(r5, Newcats.Office.Excel.ExcelFormatEnum.xls);
+        //    foreach (var item in r5.Where(r => r.IsOnline != 0))
+        //    {
+        //        Console.WriteLine($"-- {item.DepartmentName}");
+        //        Console.WriteLine($"update departmentinfo set OnlineOffline={item.IsOnline} where DepartmentID='{item.DepartmentID}';\r\n");
+        //    }
+        //}
     }
 
     public class DepartmentInfo

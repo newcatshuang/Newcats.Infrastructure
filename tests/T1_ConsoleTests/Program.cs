@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -20,7 +21,25 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            ReadExcel.Read();
+            var l1 = DateTime.Now.ToUnixTimestamp();
+            //long std = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+            //long l2 = (DateTime.UtcNow.Ticks - std) / 10000000L;
+            var l2 = new DateTime(1992, 1, 23, 0, 0, 0, DateTimeKind.Local).ToUnixTimestamp();
+
+            Console.WriteLine(l1);
+            //Console.WriteLine(std);
+            Console.WriteLine(l2);
+            long lt1 = 1640792882L;
+            long lt2 = 696096000L;
+
+            Console.WriteLine(lt1.GetTimeFromUnixTimestamp().ToChinaString());
+            Console.WriteLine(lt2.GetTimeFromUnixTimestamp().ToChinaString());
+
+
+            //var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
+            //long ticks = (new DateTime(1992, 1, 23) - start.Add(new TimeSpan(8, 0, 0))).Ticks;
+            //Console.WriteLine(Convert.ToInt64(ticks / TimeSpan.TicksPerSecond));
+            //ReadExcel.Read();
 
             return;
 

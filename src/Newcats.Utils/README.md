@@ -1,12 +1,15 @@
-# Newcats.Infrastructure
-[![Net Core](https://img.shields.io/badge/.NET%20Core-3.1-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
-[![GitHub license](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
+# Newcats.Utils 使用说明
 
-README: [中文](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/README.md) | [English](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/README-en.md)
+[![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
+[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.0.8&color=blue)](https://www.nuget.org/packages/Newcats.Utils)
+[![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
 
----
-The new infrastructure to launch a new era of the great .NET Core.
+## 示例代码：
 
+```c#
+
+
+```
 ---
 
 ## 贡献与反馈

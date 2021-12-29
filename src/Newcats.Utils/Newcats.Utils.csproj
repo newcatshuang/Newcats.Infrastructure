@@ -9,7 +9,7 @@
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
-		<PackageTags>Utils;Extensions;Helpers</PackageTags>
+		<PackageTags>Utils;Extensions;Helpers;EnumDescription;Encrypt;</PackageTags>
 		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.Utils</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
 		<Description>Some common functions to make coding easy.</Description>
