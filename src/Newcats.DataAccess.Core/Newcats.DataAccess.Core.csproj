@@ -10,7 +10,7 @@
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
-		<PackageTags>Dapper;DataAccess;Helpers;SqlBulkCopy</PackageTags>
+		<PackageTags>Dapper;DataAccess;Helpers;SqlBulkCopy;Repository;DbContext;</PackageTags>
 		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.DataAccess.Core</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
 		<Description>Some common functions(CRUD etc) to make data access easy.Check detail from github for how to use.</Description>
