@@ -110,7 +110,7 @@ namespace Newcats.Utils.Helpers
 
         internal RSA CreateRsaProviderFromPrivateKey(string privateKey)
         {
-            var privateKeyBits = System.Convert.FromBase64String(privateKey);
+            var privateKeyBits = _encoding.GetBytes(privateKey); //System.Convert.FromBase64String(privateKey);
 
             var rsa = RSA.Create();
             var rsaParameters = new RSAParameters();

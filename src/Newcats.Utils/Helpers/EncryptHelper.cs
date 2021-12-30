@@ -693,7 +693,7 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// AES密钥,32位字符串
         /// </summary>
-        public static string AESKey = "T&t8C,(YaGyFSkB_fVE1,8(j0v#69At0";
+        public const string AESKey = "T&t8C,(YaGyFSkB_fVE1,8(j0v#69At0";
 
         /// <summary>
         /// AES加密
@@ -724,7 +724,7 @@ namespace Newcats.Utils.Helpers
         {
             if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(key))
                 return string.Empty;
-            var rijndaelManaged = CreateRijndaelManaged(key);
+            var rijndaelManaged = CreateRijndaelManaged(key, encoding);
             using (var transform = rijndaelManaged.CreateEncryptor(rijndaelManaged.Key, rijndaelManaged.IV))
             {
                 return GetEncryptResult(value, encoding, transform);
@@ -734,12 +734,12 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 创建RijndaelManaged
         /// </summary>
-        private static RijndaelManaged CreateRijndaelManaged(string key)
+        private static RijndaelManaged CreateRijndaelManaged(string key, Encoding encoding, CipherMode cipherMode = CipherMode.CBC)
         {
             return new RijndaelManaged
             {
-                Key = System.Convert.FromBase64String(key),
-                Mode = CipherMode.CBC,
+                Key = encoding.GetBytes(key),
+                Mode = cipherMode,
                 Padding = PaddingMode.PKCS7,
                 IV = Iv
             };
@@ -774,7 +774,7 @@ namespace Newcats.Utils.Helpers
         {
             if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(key))
                 return string.Empty;
-            var rijndaelManaged = CreateRijndaelManaged(key);
+            var rijndaelManaged = CreateRijndaelManaged(key, encoding);
             using (var transform = rijndaelManaged.CreateDecryptor(rijndaelManaged.Key, rijndaelManaged.IV))
             {
                 return GetDecryptResult(value, encoding, transform);

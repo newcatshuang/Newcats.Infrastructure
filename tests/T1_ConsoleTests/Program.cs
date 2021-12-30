@@ -21,19 +21,35 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            var l1 = DateTime.Now.ToUnixTimestamp();
+            string pubKey = @"-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuAU3oT1i7ojq1EDhGLS2
+hD1avO1vWP90Wf0AlxC99f4D/3LdXpnUdasV5adogbEAYSIr0t9Yyipdzz5+VP97
++M4ug4Zv0wG7RgyJWL2YJsAwOEPOzgYez/rykfuDbW6zIvy+lv0qvHGmlJT4D1WM
+Ni3mO0QjGpmlHXvuVzxx5ypjqkq/SCDaItArGuihpZlPYi04K9lcFp7MvZXvXndu
+5yvpBbpTFvW6k97DDYph+BZWm4Vw/vTGw3ym7m3f2duIHGFfa3OdRg53f+j66ObM
+1/8D3aW9+lxvd4vSQk1Xgfs33wGEpRpSNiS3foAsIaPXtn7mBYm3+i/1zkoiipBs
+twIDAQAB
+-----END PUBLIC KEY-----";
+
+            //string enStr = Newcats.Utils.Helpers.EncryptHelper.RSASign("newcats", pubKey);
+
+            Console.WriteLine(IdHelper.Create(true));
+
+            //Console.WriteLine(Newcats.Utils.Helpers.EncryptHelper.AESDecrypt("dIuVIledkcP0Ron1gwBdCA=="));
+
+            //var l1 = DateTime.Now.ToUnixTimestamp();
             //long std = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
             //long l2 = (DateTime.UtcNow.Ticks - std) / 10000000L;
-            var l2 = new DateTime(1992, 1, 23, 0, 0, 0, DateTimeKind.Local).ToUnixTimestamp();
+            //var l2 = new DateTime(1992, 1, 23, 0, 0, 0, DateTimeKind.Local).ToUnixTimestamp();
 
-            Console.WriteLine(l1);
+            //Console.WriteLine(l1);
             //Console.WriteLine(std);
-            Console.WriteLine(l2);
-            long lt1 = 1640792882L;
-            long lt2 = 696096000L;
+            //Console.WriteLine(l2);
+            //long lt1 = 1640792882L;
+            //long lt2 = 696096000L;
 
-            Console.WriteLine(lt1.GetTimeFromUnixTimestamp().ToChinaString());
-            Console.WriteLine(lt2.GetTimeFromUnixTimestamp().ToChinaString());
+            //Console.WriteLine(lt1.GetTimeFromUnixTimestamp().ToChinaString());
+            //Console.WriteLine(lt2.GetTimeFromUnixTimestamp().ToChinaString());
 
 
             //var start = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);

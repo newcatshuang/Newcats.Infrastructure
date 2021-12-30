@@ -77,6 +77,50 @@ long r16 = DateTime.Now.ToUnixTimestamp();//1640788430
 //22.从Unix时间戳获取时间(秒)(默认返回北京时间)
 DateTime r17 = 1640788430L.GetTimeFromUnixTimestamp(beijingTimeZone: true);
 
+//23.判断字符串是否为null,空或空白格
+bool r17 = "Newcats".IsNullOrWhiteSpace();//=>false
+
+//24.截取字符串
+string r18 = "NewcatsHuang".ToSubstring(7);//=>"Newcats"
+
+//25.获取汉字的拼音首字母
+string r19 = "中国".PinYin();//=>zg
+
+//26.一些正则表达式扩展方法
+bool r20 = "newcats@live.com".IsEmail();//=>true
+
+//27.判断字符串是否非空
+"newcats".ThrowIfNullOrWhiteSpace();
+
+//28.获取指定长度的随机字符串
+string r21 = Newcats.Utils.Helpers.EncryptHelper.GetRandomString(7);//=>iPWs3Nz
+
+//29.获取指定长度的随机数字
+string r22 = Newcats.Utils.Helpers.EncryptHelper.GetRandomNumber(7);//=>8699505
+
+//30.获取指定长度的随机数字，字母，字符
+string r23 = Newcats.Utils.Helpers.EncryptHelper.GetRandomKey(7);//=>7z|DGki
+
+//31.AES加密
+string r24 = Newcats.Utils.Helpers.EncryptHelper.AESEncrypt("Newcats");//=>dIuVIledkcP0Ron1gwBdCA==
+
+//31.AES解密
+string r25 = Newcats.Utils.Helpers.EncryptHelper.AESDecrypt("dIuVIledkcP0Ron1gwBdCA==");//=>Newcats
+
+//32.RSA公钥加密
+//33.RSA私钥解密
+//34.RSA验证
+//35.文件操作 Newcats.Utils.Helpers.FileHelper
+//36.Http操作帮助类 Newcats.Utils.Helpers.HttpHelper
+
+//37.雪花算法Id生产器
+long r26 = Newcats.Utils.Helpers.IdHelper.Create();//=>3962686302872276996
+
+//38.拼接了日期的雪花算法Id
+string r27 = Newcats.Utils.Helpers.IdHelper.Create(true);//=>202112303962686561048465409
+
+//39.Lambda表达式帮助类 Newcats.Utils.Helpers.LambdaHelper
+//40.反射操作帮助类 Newcats.Utils.Helpers.ReflectionHelper
 ```
 
 ---
