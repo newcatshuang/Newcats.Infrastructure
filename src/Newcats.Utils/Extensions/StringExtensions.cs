@@ -213,7 +213,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>DES加密结果</returns>
         public static string DesEncrypt(this string value)
         {
-            return Helpers.EncryptHelper.DESEncrypt(value);
+            return Helpers.EncryptHelper.DesEncrypt(value);
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>DES加密结果</returns>
         public static string DesEncrypt(this string value, string key)
         {
-            return Helpers.EncryptHelper.DESEncrypt(value, key);
+            return Helpers.EncryptHelper.DesEncrypt(value, key);
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>DES加密结果</returns>
         public static string DesEncrypt(this string value, string key, Encoding encoding)
         {
-            return Helpers.EncryptHelper.DESEncrypt(value, key, encoding);
+            return Helpers.EncryptHelper.DesEncrypt(value, key, encoding);
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>DES解密结果</returns>
         public static string DesDecrypt(this string value)
         {
-            return Helpers.EncryptHelper.DESDecrypt(value);
+            return Helpers.EncryptHelper.DesDecrypt(value);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>DES解密结果</returns>
         public static string DesDecrypt(this string value, string key)
         {
-            return Helpers.EncryptHelper.DESDecrypt(value, key, Encoding.UTF8);
+            return Helpers.EncryptHelper.DesDecrypt(value, key, Encoding.UTF8);
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace Newcats.Utils.Extensions
         /// <returns>DES解密结果</returns>
         public static string DesDecrypt(this string value, string key, Encoding encoding)
         {
-            return Helpers.EncryptHelper.DESDecrypt(value, key, encoding);
+            return Helpers.EncryptHelper.DesDecrypt(value, key, encoding);
         }
         #endregion
 

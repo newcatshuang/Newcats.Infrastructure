@@ -527,39 +527,17 @@ namespace Newcats.Utils.Helpers
         #region DES加密
 
         /// <summary>
-        /// DES密钥,24位字符串
+        /// 默认DES密钥,24位字符串
         /// </summary>
-        public const string DESKey = "AU5f6ImsFb,3@6z57j%Y_g7&";
-
-        private static byte[] HexStringToBytes(string hexString)
-        {
-            if (hexString == null)
-            {
-                throw new ArgumentNullException(nameof(hexString));
-            }
-
-            if ((hexString.Length & 1) != 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(hexString), hexString, "hexString must contain an even number of characters.");
-            }
-
-            byte[] result = new byte[hexString.Length / 2];
-
-            for (int i = 0; i < hexString.Length; i += 2)
-            {
-                result[i / 2] = byte.Parse(hexString.Substring(i, 2), NumberStyles.HexNumber);
-            }
-
-            return result;
-        }
+        public const string DefaultDesKey = "AU5f6ImsFb,3@6z57j%Y_g7&";
 
         /// <summary>
         /// DES加密
         /// </summary>
         /// <param name="value">待加密的值</param>
-        public static string DESEncrypt(object value)
+        public static string DesEncrypt(object value)
         {
-            return DESEncrypt(value, DESKey);
+            return DesEncrypt(value, DefaultDesKey);
         }
 
         /// <summary>
@@ -567,9 +545,9 @@ namespace Newcats.Utils.Helpers
         /// </summary>
         /// <param name="value">待加密的值</param>
         /// <param name="key">密钥,24位</param>
-        public static string DESEncrypt(object value, string key)
+        public static string DesEncrypt(object value, string key)
         {
-            return DESEncrypt(value, key, Encoding.UTF8);
+            return DesEncrypt(value, key, Encoding.UTF8);
         }
 
         /// <summary>
@@ -578,7 +556,7 @@ namespace Newcats.Utils.Helpers
         /// <param name="value">待加密的值</param>
         /// <param name="key">密钥,24位</param>
         /// <param name="encoding">编码</param>
-        public static string DESEncrypt(object value, string key, Encoding encoding)
+        public static string DesEncrypt(object value, string key, Encoding encoding)
         {
             //string text = value.SafeString();
             string text = value == null ? string.Empty : value.ToString().Trim();
@@ -603,8 +581,9 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 创建Des加密服务提供程序
         /// </summary>
-        private static TripleDESCryptoServiceProvider CreateDesProvider(string key)
+        private static TripleDES CreateDesProvider(string key)
         {
+            var des = System.Security.Cryptography.TripleDES.Create();
             return new TripleDESCryptoServiceProvider { Key = Encoding.ASCII.GetBytes(key), Mode = CipherMode.ECB, Padding = PaddingMode.PKCS7 };
         }
 
@@ -622,9 +601,9 @@ namespace Newcats.Utils.Helpers
         /// DES解密
         /// </summary>
         /// <param name="value">加密后的值</param>
-        public static string DESDecrypt(object value)
+        public static string DesDecrypt(object value)
         {
-            return DESDecrypt(value, DESKey);
+            return DesDecrypt(value, DefaultDesKey);
         }
 
         /// <summary>
@@ -632,9 +611,9 @@ namespace Newcats.Utils.Helpers
         /// </summary>
         /// <param name="value">加密后的值</param>
         /// <param name="key">密钥,24位</param>
-        public static string DESDecrypt(object value, string key)
+        public static string DesDecrypt(object value, string key)
         {
-            return DESDecrypt(value, key, Encoding.UTF8);
+            return DesDecrypt(value, key, Encoding.UTF8);
         }
 
         /// <summary>
@@ -643,7 +622,7 @@ namespace Newcats.Utils.Helpers
         /// <param name="value">加密后的值</param>
         /// <param name="key">密钥,24位</param>
         /// <param name="encoding">编码</param>
-        public static string DESDecrypt(object value, string key, Encoding encoding)
+        public static string DesDecrypt(object value, string key, Encoding encoding)
         {
             string text = value == null ? string.Empty : value.ToString().Trim();
             if (!ValidateDes(text, key))
