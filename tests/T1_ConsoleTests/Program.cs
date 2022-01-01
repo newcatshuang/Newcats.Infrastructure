@@ -21,19 +21,26 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            string pubKey = @"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuAU3oT1i7ojq1EDhGLS2
-hD1avO1vWP90Wf0AlxC99f4D/3LdXpnUdasV5adogbEAYSIr0t9Yyipdzz5+VP97
-+M4ug4Zv0wG7RgyJWL2YJsAwOEPOzgYez/rykfuDbW6zIvy+lv0qvHGmlJT4D1WM
-Ni3mO0QjGpmlHXvuVzxx5ypjqkq/SCDaItArGuihpZlPYi04K9lcFp7MvZXvXndu
-5yvpBbpTFvW6k97DDYph+BZWm4Vw/vTGw3ym7m3f2duIHGFfa3OdRg53f+j66ObM
-1/8D3aW9+lxvd4vSQk1Xgfs33wGEpRpSNiS3foAsIaPXtn7mBYm3+i/1zkoiipBs
-twIDAQAB
------END PUBLIC KEY-----";
+
+            Aes my = Aes.Create();
+            Console.WriteLine(Convert.ToBase64String(my.Key));
+            Console.WriteLine(Convert.ToBase64String(my.IV));
+
+            #region 归档1
+
+            //            string pubKey = @"-----BEGIN PUBLIC KEY-----
+            //MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuAU3oT1i7ojq1EDhGLS2
+            //hD1avO1vWP90Wf0AlxC99f4D/3LdXpnUdasV5adogbEAYSIr0t9Yyipdzz5+VP97
+            //+M4ug4Zv0wG7RgyJWL2YJsAwOEPOzgYez/rykfuDbW6zIvy+lv0qvHGmlJT4D1WM
+            //Ni3mO0QjGpmlHXvuVzxx5ypjqkq/SCDaItArGuihpZlPYi04K9lcFp7MvZXvXndu
+            //5yvpBbpTFvW6k97DDYph+BZWm4Vw/vTGw3ym7m3f2duIHGFfa3OdRg53f+j66ObM
+            //1/8D3aW9+lxvd4vSQk1Xgfs33wGEpRpSNiS3foAsIaPXtn7mBYm3+i/1zkoiipBs
+            //twIDAQAB
+            //-----END PUBLIC KEY-----";
 
             //string enStr = Newcats.Utils.Helpers.EncryptHelper.RSASign("newcats", pubKey);
 
-            Console.WriteLine(IdHelper.Create(true));
+            //Console.WriteLine(IdHelper.Create(true));
 
             //Console.WriteLine(Newcats.Utils.Helpers.EncryptHelper.AESDecrypt("dIuVIledkcP0Ron1gwBdCA=="));
 
@@ -57,7 +64,7 @@ twIDAQAB
             //Console.WriteLine(Convert.ToInt64(ticks / TimeSpan.TicksPerSecond));
             //ReadExcel.Read();
 
-            return;
+            //return;
 
             //var tn = RepositoryHelper.GetTableName(typeof(UserInfo));
             //RepositoryHelper.GetTableName(typeof(UserInfo));
@@ -98,40 +105,40 @@ twIDAQAB
             //Console.WriteLine(list.ToJson());
 
 
-            User u = new()
-            {
-                Id = 1,
-                Name = "newcats",
-                CN = "皇权特许",
-                CreateTime = DateTime.Now,
-                UpdateTime = DateTime.Now.AddHours(3),
-                Season = Season.Summer,
-                IsMan = true
-            };
+            //User u = new()
+            //{
+            //    Id = 1,
+            //    Name = "newcats",
+            //    CN = "皇权特许",
+            //    CreateTime = DateTime.Now,
+            //    UpdateTime = DateTime.Now.AddHours(3),
+            //    Season = Season.Summer,
+            //    IsMan = true
+            //};
 
             //var sss1 = u.Season.GetAllEnumDescriptions();
             //var s2222 = Season.Summer.GetAllEnumDescriptions();
-            var s = u.Season.GetDescription();
-            var s2 = u.Season.GetEnumDescription();
+            //var s = u.Season.GetDescription();
+            //var s2 = u.Season.GetEnumDescription();
 
-            Console.WriteLine(u.ToJson());
-            return;
+            //Console.WriteLine(u.ToJson());
+            //return;
 
-            string rawJson = "{\"Id\":1,\"Name\":\"newcats\",\"CN\":\"皇权特许\",\"CreateTime\":\"2020-05-10 23:36:03\",\"UpdateTime\":\"2020-05-11 02:36:03\",\"Season\":1,\"IsMan\":\"true\"}";
+            //string rawJson = "{\"Id\":1,\"Name\":\"newcats\",\"CN\":\"皇权特许\",\"CreateTime\":\"2020-05-10 23:36:03\",\"UpdateTime\":\"2020-05-11 02:36:03\",\"Season\":1,\"IsMan\":\"true\"}";
 
             //Console.WriteLine(u.ToJson());
 
-            var sss = rawJson.Deserialize<User>();
+            //var sss = rawJson.Deserialize<User>();
 
             //Console.WriteLine(sss.CreateTime.ToChinaString());
 
             //Console.WriteLine(u.CN.PinYin());
 
-            DateTime date = DateTime.Now;
+            //DateTime date = DateTime.Now;
             //Console.WriteLine(date.ToChinaString());
             //Console.WriteLine(date.ToUnixTimestamp());
 
-            long ss = date.ToUnixTimestamp();
+            //long ss = date.ToUnixTimestamp();
 
 
 
@@ -139,15 +146,16 @@ twIDAQAB
 
             //Console.WriteLine("-11.11345678900".IsNumber(false));
 
-            Console.WriteLine("127.0x.0.1".IsIPv4());
+            //Console.WriteLine("127.0x.0.1".IsIPv4());
 
-            Console.WriteLine("17000000000".EncryptPhoneNumber());
+            //Console.WriteLine("17000000000".EncryptPhoneNumber());
 
 
-            for (int i = 0; i < 100; i++)
-            {
-                Console.WriteLine(IdHelper.Create());
-            }
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    Console.WriteLine(IdHelper.Create());
+            //} 
+            #endregion
         }
 
         /// <summary>
