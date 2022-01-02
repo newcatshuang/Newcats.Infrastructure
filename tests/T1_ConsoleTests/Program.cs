@@ -21,10 +21,19 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            #region MyRegion
+            //DES测试
+            //var r1 = EncryptHelper.DesEncrypt("Newcats");
+            //Console.WriteLine(r1);
+            //var r2 = EncryptHelper.DesDecrypt(r1);
+            //Console.WriteLine(r2);
 
-            Aes my = Aes.Create();
-            Console.WriteLine(Convert.ToBase64String(my.Key));
-            Console.WriteLine(Convert.ToBase64String(my.IV));
+            //var r3 = EncryptHelper.DesEncrypt("Newcats", false);
+            //Console.WriteLine(r3);
+            //var r4 = EncryptHelper.DesDecrypt(r3, false);
+            //Console.WriteLine(r4);
+            //return;
+            #endregion
 
             #region 归档1
 

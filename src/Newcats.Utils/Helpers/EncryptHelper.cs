@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace Newcats.Utils.Helpers
@@ -7,8 +6,9 @@ namespace Newcats.Utils.Helpers
     /// <summary>
     /// 加密操作
     /// 说明：
-    /// 1. AES加密整理自支付宝SDK
-    /// 2. RSA加密采用 https://github.com/stulzq/DotnetCore.RSA/blob/master/DotnetCore.RSA/RSAHelper.cs
+    /// 1.AES加密整理自支付宝SDK
+    /// 2.RSA加密采用 https://github.com/stulzq/DotnetCore.RSA/blob/master/DotnetCore.RSA/RSAHelper.cs
+    /// 3.DES加密 https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.descryptoserviceprovider?view=net-6.0
     /// </summary>
     public static class EncryptHelper
     {
@@ -525,44 +525,60 @@ namespace Newcats.Utils.Helpers
         #endregion
 
         #region DES加密
-
         /// <summary>
-        /// 默认DES密钥,24位字符串
+        /// 默认Des密钥,8位字符串
         /// </summary>
-        public const string DefaultDesKey = "AU5f6ImsFb,3@6z57j%Y_g7&";
+        public const string DefaultDesKey = "yxJe/E8_";
 
         /// <summary>
-        /// DES加密
+        /// 默认TripleDes密钥,24位字符串
+        /// </summary>
+        public const string DefaultTripleDesKey = "AU5f6ImsFb,3@6z57j%Y_g7&";
+
+        /// <summary>
+        /// 生成Des密钥
+        /// </summary>
+        public static string CreateDesKey => GetRandomKey(8);
+
+        /// <summary>
+        /// 生成TripleDes密钥
+        /// </summary>
+        public static string CreateTripleDesKey => GetRandomKey(24);
+
+        /// <summary>
+        /// DES加密(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">待加密的值</param>
-        public static string DesEncrypt(object value)
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
+        public static string DesEncrypt(object value, bool tripleDES = true)
         {
-            return DesEncrypt(value, DefaultDesKey);
+            return DesEncrypt(value, tripleDES ? DefaultTripleDesKey : DefaultDesKey, tripleDES);
         }
 
         /// <summary>
-        /// DES加密
+        /// DES加密(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">待加密的值</param>
-        /// <param name="key">密钥,24位</param>
-        public static string DesEncrypt(object value, string key)
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
+        public static string DesEncrypt(object value, string key, bool tripleDES = true)
         {
-            return DesEncrypt(value, key, Encoding.UTF8);
+            return DesEncrypt(value, key, Encoding.UTF8, tripleDES);
         }
 
         /// <summary>
-        /// DES加密
+        /// DES加密(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">待加密的值</param>
-        /// <param name="key">密钥,24位</param>
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
         /// <param name="encoding">编码</param>
-        public static string DesEncrypt(object value, string key, Encoding encoding)
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
+        public static string DesEncrypt(object value, string key, Encoding encoding, bool tripleDES = true)
         {
-            //string text = value.SafeString();
             string text = value == null ? string.Empty : value.ToString().Trim();
-            if (ValidateDes(text, key) == false)
+            if (ValidateDes(text, key, tripleDES) == false)
                 return string.Empty;
-            using (var transform = CreateDesProvider(key).CreateEncryptor())
+            using (var transform = tripleDES ? CreateTripleDesProvider(key, encoding).CreateEncryptor() : CreateDesProvider(key, encoding).CreateEncryptor())
             {
                 return GetEncryptResult(text, encoding, transform);
             }
@@ -571,20 +587,39 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 验证Des加密参数
         /// </summary>
-        private static bool ValidateDes(string text, string key)
+        private static bool ValidateDes(string text, string key, bool tripleDES = true)
         {
             if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(key))
                 return false;
-            return key.Length == 24;
+            if (tripleDES && key.Length == 24)
+                return true;
+            if (!tripleDES && key.Length == 8)
+                return true;
+            return false;
+        }
+
+        /// <summary>
+        /// 创建TripleDES加密服务提供程序
+        /// </summary>
+        private static TripleDES CreateTripleDesProvider(string key, Encoding encoding)
+        {
+            var des = TripleDES.Create();
+            des.Key = encoding.GetBytes(key);
+            des.Mode = CipherMode.ECB;
+            des.Padding = PaddingMode.PKCS7;
+            return des;
         }
 
         /// <summary>
         /// 创建Des加密服务提供程序
         /// </summary>
-        private static TripleDES CreateDesProvider(string key)
+        private static DES CreateDesProvider(string key, Encoding encoding)
         {
-            var des = System.Security.Cryptography.TripleDES.Create();
-            return new TripleDESCryptoServiceProvider { Key = Encoding.ASCII.GetBytes(key), Mode = CipherMode.ECB, Padding = PaddingMode.PKCS7 };
+            var des = DES.Create();
+            des.Key = encoding.GetBytes(key);
+            des.Mode = CipherMode.ECB;
+            des.Padding = PaddingMode.PKCS7;
+            return des;
         }
 
         /// <summary>
@@ -594,40 +629,43 @@ namespace Newcats.Utils.Helpers
         {
             var bytes = encoding.GetBytes(value);
             var result = transform.TransformFinalBlock(bytes, 0, bytes.Length);
-            return System.Convert.ToBase64String(result);
+            return Convert.ToBase64String(result);
         }
 
         /// <summary>
-        /// DES解密
+        /// DES解密(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">加密后的值</param>
-        public static string DesDecrypt(object value)
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
+        public static string DesDecrypt(object value, bool tripleDES = true)
         {
-            return DesDecrypt(value, DefaultDesKey);
+            return DesDecrypt(value, tripleDES ? DefaultTripleDesKey : DefaultDesKey, tripleDES);
         }
 
         /// <summary>
-        /// DES解密
+        /// DES解密(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">加密后的值</param>
-        /// <param name="key">密钥,24位</param>
-        public static string DesDecrypt(object value, string key)
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
+        public static string DesDecrypt(object value, string key, bool tripleDES = true)
         {
-            return DesDecrypt(value, key, Encoding.UTF8);
+            return DesDecrypt(value, key, Encoding.UTF8, tripleDES);
         }
 
         /// <summary>
-        /// DES解密
+        /// DES解密(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">加密后的值</param>
-        /// <param name="key">密钥,24位</param>
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
         /// <param name="encoding">编码</param>
-        public static string DesDecrypt(object value, string key, Encoding encoding)
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
+        public static string DesDecrypt(object value, string key, Encoding encoding, bool tripleDES = true)
         {
             string text = value == null ? string.Empty : value.ToString().Trim();
-            if (!ValidateDes(text, key))
+            if (!ValidateDes(text, key, tripleDES))
                 return string.Empty;
-            using (var transform = CreateDesProvider(key).CreateDecryptor())
+            using (var transform = tripleDES ? CreateTripleDesProvider(key, encoding).CreateDecryptor() : CreateDesProvider(key, encoding).CreateDecryptor())
             {
                 return GetDecryptResult(text, encoding, transform);
             }
@@ -638,7 +676,7 @@ namespace Newcats.Utils.Helpers
         /// </summary>
         private static string GetDecryptResult(string value, Encoding encoding, ICryptoTransform transform)
         {
-            var bytes = System.Convert.FromBase64String(value);
+            var bytes = Convert.FromBase64String(value);
             var result = transform.TransformFinalBlock(bytes, 0, bytes.Length);
             return encoding.GetString(result);
         }
