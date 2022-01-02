@@ -12,7 +12,7 @@ namespace Newcats.Utils.Helpers
     /// 时间：2017年10月30日15:50:14
     /// QQ:501232752
     /// </summary>
-    internal class RsaHelper
+    public class RsaHelper
     {
         private readonly RSA _privateKeyRsaProvider;
         private readonly RSA _publicKeyRsaProvider;
@@ -26,7 +26,7 @@ namespace Newcats.Utils.Helpers
         /// <param name="encoding">编码类型</param>
         /// <param name="privateKey">私钥</param>
         /// <param name="publicKey">公钥</param>
-        internal RsaHelper(RSAType rsaType, Encoding encoding, string privateKey, string publicKey = null)
+        public RsaHelper(RSAType rsaType, Encoding encoding, string privateKey, string publicKey = null)
         {
             _encoding = encoding;
             if (!string.IsNullOrEmpty(privateKey))
@@ -82,7 +82,7 @@ namespace Newcats.Utils.Helpers
 
         #region 解密
 
-        internal string Decrypt(string cipherText)
+        public string Decrypt(string cipherText)
         {
             if (_privateKeyRsaProvider == null)
             {
@@ -95,7 +95,7 @@ namespace Newcats.Utils.Helpers
 
         #region 加密
 
-        internal string Encrypt(string text)
+        public string Encrypt(string text)
         {
             if (_publicKeyRsaProvider == null)
             {

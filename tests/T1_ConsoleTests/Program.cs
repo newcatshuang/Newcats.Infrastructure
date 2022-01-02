@@ -23,14 +23,47 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            //31.AES加密
-            string r24 = Newcats.Utils.Helpers.EncryptHelper.AesEncrypt("Newcats");//=>dIuVIledkcP0Ron1gwBdCA==
-            Console.WriteLine(r24);
+            const string pubKey = @"-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsAG3NuBhYj5qnTgnCZtS
+u8Nk+iW66pPGk3ppIJPgq70VStkgJzdNb1ZpVTXYYHLG8snTJfhx8jOnArmQyDcU
+ti15ZVzkP8yYhSv9fVVpvn80EVvyxOYLZhzLFLZk+8XVhi/k4DxANuBW9HdlxqYG
+AvpJYBzM46V6An9gcPoOD8RXZpiH/U4AKd0TohcCdns00YvY++G3I7mjp5uZtdgP
+fnAX88uOMeYUIOlmla1Y83Tk/+CHWUmTgq3oSAKHZ8662mF0NNkOfElUeUH+1113
+9tbMckl0vCOeXs3ogwhpRTgEYZF8nB4KjUs7Tnwkrhl+kE+IacknkSgQuoV6QJ+R
+AQIDAQAB
+-----END PUBLIC KEY-----";
 
-            //31.AES解密
-            string r25 = Newcats.Utils.Helpers.EncryptHelper.AesDecrypt("ZqUCIPDI4auTqY8fMdFZag==");//=>Newcats
-            Console.WriteLine(r25);
-
+            const string privKey = @"-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCwAbc24GFiPmqd
+OCcJm1K7w2T6Jbrqk8aTemkgk+CrvRVK2SAnN01vVmlVNdhgcsbyydMl+HHyM6cC
+uZDINxS2LXllXOQ/zJiFK/19VWm+fzQRW/LE5gtmHMsUtmT7xdWGL+TgPEA24Fb0
+d2XGpgYC+klgHMzjpXoCf2Bw+g4PxFdmmIf9TgAp3ROiFwJ2ezTRi9j74bcjuaOn
+m5m12A9+cBfzy44x5hQg6WaVrVjzdOT/4IdZSZOCrehIAodnzrraYXQ02Q58SVR5
+Qf7XXXf21sxySXS8I55ezeiDCGlFOARhkXycHgqNSztOfCSuGX6QT4hpySeRKBC6
+hXpAn5EBAgMBAAECggEAKh7+/b8NDznowd9iWEY3sn+8drD43pKm/zxYVFePeQoz
+QkpcC4aMnYyMgLv2IH7XZdsvEPM4McJywZAvOfsUldSkLMHiTfJkvdodPBVozRIc
+H9tlagGz0KgrYbWUzTw3MXncyF0i8P8XUEIStUuePLAxRzMdRY2geWCKb/8nxlXM
+3B009Vq6XAo3ShpBjB0BFxQKvXT/I+nXNWDokf2ivsht6AOvAA4Y74v/6vw/4tV+
+TSLjBUDMBMRJn3kFt7ZrXRhE98eVfXW0n2JRMmi0SanbR/mBwviXi7iud1T3h+7w
+YtuNlI8hj3FVnvDE8bIqzd2tcIJQOvh2vOsDILpkwQKBgQDhdXPaKFXMF/MdHTKs
+l8hesr0j46u/Ckn4cWQU6FX6PHRRajiCtJ2uvP5KcFW34Eoon8REM2Iivxodys5q
+qJDljyvcVXwHCTnYtKmcUL5Ji8aqMrjXLQPEG2gwt2fUHY6G/AkgdnWON2hQRzdd
+XjeN4VHsO8mQjHFiWDUfkkmzZQKBgQDH2VgcEGNZG/WHt7oqBaJ+kNmECafTAAXI
+mtN2pyWvuc2ayUVd0tv/1p3hmQhSJ6UzSjgSs3RhMxYzSFdZY5Koxjh/Y16j/x6Y
+vRqxcvBKx83qMzZbab2NBU2n3VR5Qvpg1fZM3hbbB0vBbzxbrL0b1t/qKjc0WFaM
+FaKu+VQDbQKBgGNsrVNmeDeR1Ddhmeg84zLHtdsu2p1bxzUVpCIIN2or4MvKgPM6
+/VKCq81d7p8w/OMfWakN09go2DaNKiwk/AkP8zKuTAy6R9VGDooNnWzHhCuoRJU3
+l7KSt4bMSrBi/GiQmuHC+6Jk0s6cKVE2bF9YHw2DbCcfmBzbc0nh9Dh1AoGAB6j9
+B5ZZOIEp2BniuNmecNt8euMj26KUlivZDyM4/pNQni44ym/anuPLCWqkNwHuAxlF
+LPJT86XRpAWR04tNg8qVP8y/Q+nzckdNTp/pNfSSn/d2jepvqYgageSp6Dv4/N02
+o5ufpKWS8cchuSHV3ctOqdsUYp1AM/5gTfSgk8ECgYEAjzNR+pSbeVzunLERAcSx
++sKll8dfP4wXGA+qclhXtSStkptql7uclQWv5xgcBYVucdOQ7QVpTkqNFTTGPcKc
+piUvAD/Un0jtDl3KUMrl8Hki1mXirOK5BGWjdw/1T2PlFtr3YUrz4cGh+kA/KnEh
+INH+0iAiwYvrcjG4lzgXlo8=
+-----END PRIVATE KEY-----";
+            RsaHelper rsa = new RsaHelper(RSAType.SHA1, Encoding.UTF8, privKey, pubKey);
+            var r1 = rsa.Encrypt("Newcats");
+            Console.WriteLine(r1);
 
             #region MyRegion
             //DES测试
