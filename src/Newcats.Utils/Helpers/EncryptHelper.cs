@@ -6,7 +6,6 @@ namespace Newcats.Utils.Helpers
     /// <summary>
     /// 加密操作
     /// 说明：
-    /// 1.AES加密整理自支付宝SDK
     /// 2.RSA加密采用 https://github.com/stulzq/DotnetCore.RSA/blob/master/DotnetCore.RSA/RSAHelper.cs
     /// 3.DES加密 https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.descryptoserviceprovider?view=net-6.0
     /// </summary>
@@ -680,124 +679,117 @@ namespace Newcats.Utils.Helpers
             var result = transform.TransformFinalBlock(bytes, 0, bytes.Length);
             return encoding.GetString(result);
         }
-
         #endregion
 
         #region AES加密
+        /// <summary>
+        /// 默认Aes密钥,32位字符串
+        /// </summary>
+        public const string DefaultAesKey = "T&t8C,(YaGyFSkB_fVE1,8(j0v#69At0";
 
         /// <summary>
-        /// 128位0向量
+        /// 默认Aes向量,16位字符串
         /// </summary>
-        private static byte[] _iv;
-        /// <summary>
-        /// 128位0向量
-        /// </summary>
-        private static byte[] Iv
-        {
-            get
-            {
-                if (_iv == null)
-                {
-                    var size = 16;
-                    _iv = new byte[size];
-                    for (int i = 0; i < size; i++)
-                        _iv[i] = 0;
-                }
-                return _iv;
-            }
-        }
+        public const string DefaultAesIv = "wjm+E(qTg,t!mJ01";
 
         /// <summary>
-        /// AES密钥,32位字符串
+        /// 生成Aes密钥
         /// </summary>
-        public const string AESKey = "T&t8C,(YaGyFSkB_fVE1,8(j0v#69At0";
+        /// <returns>32位Aes密钥</returns>
+        public static string CreateAesKey() => GetRandomKey(32);
 
         /// <summary>
-        /// AES加密
+        /// 生成Aes向量
+        /// </summary>
+        /// <returns>16位Aes向量</returns>
+        public static string CreateAesIv() => GetRandomKey(16);
+
+        /// <summary>
+        /// Aes加密
         /// </summary>
         /// <param name="value">待加密的值</param>
-        public static string AESEncrypt(string value)
+        public static string AesEncrypt(string value)
         {
-            return AESEncrypt(value, AESKey);
+            return AesEncrypt(value, DefaultAesKey, DefaultAesIv);
         }
 
         /// <summary>
-        /// AES加密
+        /// Aes加密
         /// </summary>
         /// <param name="value">待加密的值</param>
         /// <param name="key">密钥,32位字符串</param>
-        public static string AESEncrypt(string value, string key)
+        /// <param name="iv">向量,16位字符串</param>
+        public static string AesEncrypt(string value, string key, string iv)
         {
-            return AESEncrypt(value, key, Encoding.UTF8);
+            return AesEncrypt(value, key, iv, Encoding.UTF8);
         }
 
         /// <summary>
-        /// AES加密
+        /// Aes加密
         /// </summary>
         /// <param name="value">待加密的值</param>
         /// <param name="key">密钥,32位字符串</param>
+        /// <param name="iv">向量,16位字符串</param>
         /// <param name="encoding">编码</param>
-        public static string AESEncrypt(string value, string key, Encoding encoding)
+        public static string AesEncrypt(string value, string key, string iv, Encoding encoding)
         {
             if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(key))
                 return string.Empty;
-            var rijndaelManaged = CreateRijndaelManaged(key, encoding);
-            using (var transform = rijndaelManaged.CreateEncryptor(rijndaelManaged.Key, rijndaelManaged.IV))
+            using (var transform = CreateAesProvider(key, iv, encoding).CreateEncryptor())
             {
                 return GetEncryptResult(value, encoding, transform);
             }
         }
 
         /// <summary>
-        /// 创建RijndaelManaged
+        /// 创建Aes加密提供程序
         /// </summary>
-        private static RijndaelManaged CreateRijndaelManaged(string key, Encoding encoding, CipherMode cipherMode = CipherMode.CBC)
+        private static Aes CreateAesProvider(string key, string iv, Encoding encoding, CipherMode cipherMode = CipherMode.CBC)
         {
-            return new RijndaelManaged
-            {
-                Key = encoding.GetBytes(key),
-                Mode = cipherMode,
-                Padding = PaddingMode.PKCS7,
-                IV = Iv
-            };
+            Aes aes = Aes.Create();
+            aes.Key = encoding.GetBytes(key);
+            aes.IV = encoding.GetBytes(iv);
+            aes.Mode = cipherMode;
+            aes.Padding = PaddingMode.PKCS7;
+            return aes;
         }
 
         /// <summary>
-        /// AES解密
-        /// </summary>
-        /// <param name="value">加密后的值</param>
-        public static string AESDecrypt(string value)
-        {
-            return AESDecrypt(value, AESKey);
-        }
-
-        /// <summary>
-        /// AES解密
+        /// Aes解密
         /// </summary>
         /// <param name="value">加密后的值</param>
-        /// <param name="key">密钥,32位字符串</param>
-        public static string AESDecrypt(string value, string key)
+        public static string AesDecrypt(string value)
         {
-            return AESDecrypt(value, key, Encoding.UTF8);
+            return AesDecrypt(value, DefaultAesKey, DefaultAesIv);
         }
 
         /// <summary>
-        /// AES解密
+        /// Aes解密
         /// </summary>
         /// <param name="value">加密后的值</param>
         /// <param name="key">密钥,32位字符串</param>
+        /// <param name="iv">向量,16位字符串</param>
+        public static string AesDecrypt(string value, string key, string iv)
+        {
+            return AesDecrypt(value, key, iv, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Aes解密
+        /// </summary>
+        /// <param name="value">加密后的值</param>
+        /// <param name="key">密钥,32位字符串</param>
+        /// <param name="iv">向量,16位字符串</param>
         /// <param name="encoding">编码</param>
-        public static string AESDecrypt(string value, string key, Encoding encoding)
+        public static string AesDecrypt(string value, string key, string iv, Encoding encoding)
         {
             if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(key))
                 return string.Empty;
-            var rijndaelManaged = CreateRijndaelManaged(key, encoding);
-            using (var transform = rijndaelManaged.CreateDecryptor(rijndaelManaged.Key, rijndaelManaged.IV))
+            using (var transform = CreateAesProvider(key, iv, encoding).CreateDecryptor())
             {
                 return GetDecryptResult(value, encoding, transform);
             }
         }
-
         #endregion
 
         #region RSA签名

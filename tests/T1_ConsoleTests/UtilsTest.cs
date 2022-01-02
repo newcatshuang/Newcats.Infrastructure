@@ -116,10 +116,10 @@ namespace T1_ConsoleTests
             string r23 = Newcats.Utils.Helpers.EncryptHelper.GetRandomKey(7);//=>7z|DGki
 
             //31.AES加密
-            string r24 = Newcats.Utils.Helpers.EncryptHelper.AESEncrypt("Newcats");//=>dIuVIledkcP0Ron1gwBdCA==
+            string r24 = Newcats.Utils.Helpers.EncryptHelper.AesEncrypt("Newcats");//=>dIuVIledkcP0Ron1gwBdCA==
 
             //31.AES解密
-            string r25 = Newcats.Utils.Helpers.EncryptHelper.AESDecrypt("dIuVIledkcP0Ron1gwBdCA==");//=>Newcats
+            string r25 = Newcats.Utils.Helpers.EncryptHelper.AesDecrypt("dIuVIledkcP0Ron1gwBdCA==");//=>Newcats
 
             //32.RSA公钥加密
 

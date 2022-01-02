@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -21,7 +23,14 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(EncryptHelper.CreateDesKey());
+            //31.AES加密
+            string r24 = Newcats.Utils.Helpers.EncryptHelper.AesEncrypt("Newcats");//=>dIuVIledkcP0Ron1gwBdCA==
+            Console.WriteLine(r24);
+
+            //31.AES解密
+            string r25 = Newcats.Utils.Helpers.EncryptHelper.AesDecrypt("ZqUCIPDI4auTqY8fMdFZag==");//=>Newcats
+            Console.WriteLine(r25);
+
 
             #region MyRegion
             //DES测试
