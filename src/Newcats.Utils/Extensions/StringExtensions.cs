@@ -277,6 +277,76 @@ namespace Newcats.Utils.Extensions
         {
             return Helpers.EncryptHelper.DesDecrypt(value, key, encoding, tripleDES);
         }
+
+        /// <summary>
+        /// 获取次字符串的Aes加密结果(使用默认密钥和向量)
+        /// </summary>
+        /// <param name="value">字符串(明文)</param>
+        /// <returns>Aes加密结果</returns>
+        public static string AesEncrypt(this string value)
+        {
+            return Helpers.EncryptHelper.AesEncrypt(value);
+        }
+
+        /// <summary>
+        /// 获取次字符串的Aes加密结果
+        /// </summary>
+        /// <param name="value">字符串(明文)</param>
+        /// <param name="key">Aes密钥,32位字符串</param>
+        /// <param name="iv">Aes向量,16位字符串</param>
+        /// <returns>Aes加密结果</returns>
+        public static string AesEncrypt(this string value, string key, string iv)
+        {
+            return Helpers.EncryptHelper.AesEncrypt(value, key, iv, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 获取次字符串的Aes加密结果
+        /// </summary>
+        /// <param name="value">字符串(明文)</param>
+        /// <param name="key">Aes密钥,32位字符串</param>
+        /// <param name="iv">Aes向量,16位字符串</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>Aes加密结果</returns>
+        public static string AesEncrypt(this string value, string key, string iv, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.AesEncrypt(value, key, iv, encoding);
+        }
+
+        /// <summary>
+        /// 获取次字符串的Aes解密结果(使用默认密钥和向量)
+        /// </summary>
+        /// <param name="value">字符串(密文)</param>
+        /// <returns>Aes解密结果</returns>
+        public static string AesDecrypt(this string value)
+        {
+            return Helpers.EncryptHelper.AesDecrypt(value);
+        }
+
+        /// <summary>
+        /// 获取次字符串的Aes解密结果
+        /// </summary>
+        /// <param name="value">字符串(密文)</param>
+        /// <param name="key">Aes密钥,32位字符串</param>
+        /// <param name="iv">Aes向量,16位字符串</param>
+        /// <returns>Aes解密结果</returns>
+        public static string AesDecrypt(this string value, string key, string iv)
+        {
+            return Helpers.EncryptHelper.AesDecrypt(value, key, iv, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 获取次字符串的Aes解密结果
+        /// </summary>
+        /// <param name="value">字符串(密文)</param>
+        /// <param name="key">Aes密钥,32位字符串</param>
+        /// <param name="iv">Aes向量,16位字符串</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>Aes解密结果</returns>
+        public static string AesDecrypt(this string value, string key, string iv, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.AesDecrypt(value, key, iv, encoding);
+        }
         #endregion
 
         #region System.Text.Json
