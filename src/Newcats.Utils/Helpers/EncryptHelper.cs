@@ -538,12 +538,12 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 生成Des密钥
         /// </summary>
-        public static string CreateDesKey => GetRandomKey(8);
+        public static string CreateDesKey() => GetRandomKey(8);
 
         /// <summary>
         /// 生成TripleDes密钥
         /// </summary>
-        public static string CreateTripleDesKey => GetRandomKey(24);
+        public static string CreateTripleDesKey() => GetRandomKey(24);
 
         /// <summary>
         /// DES加密(默认使用TripleDES算法)

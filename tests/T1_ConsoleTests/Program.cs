@@ -21,6 +21,8 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(EncryptHelper.CreateDesKey());
+
             #region MyRegion
             //DES测试
             //var r1 = EncryptHelper.DesEncrypt("Newcats");

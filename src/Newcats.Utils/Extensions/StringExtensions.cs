@@ -207,69 +207,75 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 获取此字符串的DES加密结果(使用默认的24位密钥)
+        /// 获取此字符串的DES加密结果(默认使用TripleDES算法)(使用默认的24位密钥)
         /// </summary>
         /// <param name="value">字符串(明文)</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
         /// <returns>DES加密结果</returns>
-        public static string DesEncrypt(this string value)
+        public static string DesEncrypt(this string value, bool tripleDES = true)
         {
-            return Helpers.EncryptHelper.DesEncrypt(value);
+            return Helpers.EncryptHelper.DesEncrypt(value, tripleDES);
         }
 
         /// <summary>
-        /// 获取此字符串的DES加密结果
+        /// 获取此字符串的DES加密结果(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">字符串(明文)</param>
-        /// <param name="key">密钥(24位)</param>
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
         /// <returns>DES加密结果</returns>
-        public static string DesEncrypt(this string value, string key)
+        public static string DesEncrypt(this string value, string key, bool tripleDES = true)
         {
-            return Helpers.EncryptHelper.DesEncrypt(value, key);
+            return Helpers.EncryptHelper.DesEncrypt(value, key, tripleDES);
         }
 
         /// <summary>
-        /// 获取此字符串的DES加密结果
+        /// 获取此字符串的DES加密结果(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">字符串(明文)</param>
-        /// <param name="key">密钥(24位)</param>
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
         /// <param name="encoding">编码</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
         /// <returns>DES加密结果</returns>
-        public static string DesEncrypt(this string value, string key, Encoding encoding)
+        public static string DesEncrypt(this string value, string key, Encoding encoding, bool tripleDES = true)
         {
-            return Helpers.EncryptHelper.DesEncrypt(value, key, encoding);
+            return Helpers.EncryptHelper.DesEncrypt(value, key, encoding, tripleDES);
         }
 
         /// <summary>
-        /// 获取此字符串的DES解密结果(使用默认的24位密钥)
+        /// 获取此字符串的DES解密结果(默认使用TripleDES算法)(使用默认的24位密钥)
         /// </summary>
         /// <param name="value">字符串(密文)</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
         /// <returns>DES解密结果</returns>
-        public static string DesDecrypt(this string value)
+        public static string DesDecrypt(this string value, bool tripleDES = true)
         {
-            return Helpers.EncryptHelper.DesDecrypt(value);
+            return Helpers.EncryptHelper.DesDecrypt(value, tripleDES);
         }
 
         /// <summary>
-        /// 获取此字符串的DES解密结果
+        /// 获取此字符串的DES解密结果(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">字符串(密文)</param>
-        /// <param name="key">密钥(24位)</param>
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
         /// <returns>DES解密结果</returns>
-        public static string DesDecrypt(this string value, string key)
+        public static string DesDecrypt(this string value, string key, bool tripleDES = true)
         {
-            return Helpers.EncryptHelper.DesDecrypt(value, key, Encoding.UTF8);
+            return Helpers.EncryptHelper.DesDecrypt(value, key, Encoding.UTF8, tripleDES);
         }
 
         /// <summary>
-        /// 获取此字符串的DES解密结果
+        /// 获取此字符串的DES解密结果(默认使用TripleDES算法)
         /// </summary>
         /// <param name="value">字符串(密文)</param>
-        /// <param name="key">密钥(24位)</param>
+        /// <param name="key">密钥(TripleDes密钥24位,Des密钥8位)</param>
         /// <param name="encoding">编码</param>
+        /// <param name="tripleDES">是否使用TripleDES算法</param>
         /// <returns>DES解密结果</returns>
-        public static string DesDecrypt(this string value, string key, Encoding encoding)
+        public static string DesDecrypt(this string value, string key, Encoding encoding, bool tripleDES = true)
         {
-            return Helpers.EncryptHelper.DesDecrypt(value, key, encoding);
+            return Helpers.EncryptHelper.DesDecrypt(value, key, encoding, tripleDES);
         }
         #endregion
 
