@@ -23,7 +23,7 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            var r = RsaUtil.CreateRsaKey();
+            var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Pkcs1, 4096);
             Console.WriteLine(r.PublicKey);
             Console.WriteLine("================");
             Console.WriteLine(r.PrivateKey);
