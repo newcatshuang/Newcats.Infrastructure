@@ -23,10 +23,21 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Pkcs1, 4096);
+            var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Xml, 4096);
             Console.WriteLine(r.PublicKey);
-            Console.WriteLine("================");
+            Console.WriteLine("\r\n\r\n");
             Console.WriteLine(r.PrivateKey);
+
+            Console.WriteLine("\r\n\r\n");
+
+
+            RSA rsa = RSA.Create();
+            rsa.KeySize = 4096;
+            var key = rsa.ExportParameters(true);
+            var x = rsa.ToXmlString(false);
+
+
+            Console.WriteLine(x);
             return;
 
 

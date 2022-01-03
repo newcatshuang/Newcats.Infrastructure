@@ -34,6 +34,11 @@ namespace Newcats.Utils.Helpers
             {
                 rsa.KeySize = keySizeInBits;
 
+                if (keyFormat == RsaKeyFormatEnum.Xml)
+                {
+                    return new RsaKey { PublicKey = rsa.ToXmlString(false), PrivateKey = rsa.ToXmlString(true), KeyFormat = keyFormat };
+                }
+
                 return new RsaKey { PublicKey = GetPublicKey(rsa), PrivateKey = GetPrivateKey(rsa, keyFormat), KeyFormat = keyFormat };
             }
         }
@@ -218,7 +223,7 @@ namespace Newcats.Utils.Helpers
 
 
                 var flag = " PRIVATE KEY";
-                if (keyFormat != RsaKeyFormatEnum.Pkcs8)
+                if (keyFormat == RsaKeyFormatEnum.Pkcs1)
                 {
                     flag = " RSA" + flag;
                 }
