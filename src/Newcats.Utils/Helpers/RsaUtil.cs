@@ -27,9 +27,6 @@ namespace Newcats.Utils.Helpers
 
         public static RsaKey CreateRsaKey(RsaKeyFormatEnum keyFormat = RsaKeyFormatEnum.Pkcs8, int keySizeInBits = 2048)
         {
-            if (keySizeInBits < 2048)
-                throw new ArgumentException("Key size min value is 2048.");
-
             using (RSA rsa = RSA.Create())
             {
                 rsa.KeySize = keySizeInBits;
@@ -40,6 +37,9 @@ namespace Newcats.Utils.Helpers
                 }
 
                 return new RsaKey { PublicKey = GetPublicKey(rsa), PrivateKey = GetPrivateKey(rsa, keyFormat), KeyFormat = keyFormat };
+                //var r8 = r.PrivateKey.Replace("\n", "").Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "");
+                //var pk8 = Convert.ToBase64String(rsa.ExportPkcs8PrivateKey());
+                //r8==pk9，ExportPkcs8PrivateKey导出的key和下列方法生成的一致,pkcs1的公钥不一致
             }
         }
 

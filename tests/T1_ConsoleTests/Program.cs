@@ -23,7 +23,7 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Xml, 4096);
+            var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Pkcs1, 2048);
             Console.WriteLine(r.PublicKey);
             Console.WriteLine("\r\n\r\n");
             Console.WriteLine(r.PrivateKey);
@@ -37,7 +37,7 @@ namespace T1_ConsoleTests
             var x = rsa.ToXmlString(false);
 
 
-            Console.WriteLine(x);
+            //Console.WriteLine(x);
             return;
 
 
