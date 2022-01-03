@@ -13,11 +13,26 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Newcats.Utils.Models;
 
 namespace Newcats.Utils.Helpers
 {
     public class RsaUtil
     {
+        public static RsaKey CreateRsaKey(int keySizeInBits = 2048)
+        {
+            RSA rsa = RSA.Create();
+            rsa.KeySize = 2048;
+            var pri = rsa.ExportRSAPrivateKey();
+            var pk8 = Convert.ToBase64String(pri);
+
+            var pub = rsa.ExportRSAPublicKey();
+
+            var pk1 = Convert.ToBase64String(pub);
+
+            return new RsaKey { PublicKey = TextBreak(pk1, 64), PrivateKey = TextBreak(pk8, 64) };
+        }
+
         public static byte[] Encrypt(byte[] DataToEncrypt, RSAParameters RSAKeyInfo, bool DoOAEPPadding)
         {
             try
@@ -75,6 +90,33 @@ namespace Newcats.Utils.Helpers
 
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Text break method
+        /// </summary>
+        private static string TextBreak(string text, int line)
+        {
+            var idx = 0;
+            var len = text.Length;
+            var str = new StringBuilder();
+            while (idx < len)
+            {
+                if (idx > 0)
+                {
+                    str.Append('\n');
+                }
+                if (idx + line >= len)
+                {
+                    str.Append(text.Substring(idx));
+                }
+                else
+                {
+                    str.Append(text.Substring(idx, line));
+                }
+                idx += line;
+            }
+            return str.ToString();
         }
     }
 }
