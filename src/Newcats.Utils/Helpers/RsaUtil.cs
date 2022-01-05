@@ -40,6 +40,11 @@ namespace Newcats.Utils.Helpers
             }
         }
 
+        /// <summary>
+        /// 获取公钥
+        /// </summary>
+        /// <param name="rsa">rsa实例</param>
+        /// <returns>公钥Base64字符串</returns>
         private static string GetPublicKey(RSA rsa)
         {
             using (var ms = new MemoryStream())
@@ -124,6 +129,12 @@ namespace Newcats.Utils.Helpers
             }
         }
 
+        /// <summary>
+        /// 获取私钥
+        /// </summary>
+        /// <param name="rsa">rsa实例</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <returns>私钥公钥Base64字符串</returns>
         private static string GetPrivateKey(RSA rsa, RsaKeyFormatEnum keyFormat)
         {
             using (var ms = new MemoryStream())
