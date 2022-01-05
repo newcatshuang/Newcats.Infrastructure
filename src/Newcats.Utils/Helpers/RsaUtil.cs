@@ -25,7 +25,7 @@ namespace Newcats.Utils.Helpers
         static private byte[] _SeqOID = new byte[] { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
         static private byte[] _Ver = new byte[] { 0x02, 0x01, 0x00 };
 
-        public static RsaKey CreateRsaKey(RsaKeyFormatEnum keyFormat = RsaKeyFormatEnum.Pkcs8, int keySizeInBits = 2048)
+        public static RsaKey CreateRsaKey(RsaKeyFormatEnum keyFormat = RsaKeyFormatEnum.Pkcs8, int keySizeInBits = 4096)
         {
             using (RSA rsa = RSA.Create())
             {
@@ -37,9 +37,6 @@ namespace Newcats.Utils.Helpers
                 }
 
                 return new RsaKey { PublicKey = GetPublicKey(rsa), PrivateKey = GetPrivateKey(rsa, keyFormat), KeyFormat = keyFormat };
-                //var r8 = r.PrivateKey.Replace("\n", "").Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "");
-                //var pk8 = Convert.ToBase64String(rsa.ExportPkcs8PrivateKey());
-                //r8==pk9，ExportPkcs8PrivateKey导出的key和下列方法生成的一致,pkcs1的公钥不一致
             }
         }
 
