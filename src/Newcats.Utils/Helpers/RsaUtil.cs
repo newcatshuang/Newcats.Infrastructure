@@ -125,7 +125,7 @@ namespace Newcats.Utils.Helpers
                 bytes = writeLen(index2, bytes);
                 bytes = writeLen(index1, bytes);
 
-                return "-----BEGIN PUBLIC KEY-----\n" + TextBreak(Convert.ToBase64String(bytes), 64) + "\n-----END PUBLIC KEY-----";
+                return $"-----BEGIN PUBLIC KEY-----\n{TextBreak(Convert.ToBase64String(bytes), 64)}\n-----END PUBLIC KEY-----";
             }
         }
 
@@ -236,68 +236,151 @@ namespace Newcats.Utils.Helpers
                     flag = " RSA" + flag;
                 }
 
-                return "-----BEGIN" + flag + "-----\n" + TextBreak(Convert.ToBase64String(bytes), 64) + "\n-----END" + flag + "-----";
+                return $"-----BEGIN{flag}-----\n{TextBreak(Convert.ToBase64String(bytes), 64)}\n-----END{flag}-----";
             }
         }
 
-        public static byte[] Encrypt(byte[] DataToEncrypt, RSAParameters RSAKeyInfo, bool DoOAEPPadding)
+        /// <summary>
+        /// 通过pem格式的公钥/私钥创建Rsa实例
+        /// </summary>
+        /// <param name="pem">Base64字符串的pem格式的公钥/私钥(密钥需包含BEGIN END字符串)</param>
+        /// <returns>Rsa实例</returns>
+        private static RSA CreateRsaFromPem(string pem)
         {
-            try
+            var rsa = RSA.Create();
+
+            var param = new RSAParameters();
+
+            var base64 = _PEMCode.Replace(pem, "");
+            var data = Convert.FromBase64String(base64);
+            if (data == null)
             {
-                byte[] encryptedData;
-                //Create a new instance of RSACryptoServiceProvider.
-                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+                throw new Exception("Pem content invalid ");
+            }
+            var idx = 0;
+
+            //read  length
+            Func<byte, int> readLen = (first) =>
+            {
+                if (data[idx] == first)
                 {
-
-                    //Import the RSA Key information. This only needs
-                    //toinclude the public key information.
-                    RSA.ImportParameters(RSAKeyInfo);
-
-                    //Encrypt the passed byte array and specify OAEP padding.  
-                    //OAEP padding is only available on Microsoft Windows XP or
-                    //later.  
-                    encryptedData = RSA.Encrypt(DataToEncrypt, DoOAEPPadding);
+                    idx++;
+                    if (data[idx] == 0x81)
+                    {
+                        idx++;
+                        return data[idx++];
+                    }
+                    else if (data[idx] == 0x82)
+                    {
+                        idx++;
+                        return (((int)data[idx++]) << 8) + data[idx++];
+                    }
+                    else if (data[idx] < 0x80)
+                    {
+                        return data[idx++];
+                    }
                 }
-                return encryptedData;
-            }
-            //Catch and display a CryptographicException  
-            //to the console.
-            catch (CryptographicException e)
+                throw new Exception("Not found any content in pem file");
+            };
+            //read module length
+            Func<byte[]> readBlock = () =>
             {
-                Console.WriteLine(e.Message);
+                var len = readLen(0x02);
+                if (data[idx] == 0x00)
+                {
+                    idx++;
+                    len--;
+                }
+                var val = data.Skip(idx + 1).Take(len).ToArray();//data.Sub(idx, len);
+                idx += len;
+                return val;
+            };
 
-                return null;
+            Func<byte[], bool> eq = (byts) =>
+            {
+                for (var i = 0; i < byts.Length; i++, idx++)
+                {
+                    if (idx >= data.Length)
+                    {
+                        return false;
+                    }
+                    if (byts[i] != data[idx])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            if (pem.Contains("PUBLIC", StringComparison.OrdinalIgnoreCase))
+            {
+                /****Use public key****/
+                readLen(0x30);
+                if (!eq(_SeqOID))
+                {
+                    throw new Exception("Unknown pem format");
+                }
+
+                readLen(0x03);
+                idx++;
+                readLen(0x30);
+
+                //Modulus
+                param.Modulus = readBlock();
+
+                //Exponent
+                param.Exponent = readBlock();
             }
+            else if (pem.Contains("PRIVATE", StringComparison.OrdinalIgnoreCase))
+            {
+                /****Use private key****/
+                readLen(0x30);
+
+                //Read version
+                if (!eq(_Ver))
+                {
+                    throw new Exception("Unknown pem version");
+                }
+
+                //Check PKCS8
+                var idx2 = idx;
+                if (eq(_SeqOID))
+                {
+                    //Read one byte
+                    readLen(0x04);
+
+                    readLen(0x30);
+
+                    //Read version
+                    if (!eq(_Ver))
+                    {
+                        throw new Exception("Pem version invalid");
+                    }
+                }
+                else
+                {
+                    idx = idx2;
+                }
+
+                //Reda data
+                param.Modulus = readBlock();
+                param.Exponent = readBlock();
+                param.D = readBlock();
+                param.P = readBlock();
+                param.Q = readBlock();
+                param.DP = readBlock();
+                param.DQ = readBlock();
+                param.InverseQ = readBlock();
+            }
+            else
+            {
+                throw new Exception("pem need 'BEGIN' and  'END'");
+            }
+
+            rsa.ImportParameters(param);
+            return rsa;
         }
 
-        public static byte[] Decrypt(byte[] DataToDecrypt, RSAParameters RSAKeyInfo, bool DoOAEPPadding)
-        {
-            try
-            {
-                byte[] decryptedData;
-                //Create a new instance of RSACryptoServiceProvider.
-                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
-                {
-                    //Import the RSA Key information. This needs
-                    //to include the private key information.
-                    RSA.ImportParameters(RSAKeyInfo);
-
-                    //Decrypt the passed byte array and specify OAEP padding.  
-                    //OAEP padding is only available on Microsoft Windows XP or
-                    //later.  
-                    decryptedData = RSA.Decrypt(DataToDecrypt, DoOAEPPadding);
-                }
-                return decryptedData;
-            }
-            //Catch and display a CryptographicException  
-            //to the console.
-            catch (CryptographicException e)
-            {
-                Console.WriteLine(e.ToString());
-
-                return null;
-            }
-        }
 
         /// <summary>
         /// Text break method
