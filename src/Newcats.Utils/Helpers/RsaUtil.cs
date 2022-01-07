@@ -28,6 +28,8 @@ public class RsaUtil
     private static byte[] _Ver = new byte[] { 0x02, 0x01, 0x00 };
 
     #region 处理密钥
+    #region 暂时注释
+    /*
     /// <summary>
     /// 随机生成一对Rsa密钥(此方法生成的密钥与其他语言的不一致，验证不通过 http://tool.chacuo.net/cryptrsakeyvalid)
     /// </summary>
@@ -63,12 +65,14 @@ public class RsaUtil
             }
             if (openSslStyle)
             {
-                pubKey = FormatToOpenSslStyle(pubKey, false, keyFormat);
-                priKey = FormatToOpenSslStyle(priKey, true, keyFormat);
+                pubKey = RsaFormatToOpenSslStyle(pubKey, false, keyFormat);
+                priKey = RsaFormatToOpenSslStyle(priKey, true, keyFormat);
             }
             return new RsaKey { KeyFormat = keyFormat, PublicKey = pubKey, PrivateKey = priKey };
         }
     }
+    */
+    #endregion
 
     /// <summary>
     /// 随机生成一对Rsa密钥
@@ -129,6 +133,32 @@ public class RsaUtil
                 return isPrivateKey ? GetPemPrivateKey(rsa, to, true) : GetPemPublicKey(rsa, to, true);
             }
         }
+    }
+
+    /// <summary>
+    /// 格式化pem密钥为OpenSsl样式(包含BEGIN END字符串且每64字符换行)
+    /// </summary>
+    /// <param name="base64Key">原密钥</param>
+    /// <param name="privateKey">是否私钥(否则为公钥)</param>
+    /// <param name="keyFormat">密钥格式</param>
+    /// <returns>格式化之后的密钥</returns>
+    public static string RsaFormatToOpenSslStyle(string base64Key, bool privateKey, RsaKeyFormatEnum keyFormat)
+    {
+        if (keyFormat == RsaKeyFormatEnum.Xml)
+            return base64Key;
+
+        if (privateKey)
+        {
+            string flag = " PRIVATE KEY";
+            if (keyFormat == RsaKeyFormatEnum.Pkcs1)
+                flag = " RSA" + flag;
+            base64Key = $"-----BEGIN{flag}-----\n{LineWrap(base64Key)}\n-----END{flag}-----";
+        }
+        else
+        {
+            base64Key = $"-----BEGIN PUBLIC KEY-----\n{LineWrap(base64Key)}\n-----END PUBLIC KEY-----";
+        }
+        return base64Key;
     }
 
     /// <summary>
@@ -219,7 +249,7 @@ public class RsaUtil
             bytes = writeLen(index1, bytes);
 
             if (openSslStyle)
-                return FormatToOpenSslStyle(Convert.ToBase64String(bytes), false, keyFormat);
+                return RsaFormatToOpenSslStyle(Convert.ToBase64String(bytes), false, keyFormat);
             return Convert.ToBase64String(bytes);
         }
     }
@@ -326,7 +356,7 @@ public class RsaUtil
             bytes = writeLen(index1, bytes);
 
             if (openSslStyle)
-                return FormatToOpenSslStyle(Convert.ToBase64String(bytes), true, keyFormat);
+                return RsaFormatToOpenSslStyle(Convert.ToBase64String(bytes), true, keyFormat);
             return Convert.ToBase64String(bytes);
         }
     }
@@ -485,32 +515,6 @@ public class RsaUtil
             rsa.FromXmlString(xml);
             return rsa;
         }
-    }
-
-    /// <summary>
-    /// 格式化pem密钥为OpenSsl样式(包含BEGIN END字符串且每64字符换行)
-    /// </summary>
-    /// <param name="base64Key">原密钥</param>
-    /// <param name="privateKey">是否私钥(否则为公钥)</param>
-    /// <param name="keyFormat">密钥格式</param>
-    /// <returns>格式化之后的密钥</returns>
-    private static string FormatToOpenSslStyle(string base64Key, bool privateKey, RsaKeyFormatEnum keyFormat)
-    {
-        if (keyFormat == RsaKeyFormatEnum.Xml)
-            return base64Key;
-
-        if (privateKey)
-        {
-            string flag = " PRIVATE KEY";
-            if (keyFormat == RsaKeyFormatEnum.Pkcs1)
-                flag = " RSA" + flag;
-            base64Key = $"-----BEGIN{flag}-----\n{LineWrap(base64Key)}\n-----END{flag}-----";
-        }
-        else
-        {
-            base64Key = $"-----BEGIN PUBLIC KEY-----\n{LineWrap(base64Key)}\n-----END PUBLIC KEY-----";
-        }
-        return base64Key;
     }
 
     /// <summary>
