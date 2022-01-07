@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Newcats.Utils.Models;
 using System.IO;
 using Newcats.Utils.Extensions;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Newcats.Utils.Helpers;
 
@@ -28,23 +29,73 @@ public class RsaUtil
 
     #region 处理密钥
     /// <summary>
+    /// 随机生成一对Rsa密钥(此方法生成的密钥与其他语言的不一致，验证不通过 http://tool.chacuo.net/cryptrsakeyvalid)
+    /// </summary>
+    /// <param name="keyFormat">密钥格式</param>
+    /// <param name="keySizeInBits">密钥大小(bit)</param>
+    /// <param name="openSslStyle">是否格式化为OpenSsl样式(带BEGIN END)</param>
+    /// <returns>Rsa密钥</returns>
+    public static RsaKey GenerateRsaKey(RsaKeyFormatEnum keyFormat = RsaKeyFormatEnum.Pkcs8, int keySizeInBits = 4096, bool openSslStyle = true)
+    {
+        using (RSA rsa = RSAOpenSsl.Create()) //RSA.Create())
+        {
+            rsa.KeySize = keySizeInBits;
+            string priKey = string.Empty;
+            string pubKey = string.Empty;
+            switch (keyFormat)
+            {
+                case RsaKeyFormatEnum.Pkcs8:
+                    pubKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
+                    priKey = Convert.ToBase64String(rsa.ExportPkcs8PrivateKey());
+                    break;
+                case RsaKeyFormatEnum.Pkcs1:
+                    pubKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
+                    priKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
+                    break;
+                case RsaKeyFormatEnum.Xml:
+                    pubKey = rsa.ToXmlString(false);
+                    priKey = rsa.ToXmlString(true);
+                    break;
+                default:
+                    pubKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
+                    priKey = Convert.ToBase64String(rsa.ExportPkcs8PrivateKey());
+                    break;
+            }
+            if (openSslStyle)
+            {
+                pubKey = FormatToOpenSslStyle(pubKey, false, keyFormat);
+                priKey = FormatToOpenSslStyle(priKey, true, keyFormat);
+            }
+            return new RsaKey { KeyFormat = keyFormat, PublicKey = pubKey, PrivateKey = priKey };
+        }
+    }
+
+    /// <summary>
     /// 随机生成一对Rsa密钥
     /// </summary>
     /// <param name="keyFormat">密钥格式</param>
     /// <param name="keySizeInBits">密钥大小(bit)</param>
+    /// <param name="openSslStyle">是否格式化为OpenSsl样式(带BEGIN END)</param>
     /// <returns>Rsa密钥</returns>
-    public static RsaKey CreateRsaKey(RsaKeyFormatEnum keyFormat = RsaKeyFormatEnum.Pkcs8, int keySizeInBits = 4096)
+    public static RsaKey CreateRsaKey(RsaKeyFormatEnum keyFormat = RsaKeyFormatEnum.Pkcs8, int keySizeInBits = 4096, bool openSslStyle = true)
     {
         using (RSA rsa = RSA.Create())
         {
             rsa.KeySize = keySizeInBits;
+            string priKey = string.Empty;
+            string pubKey = string.Empty;
 
             if (keyFormat == RsaKeyFormatEnum.Xml)
             {
-                return new RsaKey { PublicKey = rsa.ToXmlString(false), PrivateKey = rsa.ToXmlString(true), KeyFormat = keyFormat };
+                pubKey = rsa.ToXmlString(false);
+                priKey = rsa.ToXmlString(true);
             }
-
-            return new RsaKey { PublicKey = GetPublicKey(rsa), PrivateKey = GetPrivateKey(rsa, keyFormat), KeyFormat = keyFormat };
+            else
+            {
+                pubKey = GetPemPublicKey(rsa, keyFormat, openSslStyle);
+                priKey = GetPemPrivateKey(rsa, keyFormat, openSslStyle);
+            }
+            return new RsaKey { PublicKey = pubKey, PrivateKey = priKey, KeyFormat = keyFormat };
         }
     }
 
@@ -75,7 +126,7 @@ public class RsaUtil
         {
             using (rsa = CreateRsaFromPem(key))
             {
-                return isPrivateKey ? GetPrivateKey(rsa, to) : GetPublicKey(rsa);
+                return isPrivateKey ? GetPemPrivateKey(rsa, to, true) : GetPemPublicKey(rsa, to, true);
             }
         }
     }
@@ -84,8 +135,10 @@ public class RsaUtil
     /// 获取公钥
     /// </summary>
     /// <param name="rsa">rsa实例</param>
+    /// <param name="keyFormat">密钥格式</param>
+    /// <param name="openSslStyle">是否格式化为OpenSsl样式(包含BEGIN END字符串且每64字符换行)</param>
     /// <returns>公钥Base64字符串</returns>
-    private static string GetPublicKey(RSA rsa)
+    private static string GetPemPublicKey(RSA rsa, RsaKeyFormatEnum keyFormat, bool openSslStyle = true)
     {
         using (var ms = new MemoryStream())
         {
@@ -165,7 +218,9 @@ public class RsaUtil
             bytes = writeLen(index2, bytes);
             bytes = writeLen(index1, bytes);
 
-            return $"-----BEGIN PUBLIC KEY-----\n{TextBreak(Convert.ToBase64String(bytes), 64)}\n-----END PUBLIC KEY-----";
+            if (openSslStyle)
+                return FormatToOpenSslStyle(Convert.ToBase64String(bytes), false, keyFormat);
+            return Convert.ToBase64String(bytes);
         }
     }
 
@@ -174,8 +229,9 @@ public class RsaUtil
     /// </summary>
     /// <param name="rsa">rsa实例</param>
     /// <param name="keyFormat">密钥格式</param>
+    /// <param name="openSslStyle">是否格式化为OpenSsl样式(包含BEGIN END字符串且每64字符换行)</param>
     /// <returns>私钥Base64字符串</returns>
-    private static string GetPrivateKey(RSA rsa, RsaKeyFormatEnum keyFormat)
+    private static string GetPemPrivateKey(RSA rsa, RsaKeyFormatEnum keyFormat, bool openSslStyle = true)
     {
         using (var ms = new MemoryStream())
         {
@@ -269,14 +325,9 @@ public class RsaUtil
             }
             bytes = writeLen(index1, bytes);
 
-
-            var flag = " PRIVATE KEY";
-            if (keyFormat == RsaKeyFormatEnum.Pkcs1)
-            {
-                flag = " RSA" + flag;
-            }
-
-            return $"-----BEGIN{flag}-----\n{TextBreak(Convert.ToBase64String(bytes), 64)}\n-----END{flag}-----";
+            if (openSslStyle)
+                return FormatToOpenSslStyle(Convert.ToBase64String(bytes), true, keyFormat);
+            return Convert.ToBase64String(bytes);
         }
     }
 
@@ -437,30 +488,59 @@ public class RsaUtil
     }
 
     /// <summary>
-    /// Text break method
+    /// 格式化pem密钥为OpenSsl样式(包含BEGIN END字符串且每64字符换行)
     /// </summary>
-    private static string TextBreak(string text, int line)
+    /// <param name="base64Key">原密钥</param>
+    /// <param name="privateKey">是否私钥(否则为公钥)</param>
+    /// <param name="keyFormat">密钥格式</param>
+    /// <returns>格式化之后的密钥</returns>
+    private static string FormatToOpenSslStyle(string base64Key, bool privateKey, RsaKeyFormatEnum keyFormat)
     {
-        var idx = 0;
-        var len = text.Length;
-        var str = new StringBuilder();
-        while (idx < len)
+        if (keyFormat == RsaKeyFormatEnum.Xml)
+            return base64Key;
+
+        if (privateKey)
         {
-            if (idx > 0)
+            string flag = " PRIVATE KEY";
+            if (keyFormat == RsaKeyFormatEnum.Pkcs1)
+                flag = " RSA" + flag;
+            base64Key = $"-----BEGIN{flag}-----\n{LineWrap(base64Key)}\n-----END{flag}-----";
+        }
+        else
+        {
+            base64Key = $"-----BEGIN PUBLIC KEY-----\n{LineWrap(base64Key)}\n-----END PUBLIC KEY-----";
+        }
+        return base64Key;
+    }
+
+    /// <summary>
+    /// 字符串换行(使用 \n 换行符)
+    /// </summary>
+    /// <param name="text">原始字符串</param>
+    /// <param name="lineSize">每行大小</param>
+    /// <returns>换行之后的字符串</returns>
+    private static string LineWrap(string text, int lineSize = 64)
+    {
+        int index = 0;
+        int strLength = text.Length;
+        StringBuilder builder = new StringBuilder();
+        while (index < strLength)
+        {
+            if (index > 0)
             {
-                str.Append('\n');
+                builder.Append('\n');
             }
-            if (idx + line >= len)
+            if (index + lineSize >= strLength)
             {
-                str.Append(text.Substring(idx));
+                builder.Append(text.Substring(index));
             }
             else
             {
-                str.Append(text.Substring(idx, line));
+                builder.Append(text.Substring(index, lineSize));
             }
-            idx += line;
+            index += lineSize;
         }
-        return str.ToString();
+        return builder.ToString();
     }
     #endregion
 }
