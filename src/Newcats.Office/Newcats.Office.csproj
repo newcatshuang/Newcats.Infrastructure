@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.Office</Title>
 		<PackageId>Newcats.Office</PackageId>
-		<Version>1.0.8</Version>
+		<Version>1.0.9</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -18,6 +18,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2022-1-8
+			1.取消对Newcats.Utils包的依赖
+
 			2021-12-28
 			1.增加详细的使用说明文档，详见github
 		</PackageReleaseNotes>
@@ -26,7 +29,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.13" />
-		<PackageReference Include="Newcats.Utils" Version="1.0.8" />
 		<PackageReference Include="NPOI" Version="2.5.5" />
 	</ItemGroup>
 
