@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newcats.Utils.Extensions;
+using Newcats.Utils.Models;
 
 namespace T1_ConsoleTests
 {
@@ -122,10 +123,22 @@ namespace T1_ConsoleTests
             string r25 = Newcats.Utils.Helpers.EncryptHelper.AesDecrypt("dIuVIledkcP0Ron1gwBdCA==");//=>Newcats
 
             //32.RSA公钥加密
+            string r28 = Newcats.Utils.Helpers.EncryptHelper.RsaEncrypt("Newcats");
 
             //33.RSA私钥解密
+            string r29 = Newcats.Utils.Helpers.EncryptHelper.RsaDecrypt(r28);
 
-            //34.RSA验证
+            //34.RSA签名
+            string r30 = Newcats.Utils.Helpers.EncryptHelper.RsaSignData("Newcats");
+
+            //41.RSA验签
+            bool r31 = Newcats.Utils.Helpers.EncryptHelper.RsaVerifyData("Newcats", r30);//=>bool
+
+            //42.生成RSA密钥
+            RsaKey r32 = Newcats.Utils.Helpers.EncryptHelper.CreateRsaKey(RsaKeyFormatEnum.Pkcs8, 4096, true);
+
+            //转换RSA密钥格式
+            string r33 = Newcats.Utils.Helpers.EncryptHelper.ConvertRsaKey("rawKey", RsaKeyFormatEnum.Pkcs1, RsaKeyFormatEnum.Pkcs8);
 
             //35.文件操作 Newcats.Utils.Helpers.FileHelper
 
