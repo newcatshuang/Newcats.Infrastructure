@@ -553,7 +553,7 @@ public class RsaUtil
     /// <returns>Base64编码的加密字符串</returns>
     public static string RsaEncrypt(string data, string publicKey)
     {
-        return RsaEncrypt(data, publicKey, Encoding.UTF8, RSAEncryptionPadding.Pkcs1);
+        return RsaEncrypt(data, publicKey, RSAEncryptionPadding.Pkcs1, Encoding.UTF8);
     }
 
     /// <summary>
@@ -561,11 +561,11 @@ public class RsaUtil
     /// </summary>
     /// <param name="data">要加密的字符串</param>
     /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
-    /// <param name="encoding">编码方式</param>
     /// <param name="padding">填充方式</param>
+    /// <param name="encoding">编码方式</param>
     /// <returns>Base64编码的加密字符串</returns>
     /// <exception cref="OutOfMemoryException">当要加密的字符串的字节码大于可加密的最大长度时，发生异常</exception>
-    public static string RsaEncrypt(string data, string publicKey, Encoding encoding, RSAEncryptionPadding padding)
+    public static string RsaEncrypt(string data, string publicKey, RSAEncryptionPadding padding, Encoding encoding)
     {
         return Convert.ToBase64String(RsaEncrypt(encoding.GetBytes(data), publicKey, padding));
     }
