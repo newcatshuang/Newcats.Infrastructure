@@ -808,7 +808,7 @@ namespace Newcats.Utils.Helpers
 
         #region RSA生成密钥、转换密钥、加密、解密、签名、验签
         #region Rsa字段
-        private static Regex _PEMCode = new Regex(@"--+.+?--+|\s+");
+        private static Regex _PEMCode = new(@"--+.+?--+|\s+");
         private static byte[] _SeqOID = new byte[] { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
         private static byte[] _Ver = new byte[] { 0x02, 0x01, 0x00 };
 
@@ -1383,7 +1383,7 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
         {
             int index = 0;
             int strLength = text.Length;
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             while (index < strLength)
             {
                 if (index > 0)
@@ -1485,7 +1485,6 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
         /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
         /// <param name="padding">填充方式</param>
         /// <returns>加密之后的字节码</returns>
-        /// <exception cref="ArgumentOutOfRangeException">当要加密的字节码大于可加密的最大长度时，发生异常</exception>
         public static byte[] RsaEncrypt(byte[] data, string publicKey, RSAEncryptionPadding padding)
         {
             data.ThrowIfNullOrEmpty();
@@ -1498,9 +1497,22 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
             using (RSA rsa = isPem ? CreateRsaFromPem(publicKey) : CreateRsaFromXml(publicKey))
             {
                 int maxLength = GetMaxRsaEncryptLength(rsa.KeySize, padding);
-                if (data.Length > maxLength)
-                    throw new ArgumentOutOfRangeException(nameof(data), $"The data to encrpty is out of max encrypt length {maxLength}");
-                return rsa.Encrypt(data, padding);
+
+                byte[] buffer = new byte[maxLength];//每片大小
+                using (MemoryStream input = new(data), output = new())
+                {
+                    while (true)
+                    {
+                        int readSize = input.Read(buffer, 0, maxLength);//读取到buffer
+                        if (readSize <= 0)//实际读取的数量
+                            break;
+                        byte[] temp = new byte[readSize];//实际的分片
+                        Array.Copy(buffer, 0, temp, 0, readSize);//把buffer复制到temp
+                        byte[] res = rsa.Encrypt(temp, padding);//加密temp
+                        output.Write(res, 0, res.Length);//把当前片段的写入输出流
+                    }
+                    return output.ToArray();
+                }
             }
         }
         #endregion
@@ -1558,7 +1570,23 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
                 isPem = true;
             using (RSA rsa = isPem ? CreateRsaFromPem(privateKey) : CreateRsaFromXml(privateKey))
             {
-                return rsa.Decrypt(data, padding);
+                int maxLength = rsa.KeySize / 8;
+
+                byte[] buffer = new byte[maxLength];//每片大小
+                using (MemoryStream input = new(data), output = new())
+                {
+                    while (true)
+                    {
+                        int readSize = input.Read(buffer, 0, maxLength);//读取到buffer
+                        if (readSize <= 0)//实际读取的数量
+                            break;
+                        byte[] temp = new byte[readSize];//实际的分片
+                        Array.Copy(buffer, 0, temp, 0, readSize);//把buffer复制到temp
+                        byte[] res = rsa.Decrypt(temp, padding);//解密temp
+                        output.Write(res, 0, res.Length);//把当前片段的写入输出流
+                    }
+                    return output.ToArray();
+                }
             }
         }
         #endregion

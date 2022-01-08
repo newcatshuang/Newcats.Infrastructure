@@ -52,10 +52,17 @@ HtO7tkC2awxl58r6s6gg2EpNONJwftnwKDSAkJo+LW02eMbDeCapMlD0ZupzAO2b
 
             //var r = EncryptHelper.RsaVerifyData("NewcatsHuang", s);
             //Console.WriteLine(r);
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < 10; i++)
+            {
+                stringBuilder.Append("Newcats");
+            }
 
-
-            var enStr = EncryptHelper.RsaEncrypt(pri + pri);
+            var enStr = EncryptHelper.RsaEncrypt(stringBuilder.ToString() + "Huang", pub);
             Console.WriteLine(enStr);
+            Console.WriteLine("\n");
+            var deStr = EncryptHelper.RsaDecrypt(enStr, pri);
+            Console.WriteLine(deStr);
             return;
 
             //Console.WriteLine("\r\n\r\n");
