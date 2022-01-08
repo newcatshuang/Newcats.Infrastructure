@@ -630,7 +630,7 @@ public class RsaUtil
     /// <returns>解密之后的Base64字符串</returns>
     public static string RsaDecrypt(string data, string privateKey, RSAEncryptionPadding padding, Encoding encoding)
     {
-        return Convert.ToBase64String(RsaDecrypt(encoding.GetBytes(data), privateKey, padding));
+        return encoding.GetString(RsaDecrypt(Convert.FromBase64String(data), privateKey, padding));
     }
 
     /// <summary>
@@ -670,7 +670,7 @@ public class RsaUtil
     /// <summary>
     /// 获取不同填充模式Rsa加密的最大长度
     /// </summary>
-    /// <param name="rsa">Rsa实例</param>
+    /// <param name="keySizeInBits">密钥大小(bit)</param>
     /// <param name="padding">填充模式</param>
     /// <returns>最大加密长度</returns>
     private static int GetMaxRsaEncryptLength(int keySizeInBits, RSAEncryptionPadding padding)
@@ -704,16 +704,5 @@ public class RsaUtil
         }
         var maxLength = keySizeInBits / 8 - offset;
         return maxLength;
-    }
-
-    private static byte[] CorrectionCiphertext(byte[] rawData, int keySizeInBits)
-    {
-        int length = keySizeInBits / 8;
-        List<byte> newData = new List<byte>();
-        while (newData.Count < length)
-        {
-            newData.Insert(0, 0x00);
-        }
-        return newData.ToArray();
     }
 }

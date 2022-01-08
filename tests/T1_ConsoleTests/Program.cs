@@ -48,10 +48,10 @@ HtO7tkC2awxl58r6s6gg2EpNONJwftnwKDSAkJo+LW02eMbDeCapMlD0ZupzAO2b
 -----END PRIVATE KEY-----";
 
             string enRes = RsaUtil.RsaEncrypt("Newcats", pub);
-            Console.WriteLine(enRes);
+            //Console.WriteLine(enRes);
 
-            //string deRes = RsaUtil.RsaDecrypt(enRes, pri);
-            //Console.WriteLine(deRes);
+            string deRes = RsaUtil.RsaDecrypt(enRes, pri);
+            Console.WriteLine(deRes);
 
             return;
             //var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Xml, 2048, true);
