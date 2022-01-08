@@ -1473,7 +1473,6 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
         /// <param name="padding">填充方式</param>
         /// <param name="encoding">编码方式</param>
         /// <returns>Base64编码的加密字符串</returns>
-        /// <exception cref="OutOfMemoryException">当要加密的字符串的字节码大于可加密的最大长度时，发生异常</exception>
         public static string RsaEncrypt(string data, string publicKey, RSAEncryptionPadding padding, Encoding encoding)
         {
             return Convert.ToBase64String(RsaEncrypt(encoding.GetBytes(data), publicKey, padding));

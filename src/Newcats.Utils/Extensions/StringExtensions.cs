@@ -1,5 +1,16 @@
-﻿using System.Buffers;
+﻿/***************************************************************************
+ *GUID: 1180c01a-813e-4522-813f-40292a04d5aa
+ *CLR Version: 4.0.30319.42000
+ *DateCreated：2022-01-08 17:19:09
+ *Author: NewcatsHuang
+ *Email: newcats@live.com
+ *Github: https://github.com/newcatshuang
+ *Copyright NewcatsHuang All rights reserved.
+*****************************************************************************/
+
+using System.Buffers;
 using System.ComponentModel;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -279,7 +290,7 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 获取次字符串的Aes加密结果(使用默认密钥和向量)
+        /// 获取此字符串的Aes加密结果(使用默认密钥和向量)
         /// </summary>
         /// <param name="value">字符串(明文)</param>
         /// <returns>Aes加密结果</returns>
@@ -289,7 +300,7 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 获取次字符串的Aes加密结果
+        /// 获取此字符串的Aes加密结果
         /// </summary>
         /// <param name="value">字符串(明文)</param>
         /// <param name="key">Aes密钥,32位字符串</param>
@@ -301,7 +312,7 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 获取次字符串的Aes加密结果
+        /// 获取此字符串的Aes加密结果
         /// </summary>
         /// <param name="value">字符串(明文)</param>
         /// <param name="key">Aes密钥,32位字符串</param>
@@ -314,7 +325,7 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 获取次字符串的Aes解密结果(使用默认密钥和向量)
+        /// 获取此字符串的Aes解密结果(使用默认密钥和向量)
         /// </summary>
         /// <param name="value">字符串(密文)</param>
         /// <returns>Aes解密结果</returns>
@@ -324,7 +335,7 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 获取次字符串的Aes解密结果
+        /// 获取此字符串的Aes解密结果
         /// </summary>
         /// <param name="value">字符串(密文)</param>
         /// <param name="key">Aes密钥,32位字符串</param>
@@ -336,7 +347,7 @@ namespace Newcats.Utils.Extensions
         }
 
         /// <summary>
-        /// 获取次字符串的Aes解密结果
+        /// 获取此字符串的Aes解密结果
         /// </summary>
         /// <param name="value">字符串(密文)</param>
         /// <param name="key">Aes密钥,32位字符串</param>
@@ -346,6 +357,147 @@ namespace Newcats.Utils.Extensions
         public static string AesDecrypt(this string value, string key, string iv, Encoding encoding)
         {
             return Helpers.EncryptHelper.AesDecrypt(value, key, iv, encoding);
+        }
+
+        /// <summary>
+        /// 使用Rsa加密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充,默认公钥
+        /// </summary>
+        /// <param name="data">要加密的字符串</param>
+        /// <returns>Base64编码的加密字符串</returns>
+        public static string RsaEncrypt(this string data)
+        {
+            return Helpers.EncryptHelper.RsaEncrypt(data);
+        }
+
+        /// <summary>
+        /// 使用Rsa加密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
+        /// </summary>
+        /// <param name="data">要加密的字符串</param>
+        /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
+        /// <returns>Base64编码的加密字符串</returns>
+        public static string RsaEncrypt(this string data, string publicKey)
+        {
+            return Helpers.EncryptHelper.RsaEncrypt(data, publicKey);
+        }
+
+        /// <summary>
+        /// 使用Rsa加密字符串
+        /// </summary>
+        /// <param name="data">要加密的字符串</param>
+        /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
+        /// <param name="padding">填充方式</param>
+        /// <param name="encoding">编码方式</param>
+        /// <returns>Base64编码的加密字符串</returns>
+        public static string RsaEncrypt(this string data, string publicKey, RSAEncryptionPadding padding, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.RsaEncrypt(data, publicKey, padding, encoding);
+        }
+
+        /// <summary>
+        /// 使用Rsa解密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充.默认私钥
+        /// </summary>
+        /// <param name="data">要解密的字符串(密文)(Base64编码)</param>
+        /// <returns>解密之后的UTF8编码字符串</returns>
+        public static string RsaDecrypt(this string data)
+        {
+            return Helpers.EncryptHelper.RsaDecrypt(data);
+        }
+
+        /// <summary>
+        /// 使用Rsa解密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
+        /// </summary>
+        /// <param name="data">要解密的字符串(密文)(Base64编码)</param>
+        /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+        /// <returns>解密之后的UTF8编码字符串</returns>
+        public static string RsaDecrypt(this string data, string privateKey)
+        {
+            return Helpers.EncryptHelper.RsaDecrypt(data, privateKey);
+        }
+
+        /// <summary>
+        /// 使用Rsa解密字符串
+        /// </summary>
+        /// <param name="data">要解密的字符串(密文)(Base64编码)</param>
+        /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+        /// <param name="padding">填充方式</param>
+        /// <param name="encoding">编码方式</param>
+        /// <returns>解密之后的指定编码字符串</returns>
+        public static string RsaDecrypt(this string data, string privateKey, RSAEncryptionPadding padding, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.RsaDecrypt(data, privateKey, padding, encoding);
+        }
+
+        /// <summary>
+        /// 使用Rsa对数据签名,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据,默认私钥
+        /// </summary>
+        /// <param name="data">要加签的数据</param>
+        /// <returns>签名之后的Base64编码字符串</returns>
+        public static string RsaSignData(this string data)
+        {
+            return Helpers.EncryptHelper.RsaSignData(data);
+        }
+
+        /// <summary>
+        /// 使用Rsa对数据签名,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据
+        /// </summary>
+        /// <param name="data">要加签的数据</param>
+        /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+        /// <returns>签名之后的Base64编码字符串</returns>
+        public static string RsaSignData(this string data, string privateKey)
+        {
+            return Helpers.EncryptHelper.RsaSignData(data, privateKey);
+        }
+
+        /// <summary>
+        /// 使用Rsa对数据签名
+        /// </summary>
+        /// <param name="data">要加签的数据</param>
+        /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+        /// <param name="hashAlgorithm">指定Hash算法</param>
+        /// <param name="padding">填充方式</param>
+        /// <param name="encoding">数据编码方式</param>
+        /// <returns>签名之后的Base64编码字符串</returns>
+        public static string RsaSignData(this string data, string privateKey, HashAlgorithmName hashAlgorithm, RSASignaturePadding padding, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.RsaSignData(data, privateKey, hashAlgorithm, padding, encoding);
+        }
+
+        /// <summary>
+        /// Rsa验签,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据,默认公钥
+        /// </summary>
+        /// <param name="data">要验证的数据</param>
+        /// <param name="signature">Base64编码签名</param>
+        /// <returns>数据签名是否一致</returns>
+        public static bool RsaVerifyData(this string data, string signature)
+        {
+            return Helpers.EncryptHelper.RsaVerifyData(data, signature);
+        }
+
+        /// <summary>
+        /// Rsa验签,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据
+        /// </summary>
+        /// <param name="data">要验证的数据</param>
+        /// <param name="signature">Base64编码签名</param>
+        /// <param name="publicKey">Rsa公钥(pem私钥必须包含BEGIN END字符串)</param>
+        /// <returns>数据签名是否一致</returns>
+        public static bool RsaVerifyData(this string data, string signature, string publicKey)
+        {
+            return Helpers.EncryptHelper.RsaVerifyData(data, signature, publicKey);
+        }
+
+        /// <summary>
+        /// Rsa验签
+        /// </summary>
+        /// <param name="data">要验证的数据</param>
+        /// <param name="signature">Base64编码签名</param>
+        /// <param name="publicKey">Rsa公钥(pem私钥必须包含BEGIN END字符串)</param>
+        /// <param name="hashAlgorithm">指定Hash算法</param>
+        /// <param name="padding">填充方式</param>
+        /// <param name="encoding">数据编码方式</param>
+        /// <returns>数据签名是否一致</returns>
+        public static bool RsaVerifyData(this string data, string signature, string publicKey, HashAlgorithmName hashAlgorithm, RSASignaturePadding padding, Encoding encoding)
+        {
+            return Helpers.EncryptHelper.RsaVerifyData(data, signature, publicKey, hashAlgorithm, padding, encoding);
         }
         #endregion
 
