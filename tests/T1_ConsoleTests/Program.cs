@@ -47,17 +47,11 @@ HtO7tkC2awxl58r6s6gg2EpNONJwftnwKDSAkJo+LW02eMbDeCapMlD0ZupzAO2b
 5fjuS4glGJ4Muw==
 -----END PRIVATE KEY-----";
 
-            string enRes = RsaUtil.RsaEncrypt("Newcats", pub);
-            //Console.WriteLine(enRes);
+            var s = RsaUtil.RsaSignData("NewcatsHuang");
+            Console.WriteLine(s);
 
-            string deRes = RsaUtil.RsaDecrypt(enRes, pri);
-            //Console.WriteLine(deRes);
-
-
-            var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Pkcs8, 4096, true);
-            Console.WriteLine(r.PublicKey);
-            Console.WriteLine("\r\n\r\n");
-            Console.WriteLine(r.PrivateKey);
+            var r = RsaUtil.RsaVerifyData("NewcatsHuang", s);
+            Console.WriteLine(r);
 
             return;
 

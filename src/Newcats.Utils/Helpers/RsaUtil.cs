@@ -23,6 +23,7 @@ namespace Newcats.Utils.Helpers;
 
 public class RsaUtil
 {
+    #region Rsa字段
     private static Regex _PEMCode = new Regex(@"--+.+?--+|\s+");
     private static byte[] _SeqOID = new byte[] { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
     private static byte[] _Ver = new byte[] { 0x02, 0x01, 0x00 };
@@ -30,7 +31,7 @@ public class RsaUtil
     /// <summary>
     /// 默认Pkcs8格式4096位OpenSsl样式的Rsa公钥
     /// </summary>
-    const string DefaultRsaPublicKey = @"-----BEGIN PUBLIC KEY-----
+    public const string DefaultRsaPublicKey = @"-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAv4SYt9K774CzpNjRCvAp
 NcRDFwlX49vGICX3NCau3nni4VjqqVNE8bxa0gZ8rMsCC2FiiH1Sy6L7qguPtE9o
 fMNWPCwupMzVyHnzR3/1jYkPCt6mOUDJdgCLAL/nDO2vGkDV48G57r1PBSNfOTmG
@@ -48,7 +49,7 @@ HIS9G10WfFNaGg9pBDLS600CAwEAAQ==
     /// <summary>
     /// 默认Pkcs8格式4096位OpenSsl样式的Rsa私钥
     /// </summary>
-    const string DefaultRsaPrivateKey = @"-----BEGIN PRIVATE KEY-----
+    public const string DefaultRsaPrivateKey = @"-----BEGIN PRIVATE KEY-----
 MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQC/hJi30rvvgLOk
 2NEK8Ck1xEMXCVfj28YgJfc0Jq7eeeLhWOqpU0TxvFrSBnysywILYWKIfVLLovuq
 C4+0T2h8w1Y8LC6kzNXIefNHf/WNiQ8K3qY5QMl2AIsAv+cM7a8aQNXjwbnuvU8F
@@ -100,6 +101,7 @@ RVaxkeFuSBMqhoCxI06032RHTYAgtbLXhq/32wUrzjEay7t8O8S8DHjb8dZn3v4O
 Yi6EXzvyJhzY6CH3G6MfPiewg4EqipDJPl56HDwr5hkwKevgo6Kvlxy1xptmU3rF
 Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
 -----END PRIVATE KEY-----";
+    #endregion
 
     #region 处理Rsa密钥
     #region 暂时注释
@@ -616,6 +618,45 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
         }
         return builder.ToString();
     }
+
+    /// <summary>
+    /// 获取不同填充模式Rsa加密的最大长度
+    /// </summary>
+    /// <param name="keySizeInBits">密钥大小(bit)</param>
+    /// <param name="padding">填充模式</param>
+    /// <returns>最大加密长度</returns>
+    private static int GetMaxRsaEncryptLength(int keySizeInBits, RSAEncryptionPadding padding)
+    {
+        var offset = 0;
+        if (padding.Mode == RSAEncryptionPaddingMode.Pkcs1)
+        {
+            offset = 11;
+        }
+        else
+        {
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA1))
+            {
+                offset = 42;
+            }
+
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA256))
+            {
+                offset = 66;
+            }
+
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA384))
+            {
+                offset = 98;
+            }
+
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA512))
+            {
+                offset = 130;
+            }
+        }
+        var maxLength = keySizeInBits / 8 - offset;
+        return maxLength;
+    }
     #endregion
 
     #region Rsa加密
@@ -739,42 +780,128 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
     }
     #endregion
 
+    #region Rsa签名
     /// <summary>
-    /// 获取不同填充模式Rsa加密的最大长度
+    /// 使用Rsa对数据签名,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据,默认私钥
     /// </summary>
-    /// <param name="keySizeInBits">密钥大小(bit)</param>
-    /// <param name="padding">填充模式</param>
-    /// <returns>最大加密长度</returns>
-    private static int GetMaxRsaEncryptLength(int keySizeInBits, RSAEncryptionPadding padding)
+    /// <param name="data">要加签的数据</param>
+    /// <returns>签名之后的Base64编码字符串</returns>
+    public static string RsaSignData(string data)
     {
-        var offset = 0;
-        if (padding.Mode == RSAEncryptionPaddingMode.Pkcs1)
-        {
-            offset = 11;
-        }
-        else
-        {
-            if (padding.Equals(RSAEncryptionPadding.OaepSHA1))
-            {
-                offset = 42;
-            }
-
-            if (padding.Equals(RSAEncryptionPadding.OaepSHA256))
-            {
-                offset = 66;
-            }
-
-            if (padding.Equals(RSAEncryptionPadding.OaepSHA384))
-            {
-                offset = 98;
-            }
-
-            if (padding.Equals(RSAEncryptionPadding.OaepSHA512))
-            {
-                offset = 130;
-            }
-        }
-        var maxLength = keySizeInBits / 8 - offset;
-        return maxLength;
+        return RsaSignData(data, DefaultRsaPrivateKey);
     }
+
+    /// <summary>
+    /// 使用Rsa对数据签名,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据
+    /// </summary>
+    /// <param name="data">要加签的数据</param>
+    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <returns>签名之后的Base64编码字符串</returns>
+    public static string RsaSignData(string data, string privateKey)
+    {
+        return RsaSignData(data, privateKey, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1, Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// 使用Rsa对数据签名
+    /// </summary>
+    /// <param name="data">要加签的数据</param>
+    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <param name="hashAlgorithm">指定Hash算法</param>
+    /// <param name="padding">填充方式</param>
+    /// <param name="encoding">数据编码方式</param>
+    /// <returns>签名之后的Base64编码字符串</returns>
+    public static string RsaSignData(string data, string privateKey, HashAlgorithmName hashAlgorithm, RSASignaturePadding padding, Encoding encoding)
+    {
+        return Convert.ToBase64String(RsaSignData(encoding.GetBytes(data), privateKey, hashAlgorithm, padding));
+    }
+
+    /// <summary>
+    /// 使用Rsa对数据签名
+    /// </summary>
+    /// <param name="data">要签名的数据</param>
+    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <param name="hashAlgorithm">指定Hash算法</param>
+    /// <param name="padding">填充方式</param>
+    /// <returns>签名之后的字节码</returns>
+    public static byte[] RsaSignData(byte[] data, string privateKey, HashAlgorithmName hashAlgorithm, RSASignaturePadding padding)
+    {
+        data.ThrowIfNullOrEmpty();
+        privateKey.ThrowIfNullOrWhiteSpace();
+        padding.ThrowIfNull();
+
+        bool isPem = false;
+        if (privateKey.Contains("BEGIN", StringComparison.OrdinalIgnoreCase) && privateKey.Contains("END", StringComparison.OrdinalIgnoreCase) && !privateKey.Contains("<RSAKeyValue>", StringComparison.OrdinalIgnoreCase))
+            isPem = true;
+        using (RSA rsa = isPem ? CreateRsaFromPem(privateKey) : CreateRsaFromXml(privateKey))
+        {
+            return rsa.SignData(data, hashAlgorithm, padding);
+        }
+    }
+    #endregion
+
+    #region Rsa验签
+    /// <summary>
+    /// Rsa验签,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据,默认公钥
+    /// </summary>
+    /// <param name="data">要验证的数据</param>
+    /// <param name="signature">Base64编码签名</param>
+    /// <returns>数据签名是否一致</returns>
+    public static bool RsaVerifyData(string data, string signature)
+    {
+        return RsaVerifyData(data, signature, DefaultRsaPublicKey);
+    }
+
+    /// <summary>
+    /// Rsa验签,默认使用Sha1算法签名,RSASignaturePadding.Pkcs1填充,UTF8编码数据
+    /// </summary>
+    /// <param name="data">要验证的数据</param>
+    /// <param name="signature">Base64编码签名</param>
+    /// <param name="publicKey">Rsa公钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <returns>数据签名是否一致</returns>
+    public static bool RsaVerifyData(string data, string signature, string publicKey)
+    {
+        return RsaVerifyData(data, signature, publicKey, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1, Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// Rsa验签
+    /// </summary>
+    /// <param name="data">要验证的数据</param>
+    /// <param name="signature">Base64编码签名</param>
+    /// <param name="publicKey">Rsa公钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <param name="hashAlgorithm">指定Hash算法</param>
+    /// <param name="padding">填充方式</param>
+    /// <param name="encoding">数据编码方式</param>
+    /// <returns>数据签名是否一致</returns>
+    public static bool RsaVerifyData(string data, string signature, string publicKey, HashAlgorithmName hashAlgorithm, RSASignaturePadding padding, Encoding encoding)
+    {
+        return RsaVerifyData(encoding.GetBytes(data), Convert.FromBase64String(signature), publicKey, hashAlgorithm, padding);
+    }
+
+    /// <summary>
+    /// Rsa验签
+    /// </summary>
+    /// <param name="data">要验证的数据</param>
+    /// <param name="signature">签名</param>
+    /// <param name="publicKey">Rsa公钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <param name="hashAlgorithm">指定Hash算法</param>
+    /// <param name="padding">填充方式</param>
+    /// <returns>数据签名是否一致</returns>
+    public static bool RsaVerifyData(byte[] data, byte[] signature, string publicKey, HashAlgorithmName hashAlgorithm, RSASignaturePadding padding)
+    {
+        data.ThrowIfNullOrEmpty();
+        signature.ThrowIfNullOrEmpty();
+        publicKey.ThrowIfNullOrWhiteSpace();
+        padding.ThrowIfNull();
+
+        bool isPem = false;
+        if (publicKey.Contains("BEGIN", StringComparison.OrdinalIgnoreCase) && publicKey.Contains("END", StringComparison.OrdinalIgnoreCase) && !publicKey.Contains("<RSAKeyValue>", StringComparison.OrdinalIgnoreCase))
+            isPem = true;
+        using (RSA rsa = isPem ? CreateRsaFromPem(publicKey) : CreateRsaFromXml(publicKey))
+        {
+            return rsa.VerifyData(data, signature, hashAlgorithm, padding);
+        }
+    }
+    #endregion
 }
