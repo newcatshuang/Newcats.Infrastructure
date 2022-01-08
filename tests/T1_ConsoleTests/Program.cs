@@ -47,7 +47,7 @@ exAURqbzW+Auh7ScCqIL4BXa+tObXvtnk7kR9neggX/ZmCY4v69Q+RKiZa0vqZ70
 LafQ7LG0Jv8FL8E=
 -----END PRIVATE KEY-----";
 
-            string res = RsaUtil.RsaEncrypt("Newcats", pub);
+            string res = RsaUtil.RsaEncrypt("Newcats", pub, Encoding.UTF8, RSAEncryptionPadding.OaepSHA256);
             Console.WriteLine(res);
 
             return;

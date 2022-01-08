@@ -27,7 +27,7 @@ public class RsaUtil
     private static byte[] _SeqOID = new byte[] { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
     private static byte[] _Ver = new byte[] { 0x02, 0x01, 0x00 };
 
-    #region 处理密钥
+    #region 处理Rsa密钥
     #region 暂时注释
     /*
     /// <summary>
@@ -543,6 +543,7 @@ public class RsaUtil
         return builder.ToString();
     }
     #endregion
+
     /// <summary>
     /// 使用Rsa加密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
     /// </summary>
@@ -565,22 +566,7 @@ public class RsaUtil
     /// <exception cref="OutOfMemoryException">当要加密的字符串的字节码大于可加密的最大长度时，发生异常</exception>
     public static string RsaEncrypt(string data, string publicKey, Encoding encoding, RSAEncryptionPadding padding)
     {
-        data.ThrowIfNullOrWhiteSpace();
-        publicKey.ThrowIfNullOrWhiteSpace();
-        padding.ThrowIfNull();
-
-        bool isPem = false;
-        if (publicKey.Contains("BEGIN", StringComparison.OrdinalIgnoreCase) && publicKey.Contains("END", StringComparison.OrdinalIgnoreCase) && !publicKey.Contains("<RSAKeyValue>", StringComparison.OrdinalIgnoreCase))
-            isPem = true;
-        using (RSA rsa = isPem ? CreateRsaFromPem(publicKey) : CreateRsaFromXml(publicKey))
-        {
-            int maxLength = GetMaxRsaEncryptLength(rsa, padding);
-            byte[] dataBytes = encoding.GetBytes(data);
-            if (dataBytes.Length > maxLength)
-                throw new OutOfMemoryException($"The data to encrpty is out of max encrypt length {maxLength}");
-            byte[] buffer = rsa.Encrypt(dataBytes, padding);
-            return Convert.ToBase64String(buffer);
-        }
+        return Convert.ToBase64String(RsaEncrypt(encoding.GetBytes(data), publicKey, padding));
     }
 
     /// <summary>
@@ -617,6 +603,63 @@ public class RsaUtil
             if (data.Length > maxLength)
                 throw new OutOfMemoryException($"The data to encrpty is out of max encrypt length {maxLength}");
             return rsa.Encrypt(data, padding);
+        }
+    }
+
+    /// <summary>
+    /// 使用Rsa解密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
+    /// </summary>
+    /// <param name="data">要解密的字符串(密文)</param>
+    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <returns>解密之后的Base64字符串</returns>
+    public static string RsaDecrypt(string data, string privateKey)
+    {
+        return RsaDecrypt(data, privateKey, RSAEncryptionPadding.Pkcs1, Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// 使用Rsa解密字符串
+    /// </summary>
+    /// <param name="data">要解密的字符串(密文)</param>
+    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <param name="padding">填充方式</param>
+    /// <param name="encoding">编码方式</param>
+    /// <returns>解密之后的Base64字符串</returns>
+    public static string RsaDecrypt(string data, string privateKey, RSAEncryptionPadding padding, Encoding encoding)
+    {
+        return Convert.ToBase64String(RsaDecrypt(encoding.GetBytes(data), privateKey, padding));
+    }
+
+    /// <summary>
+    /// 使用Rsa解密数据,默认RSAEncryptionPadding.Pkcs1填充
+    /// </summary>
+    /// <param name="data">要解密的数据(密文)</param>
+    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <returns>解密之后的字节码</returns>
+    public static byte[] RsaDecrypt(byte[] data, string privateKey)
+    {
+        return RsaDecrypt(data, privateKey, RSAEncryptionPadding.Pkcs1);
+    }
+
+    /// <summary>
+    /// 使用Rsa解密数据
+    /// </summary>
+    /// <param name="data">要解密的数据(密文)</param>
+    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
+    /// <param name="padding">填充方式</param>
+    /// <returns>解密之后的字节码</returns>
+    public static byte[] RsaDecrypt(byte[] data, string privateKey, RSAEncryptionPadding padding)
+    {
+        data.ThrowIfNullOrEmpty();
+        privateKey.ThrowIfNullOrWhiteSpace();
+        padding.ThrowIfNull();
+
+        bool isPem = false;
+        if (privateKey.Contains("BEGIN", StringComparison.OrdinalIgnoreCase) && privateKey.Contains("END", StringComparison.OrdinalIgnoreCase) && !privateKey.Contains("<RSAKeyValue>", StringComparison.OrdinalIgnoreCase))
+            isPem = true;
+        using (RSA rsa = isPem ? CreateRsaFromPem(privateKey) : CreateRsaFromXml(privateKey))
+        {
+            return rsa.Decrypt(data, padding);
         }
     }
 
