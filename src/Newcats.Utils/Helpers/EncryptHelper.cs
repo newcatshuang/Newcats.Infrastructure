@@ -1485,7 +1485,7 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
         /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
         /// <param name="padding">填充方式</param>
         /// <returns>加密之后的字节码</returns>
-        /// <exception cref="OutOfMemoryException">当要加密的字节码大于可加密的最大长度时，发生异常</exception>
+        /// <exception cref="ArgumentOutOfRangeException">当要加密的字节码大于可加密的最大长度时，发生异常</exception>
         public static byte[] RsaEncrypt(byte[] data, string publicKey, RSAEncryptionPadding padding)
         {
             data.ThrowIfNullOrEmpty();
@@ -1499,7 +1499,7 @@ Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
             {
                 int maxLength = GetMaxRsaEncryptLength(rsa.KeySize, padding);
                 if (data.Length > maxLength)
-                    throw new OutOfMemoryException($"The data to encrpty is out of max encrypt length {maxLength}");
+                    throw new ArgumentOutOfRangeException(nameof(data), $"The data to encrpty is out of max encrypt length {maxLength}");
                 return rsa.Encrypt(data, padding);
             }
         }
