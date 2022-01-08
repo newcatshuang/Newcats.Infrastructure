@@ -9,7 +9,7 @@
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
-		<PackageTags>Utils;Extensions;Helpers;EnumDescription;Encrypt;AES;DES;Hash;RSA;Snowflake;Encrypt;Decrypt;</PackageTags>
+		<PackageTags>Utils;Extensions;Helpers;EnumDescription;Encrypt;AES;DES;Hash;RSA;SnowflakeId;Encrypt;Decrypt;</PackageTags>
 		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.Utils</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
 		<Description>Some common functions to make coding easy.</Description>
@@ -18,7 +18,7 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
 			2022-1-8
-			1.完善RSA加密、解密、签名、验证、生成密钥、转换密钥的相关方法
+			1.完善RSA加密、解密、签名、验证、生成密钥、转换密钥的相关方法,加解密支持超长数据
 
 			2021-12-30
 			1.ReadMe文档增加示例代码
