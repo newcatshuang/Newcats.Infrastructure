@@ -27,6 +27,80 @@ public class RsaUtil
     private static byte[] _SeqOID = new byte[] { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
     private static byte[] _Ver = new byte[] { 0x02, 0x01, 0x00 };
 
+    /// <summary>
+    /// 默认Pkcs8格式4096位OpenSsl样式的Rsa公钥
+    /// </summary>
+    const string DefaultRsaPublicKey = @"-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAv4SYt9K774CzpNjRCvAp
+NcRDFwlX49vGICX3NCau3nni4VjqqVNE8bxa0gZ8rMsCC2FiiH1Sy6L7qguPtE9o
+fMNWPCwupMzVyHnzR3/1jYkPCt6mOUDJdgCLAL/nDO2vGkDV48G57r1PBSNfOTmG
+4IXFCMvmXOuU1VFlebUgHaVf/Wrz5fAxlbEEUP5q0kXqhDA16FWoiWCLj17hoX8q
+peQiO8di5x+L0BBbpZWADyBVlbVZkFgYGQmv9bPXoAMwRx8exBez49uy/teOlOt6
+XE/sqsT8HwY3HYYQ5Xv0dxT29YcFGnSc1TQR7XumhnXgYWT8DJcTgb+VHKOSmz3R
+D/JpGj4e25o44a9hcicwHCwWXN8QHXGFypcM92kTYpALVH3VwJUvwS9Dq6Z7emnQ
+CvXrGxnfnxiXX7B3jxecSi3N8Zs+s77XV8mjKgj297tb/sDKXfYG9FZpKH8iXYG8
+KCqtgpWQLXiRp0XQhtTKbfCMtDqFFcO0FDtZimDc5ccMV8VFR0aRxNJW8f6MmNts
+WtN1Tvqn1lgSgri+H49Q2lrmUZQLHgWzEKZnryCruCv5I9EGrZhEXx8XPqT8PmC5
+x5gTLNcLr5Iru/hKChhVjRxHDoTTqYPGCAVtYQvztfyUIsN7L4NZRtr49PQO6HmI
+HIS9G10WfFNaGg9pBDLS600CAwEAAQ==
+-----END PUBLIC KEY-----";
+
+    /// <summary>
+    /// 默认Pkcs8格式4096位OpenSsl样式的Rsa私钥
+    /// </summary>
+    const string DefaultRsaPrivateKey = @"-----BEGIN PRIVATE KEY-----
+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
+Q0Nyb6nNAir/bYg28PxRvEUalkSNNw==
+-----END PRIVATE KEY-----";
+
     #region 处理Rsa密钥
     #region 暂时注释
     /*
@@ -546,6 +620,16 @@ public class RsaUtil
 
     #region Rsa加密
     /// <summary>
+    /// 使用Rsa加密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充,默认公钥
+    /// </summary>
+    /// <param name="data">要加密的字符串</param>
+    /// <returns>Base64编码的加密字符串</returns>
+    public static string RsaEncrypt(string data)
+    {
+        return RsaEncrypt(data, DefaultRsaPublicKey);
+    }
+
+    /// <summary>
     /// 使用Rsa加密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
     /// </summary>
     /// <param name="data">要加密的字符串</param>
@@ -568,17 +652,6 @@ public class RsaUtil
     public static string RsaEncrypt(string data, string publicKey, RSAEncryptionPadding padding, Encoding encoding)
     {
         return Convert.ToBase64String(RsaEncrypt(encoding.GetBytes(data), publicKey, padding));
-    }
-
-    /// <summary>
-    /// 使用Rsa加密数据,默认RSAEncryptionPadding.Pkcs1填充
-    /// </summary>
-    /// <param name="data">要加密的数据字节码</param>
-    /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
-    /// <returns>加密之后的字节码</returns>
-    public static byte[] RsaEncrypt(byte[] data, string publicKey)
-    {
-        return RsaEncrypt(data, publicKey, RSAEncryptionPadding.Pkcs1);
     }
 
     /// <summary>
@@ -610,11 +683,21 @@ public class RsaUtil
 
     #region Rsa解密
     /// <summary>
+    /// 使用Rsa解密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充.默认私钥
+    /// </summary>
+    /// <param name="data">要解密的字符串(密文)(Base64编码)</param>
+    /// <returns>解密之后的UTF8编码字符串</returns>
+    public static string RsaDecrypt(string data)
+    {
+        return RsaDecrypt(data, DefaultRsaPrivateKey, RSAEncryptionPadding.Pkcs1, Encoding.UTF8);
+    }
+
+    /// <summary>
     /// 使用Rsa解密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
     /// </summary>
-    /// <param name="data">要解密的字符串(密文)</param>
+    /// <param name="data">要解密的字符串(密文)(Base64编码)</param>
     /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
-    /// <returns>解密之后的Base64字符串</returns>
+    /// <returns>解密之后的UTF8编码字符串</returns>
     public static string RsaDecrypt(string data, string privateKey)
     {
         return RsaDecrypt(data, privateKey, RSAEncryptionPadding.Pkcs1, Encoding.UTF8);
@@ -623,25 +706,14 @@ public class RsaUtil
     /// <summary>
     /// 使用Rsa解密字符串
     /// </summary>
-    /// <param name="data">要解密的字符串(密文)</param>
+    /// <param name="data">要解密的字符串(密文)(Base64编码)</param>
     /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
     /// <param name="padding">填充方式</param>
     /// <param name="encoding">编码方式</param>
-    /// <returns>解密之后的Base64字符串</returns>
+    /// <returns>解密之后的指定编码字符串</returns>
     public static string RsaDecrypt(string data, string privateKey, RSAEncryptionPadding padding, Encoding encoding)
     {
         return encoding.GetString(RsaDecrypt(Convert.FromBase64String(data), privateKey, padding));
-    }
-
-    /// <summary>
-    /// 使用Rsa解密数据,默认RSAEncryptionPadding.Pkcs1填充
-    /// </summary>
-    /// <param name="data">要解密的数据(密文)</param>
-    /// <param name="privateKey">Rsa私钥(pem私钥必须包含BEGIN END字符串)</param>
-    /// <returns>解密之后的字节码</returns>
-    public static byte[] RsaDecrypt(byte[] data, string privateKey)
-    {
-        return RsaDecrypt(data, privateKey, RSAEncryptionPadding.Pkcs1);
     }
 
     /// <summary>
