@@ -23,59 +23,41 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            //var r = RsaUtil.GenerateRsaKey(RsaKeyFormatEnum.Pkcs1, 2048, true);
+            const string pub = @"-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8fhcmX+ZiGMu64JGKVucGIgkL
+14exq8U/tIaNbFr/5tlmfj9QM3v1X1OvJpc8zkQ+oGKHURdum5mEA4WfQy53N6e0
+o1++qomomAbMmO+vBjzk9oMrfE6pdB72PBcXzBHZ9xbpuTLHmzgQX0TKVrbPTMDB
+nG/AVQKNf8PEPLGYYwIDAQAB
+-----END PUBLIC KEY-----";
 
-            var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Pkcs8, 2048, true);
-            Console.WriteLine(r.PublicKey);
-            Console.WriteLine("\r\n\r\n");
-            Console.WriteLine(r.PrivateKey);
+            const string pri = @"-----BEGIN PRIVATE KEY-----
+MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBALx+FyZf5mIYy7rg
+kYpW5wYiCQvXh7GrxT+0ho1sWv/m2WZ+P1Aze/VfU68mlzzORD6gYodRF26bmYQD
+hZ9DLnc3p7SjX76qiaiYBsyY768GPOT2gyt8Tql0HvY8FxfMEdn3Fum5MsebOBBf
+RMpWts9MwMGcb8BVAo1/w8Q8sZhjAgMBAAECgYBR4KPFs5qrugGlZ69Q3Hb2Hwq2
+7iSvdOH1zkE0ZYER8AE3mFeASxzpdUMwrh679w2F9r1V8k+vaD/DLJR6ngAsYf1s
+44+wK4pHAbEQw4V6gvUNiojaWFvmGjIkgNklL28FIztBK6rQw45Ws3pFMI9Z8gJE
+lTNYPNrO7aWG2AGBoQJBAOk55vKOhqeXp1EnNzZqmlBcJzUwMsjCsbbjiqSALgw1
+G+3YpKzjqaupUH79rUBnBH0+zeqNFQDGHSQq1HZYNb0CQQDO5fQ97Fe+ggrz/1K6
+DRoaIXuufXr5fRcDsg/OJDjFU/FF/k+iDZx+Xg+/5Vcwh3ObRubJTXzjxAxtr7OM
+AJifAkA9QXz8Bh0t1XIXqYIh47vmEV4m5SLhgellTLw0Woo9oJFWVglic2Uz9gNz
+ZzNi7+vI7X7t9OIoUuCCiFFHSAHNAkEAw05NbjrxZVPK1SObSyfdEPe0kjW/ZU4Q
+8Jsg0l5c/OFNq93x/C7PIHbYdTQgRx5GIjke2L39+9/wP4aRfcJ+TwJBAN4IIPjm
+exAURqbzW+Auh7ScCqIL4BXa+tObXvtnk7kR9neggX/ZmCY4v69Q+RKiZa0vqZ70
+LafQ7LG0Jv8FL8E=
+-----END PRIVATE KEY-----";
 
-            Console.WriteLine("\r\n\r\n");
+            string res = RsaUtil.RsaEncrypt("Newcats", pub);
+            Console.WriteLine(res);
+
             return;
+            //var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Xml, 2048, true);
+            //Console.WriteLine(r.PublicKey);
+            //Console.WriteLine("\r\n\r\n");
+            //Console.WriteLine(r.PrivateKey);
 
-
-
-            //            const string pubKey = @"-----BEGIN PUBLIC KEY-----
-            //MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsAG3NuBhYj5qnTgnCZtS
-            //u8Nk+iW66pPGk3ppIJPgq70VStkgJzdNb1ZpVTXYYHLG8snTJfhx8jOnArmQyDcU
-            //ti15ZVzkP8yYhSv9fVVpvn80EVvyxOYLZhzLFLZk+8XVhi/k4DxANuBW9HdlxqYG
-            //AvpJYBzM46V6An9gcPoOD8RXZpiH/U4AKd0TohcCdns00YvY++G3I7mjp5uZtdgP
-            //fnAX88uOMeYUIOlmla1Y83Tk/+CHWUmTgq3oSAKHZ8662mF0NNkOfElUeUH+1113
-            //9tbMckl0vCOeXs3ogwhpRTgEYZF8nB4KjUs7Tnwkrhl+kE+IacknkSgQuoV6QJ+R
-            //AQIDAQAB
-            //-----END PUBLIC KEY-----";
-
-            //            const string privKey = @"-----BEGIN PRIVATE KEY-----
-            //MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCwAbc24GFiPmqd
-            //OCcJm1K7w2T6Jbrqk8aTemkgk+CrvRVK2SAnN01vVmlVNdhgcsbyydMl+HHyM6cC
-            //uZDINxS2LXllXOQ/zJiFK/19VWm+fzQRW/LE5gtmHMsUtmT7xdWGL+TgPEA24Fb0
-            //d2XGpgYC+klgHMzjpXoCf2Bw+g4PxFdmmIf9TgAp3ROiFwJ2ezTRi9j74bcjuaOn
-            //m5m12A9+cBfzy44x5hQg6WaVrVjzdOT/4IdZSZOCrehIAodnzrraYXQ02Q58SVR5
-            //Qf7XXXf21sxySXS8I55ezeiDCGlFOARhkXycHgqNSztOfCSuGX6QT4hpySeRKBC6
-            //hXpAn5EBAgMBAAECggEAKh7+/b8NDznowd9iWEY3sn+8drD43pKm/zxYVFePeQoz
-            //QkpcC4aMnYyMgLv2IH7XZdsvEPM4McJywZAvOfsUldSkLMHiTfJkvdodPBVozRIc
-            //H9tlagGz0KgrYbWUzTw3MXncyF0i8P8XUEIStUuePLAxRzMdRY2geWCKb/8nxlXM
-            //3B009Vq6XAo3ShpBjB0BFxQKvXT/I+nXNWDokf2ivsht6AOvAA4Y74v/6vw/4tV+
-            //TSLjBUDMBMRJn3kFt7ZrXRhE98eVfXW0n2JRMmi0SanbR/mBwviXi7iud1T3h+7w
-            //YtuNlI8hj3FVnvDE8bIqzd2tcIJQOvh2vOsDILpkwQKBgQDhdXPaKFXMF/MdHTKs
-            //l8hesr0j46u/Ckn4cWQU6FX6PHRRajiCtJ2uvP5KcFW34Eoon8REM2Iivxodys5q
-            //qJDljyvcVXwHCTnYtKmcUL5Ji8aqMrjXLQPEG2gwt2fUHY6G/AkgdnWON2hQRzdd
-            //XjeN4VHsO8mQjHFiWDUfkkmzZQKBgQDH2VgcEGNZG/WHt7oqBaJ+kNmECafTAAXI
-            //mtN2pyWvuc2ayUVd0tv/1p3hmQhSJ6UzSjgSs3RhMxYzSFdZY5Koxjh/Y16j/x6Y
-            //vRqxcvBKx83qMzZbab2NBU2n3VR5Qvpg1fZM3hbbB0vBbzxbrL0b1t/qKjc0WFaM
-            //FaKu+VQDbQKBgGNsrVNmeDeR1Ddhmeg84zLHtdsu2p1bxzUVpCIIN2or4MvKgPM6
-            ///VKCq81d7p8w/OMfWakN09go2DaNKiwk/AkP8zKuTAy6R9VGDooNnWzHhCuoRJU3
-            //l7KSt4bMSrBi/GiQmuHC+6Jk0s6cKVE2bF9YHw2DbCcfmBzbc0nh9Dh1AoGAB6j9
-            //B5ZZOIEp2BniuNmecNt8euMj26KUlivZDyM4/pNQni44ym/anuPLCWqkNwHuAxlF
-            //LPJT86XRpAWR04tNg8qVP8y/Q+nzckdNTp/pNfSSn/d2jepvqYgageSp6Dv4/N02
-            //o5ufpKWS8cchuSHV3ctOqdsUYp1AM/5gTfSgk8ECgYEAjzNR+pSbeVzunLERAcSx
-            //+sKll8dfP4wXGA+qclhXtSStkptql7uclQWv5xgcBYVucdOQ7QVpTkqNFTTGPcKc
-            //piUvAD/Un0jtDl3KUMrl8Hki1mXirOK5BGWjdw/1T2PlFtr3YUrz4cGh+kA/KnEh
-            //INH+0iAiwYvrcjG4lzgXlo8=
-            //-----END PRIVATE KEY-----";
-            //            RsaHelper rsa = new RsaHelper(RSAType.SHA1, Encoding.UTF8, privKey, pubKey);
-            //            var r1 = rsa.Encrypt("Newcats");
-            //            Console.WriteLine(r1);
+            //Console.WriteLine("\r\n\r\n");
+            //return;
 
             #region MyRegion
             //DES测试

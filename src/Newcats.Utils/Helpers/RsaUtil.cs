@@ -368,139 +368,137 @@ public class RsaUtil
     /// <returns>Rsa实例</returns>
     private static RSA CreateRsaFromPem(string pem)
     {
-        using (var rsa = RSA.Create())
+        RSA rsa = RSA.Create();
+        var param = new RSAParameters();
+
+        var base64 = _PEMCode.Replace(pem, "");
+        var data = Convert.FromBase64String(base64);
+        if (data == null)
         {
-            var param = new RSAParameters();
+            throw new Exception("Pem content invalid ");
+        }
+        var idx = 0;
 
-            var base64 = _PEMCode.Replace(pem, "");
-            var data = Convert.FromBase64String(base64);
-            if (data == null)
+        //read  length
+        Func<byte, int> readLen = (first) =>
+        {
+            if (data[idx] == first)
             {
-                throw new Exception("Pem content invalid ");
-            }
-            var idx = 0;
-
-            //read  length
-            Func<byte, int> readLen = (first) =>
-            {
-                if (data[idx] == first)
-                {
-                    idx++;
-                    if (data[idx] == 0x81)
-                    {
-                        idx++;
-                        return data[idx++];
-                    }
-                    else if (data[idx] == 0x82)
-                    {
-                        idx++;
-                        return (((int)data[idx++]) << 8) + data[idx++];
-                    }
-                    else if (data[idx] < 0x80)
-                    {
-                        return data[idx++];
-                    }
-                }
-                throw new Exception("Not found any content in pem file");
-            };
-            //read module length
-            Func<byte[]> readBlock = () =>
-            {
-                var len = readLen(0x02);
-                if (data[idx] == 0x00)
-                {
-                    idx++;
-                    len--;
-                }
-                var val = data.Skip(idx + 1).Take(len).ToArray();//data.Sub(idx, len);
-                idx += len;
-                return val;
-            };
-
-            Func<byte[], bool> eq = (byts) =>
-            {
-                for (var i = 0; i < byts.Length; i++, idx++)
-                {
-                    if (idx >= data.Length)
-                    {
-                        return false;
-                    }
-                    if (byts[i] != data[idx])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            };
-
-            if (pem.Contains("PUBLIC", StringComparison.OrdinalIgnoreCase))
-            {
-                /****Use public key****/
-                readLen(0x30);
-                if (!eq(_SeqOID))
-                {
-                    throw new Exception("Unknown pem format");
-                }
-
-                readLen(0x03);
                 idx++;
-                readLen(0x30);
-
-                //Modulus
-                param.Modulus = readBlock();
-
-                //Exponent
-                param.Exponent = readBlock();
+                if (data[idx] == 0x81)
+                {
+                    idx++;
+                    return data[idx++];
+                }
+                else if (data[idx] == 0x82)
+                {
+                    idx++;
+                    return (((int)data[idx++]) << 8) + data[idx++];
+                }
+                else if (data[idx] < 0x80)
+                {
+                    return data[idx++];
+                }
             }
-            else if (pem.Contains("PRIVATE", StringComparison.OrdinalIgnoreCase))
+            throw new Exception("Not found any content in pem file");
+        };
+        //read module length
+        Func<byte[]> readBlock = () =>
+        {
+            var len = readLen(0x02);
+            if (data[idx] == 0x00)
             {
-                /****Use private key****/
+                idx++;
+                len--;
+            }
+            var val = data.Skip(idx + 1).Take(len).ToArray();//data.Sub(idx, len);
+            idx += len;
+            return val;
+        };
+
+        Func<byte[], bool> eq = (byts) =>
+        {
+            for (var i = 0; i < byts.Length; i++, idx++)
+            {
+                if (idx >= data.Length)
+                {
+                    return false;
+                }
+                if (byts[i] != data[idx])
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        if (pem.Contains("PUBLIC", StringComparison.OrdinalIgnoreCase))
+        {
+            /****Use public key****/
+            readLen(0x30);
+            if (!eq(_SeqOID))
+            {
+                throw new Exception("Unknown pem format");
+            }
+
+            readLen(0x03);
+            idx++;
+            readLen(0x30);
+
+            //Modulus
+            param.Modulus = readBlock();
+
+            //Exponent
+            param.Exponent = readBlock();
+        }
+        else if (pem.Contains("PRIVATE", StringComparison.OrdinalIgnoreCase))
+        {
+            /****Use private key****/
+            readLen(0x30);
+
+            //Read version
+            if (!eq(_Ver))
+            {
+                throw new Exception("Unknown pem version");
+            }
+
+            //Check PKCS8
+            var idx2 = idx;
+            if (eq(_SeqOID))
+            {
+                //Read one byte
+                readLen(0x04);
+
                 readLen(0x30);
 
                 //Read version
                 if (!eq(_Ver))
                 {
-                    throw new Exception("Unknown pem version");
+                    throw new Exception("Pem version invalid");
                 }
-
-                //Check PKCS8
-                var idx2 = idx;
-                if (eq(_SeqOID))
-                {
-                    //Read one byte
-                    readLen(0x04);
-
-                    readLen(0x30);
-
-                    //Read version
-                    if (!eq(_Ver))
-                    {
-                        throw new Exception("Pem version invalid");
-                    }
-                }
-                else
-                {
-                    idx = idx2;
-                }
-
-                //Reda data
-                param.Modulus = readBlock();
-                param.Exponent = readBlock();
-                param.D = readBlock();
-                param.P = readBlock();
-                param.Q = readBlock();
-                param.DP = readBlock();
-                param.DQ = readBlock();
-                param.InverseQ = readBlock();
             }
             else
             {
-                throw new Exception("pem need 'BEGIN' and  'END'");
+                idx = idx2;
             }
 
-            rsa.ImportParameters(param);
-            return rsa;
+            //Reda data
+            param.Modulus = readBlock();
+            param.Exponent = readBlock();
+            param.D = readBlock();
+            param.P = readBlock();
+            param.Q = readBlock();
+            param.DP = readBlock();
+            param.DQ = readBlock();
+            param.InverseQ = readBlock();
         }
+        else
+        {
+            throw new Exception("pem need 'BEGIN' and  'END'");
+        }
+
+        rsa.ImportParameters(param);
+        return rsa;
     }
 
     /// <summary>
@@ -510,11 +508,9 @@ public class RsaUtil
     /// <returns>Rsa实例</returns>
     private static RSA CreateRsaFromXml(string xml)
     {
-        using (RSA rsa = RSA.Create())
-        {
-            rsa.FromXmlString(xml);
-            return rsa;
-        }
+        RSA rsa = RSA.Create();
+        rsa.FromXmlString(xml);
+        return rsa;
     }
 
     /// <summary>
@@ -547,4 +543,120 @@ public class RsaUtil
         return builder.ToString();
     }
     #endregion
+    /// <summary>
+    /// 使用Rsa加密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
+    /// </summary>
+    /// <param name="data">要加密的字符串</param>
+    /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
+    /// <returns>Base64编码的加密字符串</returns>
+    public static string RsaEncrypt(string data, string publicKey)
+    {
+        return RsaEncrypt(data, publicKey, Encoding.UTF8, RSAEncryptionPadding.Pkcs1);
+    }
+
+    /// <summary>
+    /// 使用Rsa加密字符串
+    /// </summary>
+    /// <param name="data">要加密的字符串</param>
+    /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
+    /// <param name="encoding">编码方式</param>
+    /// <param name="padding">填充方式</param>
+    /// <returns>Base64编码的加密字符串</returns>
+    /// <exception cref="OutOfMemoryException">当要加密的字符串的字节码大于可加密的最大长度时，发生异常</exception>
+    public static string RsaEncrypt(string data, string publicKey, Encoding encoding, RSAEncryptionPadding padding)
+    {
+        data.ThrowIfNullOrWhiteSpace();
+        publicKey.ThrowIfNullOrWhiteSpace();
+        padding.ThrowIfNull();
+
+        bool isPem = false;
+        if (publicKey.Contains("BEGIN", StringComparison.OrdinalIgnoreCase) && publicKey.Contains("END", StringComparison.OrdinalIgnoreCase) && !publicKey.Contains("<RSAKeyValue>", StringComparison.OrdinalIgnoreCase))
+            isPem = true;
+        using (RSA rsa = isPem ? CreateRsaFromPem(publicKey) : CreateRsaFromXml(publicKey))
+        {
+            int maxLength = GetMaxRsaEncryptLength(rsa, padding);
+            byte[] dataBytes = encoding.GetBytes(data);
+            if (dataBytes.Length > maxLength)
+                throw new OutOfMemoryException($"The data to encrpty is out of max encrypt length {maxLength}");
+            byte[] buffer = rsa.Encrypt(dataBytes, padding);
+            return Convert.ToBase64String(buffer);
+        }
+    }
+
+    /// <summary>
+    /// 使用Rsa加密数据,默认RSAEncryptionPadding.Pkcs1填充
+    /// </summary>
+    /// <param name="data">要加密的数据字节码</param>
+    /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
+    /// <returns>加密之后的字节码</returns>
+    public static byte[] RsaEncrypt(byte[] data, string publicKey)
+    {
+        return RsaEncrypt(data, publicKey, RSAEncryptionPadding.Pkcs1);
+    }
+
+    /// <summary>
+    /// 使用Rsa加密数据
+    /// </summary>
+    /// <param name="data">要加密的数据字节码</param>
+    /// <param name="publicKey">Rsa公钥(pem公钥必须包含BEGIN END字符串)</param>
+    /// <param name="padding">填充方式</param>
+    /// <returns>加密之后的字节码</returns>
+    /// <exception cref="OutOfMemoryException">当要加密的字节码大于可加密的最大长度时，发生异常</exception>
+    public static byte[] RsaEncrypt(byte[] data, string publicKey, RSAEncryptionPadding padding)
+    {
+        data.ThrowIfNullOrEmpty();
+        publicKey.ThrowIfNullOrWhiteSpace();
+        padding.ThrowIfNull();
+
+        bool isPem = false;
+        if (publicKey.Contains("BEGIN", StringComparison.OrdinalIgnoreCase) && publicKey.Contains("END", StringComparison.OrdinalIgnoreCase) && !publicKey.Contains("<RSAKeyValue>", StringComparison.OrdinalIgnoreCase))
+            isPem = true;
+        using (RSA rsa = isPem ? CreateRsaFromPem(publicKey) : CreateRsaFromXml(publicKey))
+        {
+            int maxLength = GetMaxRsaEncryptLength(rsa, padding);
+            if (data.Length > maxLength)
+                throw new OutOfMemoryException($"The data to encrpty is out of max encrypt length {maxLength}");
+            return rsa.Encrypt(data, padding);
+        }
+    }
+
+    /// <summary>
+    /// 获取不同填充模式Rsa加密的最大长度
+    /// </summary>
+    /// <param name="rsa">Rsa实例</param>
+    /// <param name="padding">填充模式</param>
+    /// <returns>最大加密长度</returns>
+    private static int GetMaxRsaEncryptLength(RSA rsa, RSAEncryptionPadding padding)
+    {
+        var offset = 0;
+        if (padding.Mode == RSAEncryptionPaddingMode.Pkcs1)
+        {
+            offset = 11;
+        }
+        else
+        {
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA1))
+            {
+                offset = 42;
+            }
+
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA256))
+            {
+                offset = 66;
+            }
+
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA384))
+            {
+                offset = 98;
+            }
+
+            if (padding.Equals(RSAEncryptionPadding.OaepSHA512))
+            {
+                offset = 130;
+            }
+        }
+        var keySize = rsa.KeySize;
+        var maxLength = keySize / 8 - offset;
+        return maxLength;
+    }
 }
