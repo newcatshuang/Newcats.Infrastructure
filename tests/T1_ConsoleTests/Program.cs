@@ -47,10 +47,10 @@ HtO7tkC2awxl58r6s6gg2EpNONJwftnwKDSAkJo+LW02eMbDeCapMlD0ZupzAO2b
 5fjuS4glGJ4Muw==
 -----END PRIVATE KEY-----";
 
-            var s = RsaUtil.RsaSignData("NewcatsHuang");
+            var s = EncryptHelper.RsaSignData("NewcatsHuang");
             Console.WriteLine(s);
 
-            var r = RsaUtil.RsaVerifyData("NewcatsHuang", s);
+            var r = EncryptHelper.RsaVerifyData("NewcatsHuang", s);
             Console.WriteLine(r);
 
             return;
