@@ -411,7 +411,7 @@ public class RsaUtil
                 idx++;
                 len--;
             }
-            var val = data.Skip(idx + 1).Take(len).ToArray();//data.Sub(idx, len);
+            var val = data.Skip(idx).Take(len).ToArray();//data.Sub(idx, len);
             idx += len;
             return val;
         };
@@ -544,6 +544,7 @@ public class RsaUtil
     }
     #endregion
 
+    #region Rsa加密
     /// <summary>
     /// 使用Rsa加密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
     /// </summary>
@@ -599,13 +600,15 @@ public class RsaUtil
             isPem = true;
         using (RSA rsa = isPem ? CreateRsaFromPem(publicKey) : CreateRsaFromXml(publicKey))
         {
-            int maxLength = GetMaxRsaEncryptLength(rsa, padding);
+            int maxLength = GetMaxRsaEncryptLength(rsa.KeySize, padding);
             if (data.Length > maxLength)
                 throw new OutOfMemoryException($"The data to encrpty is out of max encrypt length {maxLength}");
             return rsa.Encrypt(data, padding);
         }
     }
+    #endregion
 
+    #region Rsa解密
     /// <summary>
     /// 使用Rsa解密字符串,默认UTF8编码,RSAEncryptionPadding.Pkcs1填充
     /// </summary>
@@ -662,6 +665,7 @@ public class RsaUtil
             return rsa.Decrypt(data, padding);
         }
     }
+    #endregion
 
     /// <summary>
     /// 获取不同填充模式Rsa加密的最大长度
@@ -669,7 +673,7 @@ public class RsaUtil
     /// <param name="rsa">Rsa实例</param>
     /// <param name="padding">填充模式</param>
     /// <returns>最大加密长度</returns>
-    private static int GetMaxRsaEncryptLength(RSA rsa, RSAEncryptionPadding padding)
+    private static int GetMaxRsaEncryptLength(int keySizeInBits, RSAEncryptionPadding padding)
     {
         var offset = 0;
         if (padding.Mode == RSAEncryptionPaddingMode.Pkcs1)
@@ -698,8 +702,18 @@ public class RsaUtil
                 offset = 130;
             }
         }
-        var keySize = rsa.KeySize;
-        var maxLength = keySize / 8 - offset;
+        var maxLength = keySizeInBits / 8 - offset;
         return maxLength;
+    }
+
+    private static byte[] CorrectionCiphertext(byte[] rawData, int keySizeInBits)
+    {
+        int length = keySizeInBits / 8;
+        List<byte> newData = new List<byte>();
+        while (newData.Count < length)
+        {
+            newData.Insert(0, 0x00);
+        }
+        return newData.ToArray();
     }
 }

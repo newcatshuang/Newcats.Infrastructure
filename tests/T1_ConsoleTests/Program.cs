@@ -24,31 +24,34 @@ namespace T1_ConsoleTests
         static void Main(string[] args)
         {
             const string pub = @"-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8fhcmX+ZiGMu64JGKVucGIgkL
-14exq8U/tIaNbFr/5tlmfj9QM3v1X1OvJpc8zkQ+oGKHURdum5mEA4WfQy53N6e0
-o1++qomomAbMmO+vBjzk9oMrfE6pdB72PBcXzBHZ9xbpuTLHmzgQX0TKVrbPTMDB
-nG/AVQKNf8PEPLGYYwIDAQAB
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAw++BrLzvOzCxuyNikLBpFRJ5
+z3ZyKLqknQjfyUwhW+AW+N/mc5fv86/eH9GePDMB44TTqat1Cs+MdWXQqgWNBEVi
+CEspGKg3hrA24zy9izeT2oXlnInvA9cZioIjNmH7TN4+iA2Y+nm+EypnUhLyAa+5
+Ca4Gw3kUdfk0PRKXsQIDAQAB
 -----END PUBLIC KEY-----";
 
             const string pri = @"-----BEGIN PRIVATE KEY-----
-MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBALx+FyZf5mIYy7rg
-kYpW5wYiCQvXh7GrxT+0ho1sWv/m2WZ+P1Aze/VfU68mlzzORD6gYodRF26bmYQD
-hZ9DLnc3p7SjX76qiaiYBsyY768GPOT2gyt8Tql0HvY8FxfMEdn3Fum5MsebOBBf
-RMpWts9MwMGcb8BVAo1/w8Q8sZhjAgMBAAECgYBR4KPFs5qrugGlZ69Q3Hb2Hwq2
-7iSvdOH1zkE0ZYER8AE3mFeASxzpdUMwrh679w2F9r1V8k+vaD/DLJR6ngAsYf1s
-44+wK4pHAbEQw4V6gvUNiojaWFvmGjIkgNklL28FIztBK6rQw45Ws3pFMI9Z8gJE
-lTNYPNrO7aWG2AGBoQJBAOk55vKOhqeXp1EnNzZqmlBcJzUwMsjCsbbjiqSALgw1
-G+3YpKzjqaupUH79rUBnBH0+zeqNFQDGHSQq1HZYNb0CQQDO5fQ97Fe+ggrz/1K6
-DRoaIXuufXr5fRcDsg/OJDjFU/FF/k+iDZx+Xg+/5Vcwh3ObRubJTXzjxAxtr7OM
-AJifAkA9QXz8Bh0t1XIXqYIh47vmEV4m5SLhgellTLw0Woo9oJFWVglic2Uz9gNz
-ZzNi7+vI7X7t9OIoUuCCiFFHSAHNAkEAw05NbjrxZVPK1SObSyfdEPe0kjW/ZU4Q
-8Jsg0l5c/OFNq93x/C7PIHbYdTQgRx5GIjke2L39+9/wP4aRfcJ+TwJBAN4IIPjm
-exAURqbzW+Auh7ScCqIL4BXa+tObXvtnk7kR9neggX/ZmCY4v69Q+RKiZa0vqZ70
-LafQ7LG0Jv8FL8E=
+MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAMDD74GsvO87MLG7
+I2KQsGkVEnnPdnIouqSdCN/JTCFb4Bb43+Zzl+/zr94f0Z48MwHjhNOpq3UKz4x1
+ZdCqBY0ERWIISykYqDeGsDbjPL2LN5PaheWcie8D1xmKgiM2YftM3j6IDZj6eb4T
+KmdSEvIBr7kJrgbDeRR1+TQ9EpexAgMBAAECgYABfEEHNcaK7WDVrcR7CPRjCueG
+isO143x0skUUPF/azfNvGeHXy8I69hy/0Gz0FDCsbg1i+Ca7EydARNNRBU5foVkI
+i+RQ8JDOFEiDhmg8Y6WCdqvgc3mqtK1cLd2b41h5RTAhwjPQyXqrsXV++7dYHYEi
+A3QLPEWY2URRf/ljBQJBAP72+buMiCrXZTcEPBdNjuJfEnRsO99wLQ3SJFjcbtYD
+8srP8/dRpAKYje28HGb8FhngsVifZAgXn1yptwnv5HcCQQDBjE579XZoHYxPXwX9
+Ok+rboBLD3ZcN5MmJPedOVilIGHmOWhOCQQG2wR8BSJBm8KivYgnpl2hGu7UykjW
+bLcXAkA66IlOwet8KoQiMAJKSAspVloHODKlL1/Zf6ISPewF2qewIFf33o8MYn74
+XKwbR0c792RCW6FbFUomuLenvhuFAkEAg7HlgWEPFV7tpuAgYiK4LQy+TNSTk8HY
+5T6IIbnwgEMdehqbx2VJESUb0wtnOL80W6mdKGWCFeoOkkml8Aj/NwJAafPLEeXo
+HtO7tkC2awxl58r6s6gg2EpNONJwftnwKDSAkJo+LW02eMbDeCapMlD0ZupzAO2b
+5fjuS4glGJ4Muw==
 -----END PRIVATE KEY-----";
 
-            string res = RsaUtil.RsaEncrypt("Newcats", pub, Encoding.UTF8, RSAEncryptionPadding.OaepSHA256);
-            Console.WriteLine(res);
+            string enRes = RsaUtil.RsaEncrypt("Newcats", pub);
+            Console.WriteLine(enRes);
+
+            //string deRes = RsaUtil.RsaDecrypt(enRes, pri);
+            //Console.WriteLine(deRes);
 
             return;
             //var r = RsaUtil.CreateRsaKey(RsaKeyFormatEnum.Xml, 2048, true);
