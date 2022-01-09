@@ -23,13 +23,15 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            var r1 = PinYinHelper.GetInitials("我是中国人");
+            var r1 = PinYinHelper.GetFirstPinYin("中国");
             Console.WriteLine(r1);
 
-            var r2 = PinYinHelper.GetPinyin("我是中国人");
+            var r2 = PinYinHelper.GetPinyin("NewcatsHuang是中国人!");
             Console.WriteLine(r2);
 
-            Console.WriteLine(PinYinHelper.GetPinyin("黄家桢"));
+            Console.WriteLine(PinYinHelper.GetPinyin("秦始皇"));
+
+            Console.WriteLine(PinYinHelper.GetChineseText("zhong"));
 
             #region 归档2
             //            const string pub = @"-----BEGIN PUBLIC KEY-----
