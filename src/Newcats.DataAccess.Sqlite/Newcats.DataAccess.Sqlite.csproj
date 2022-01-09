@@ -31,7 +31,7 @@
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
 		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.1" />
-		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.5" />
+		<PackageReference Include="Newcats.DataAccess.Core" Version="1.2.6" />
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.0.7" />
 		<None Update="README.md">
 			<Pack>True</Pack>
