@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Newcats.DataAccess.Core;
-using Newcats.DataAccess.PostgreSql;
+//using Newcats.DataAccess.PostgreSql;
+using Newcats.DataAccess.Sqlite;
 //using Newcats.DataAccess.MySql;
 //using Newcats.DataAccess.SqlServer;
 using Newcats.DependencyInjection;
@@ -39,16 +40,24 @@ namespace Newcats.WebApi
             //services.AddScoped<IFileStore, FileStore>();
             //services.AddScoped(typeof(DataAccess.SqlServer.IRepository<>), typeof(DataAccess.SqlServer.Repository<>));//注册泛型仓储
             //services.AddScoped(typeof(DataAccess.MySql.IRepository<,,>), typeof(DataAccess.MySql.Repository<,,>));//注册泛型仓储
-            const string pgSqlConnstr = "Host=192.168.13.131;Port=5432;Username=postgres;Password=mysql-server1-ubuntu;Database=NewcatsPgDB;Pooling=true;Maximum Pool Size=20";
+            //const string pgSqlConnstr = "Host=192.168.13.131;Port=5432;Username=postgres;Password=mysql-server1-ubuntu;Database=NewcatsPgDB;Pooling=true;Maximum Pool Size=20";
 
             //services.AddMySqlDataAccess<MySqlDbContext>(opt =>
             //{
             //    opt.ConnectionString = mySqlStr;
             //});
 
-            services.AddPostgreSqlDataAccess<PgContext>(option =>
+            //services.AddPostgreSqlDataAccess<PgContext>(option =>
+            //{
+            //    option.ConnectionString = pgSqlConnstr;
+            //});
+
+            const string file = @"C:\Users\newcats\Documents\Projects\Newcats.Infrastructure\docs\NewcatsDb_Sqlite3.db";
+            //const string sqliteConnStr = $"Data Source={file};Password=NewcatsPwd;";
+            const string sqliteConnStr = $"Data Source={file};";
+            services.AddSqliteDataAccess<SqliteContext>(opt =>
             {
-                option.ConnectionString = pgSqlConnstr;
+                opt.ConnectionString = sqliteConnStr;
             });
 
         }
@@ -68,9 +77,16 @@ namespace Newcats.WebApi
     //    }
     //}
 
-    public class PgContext : Newcats.DataAccess.PostgreSql.DbContext
+    //public class PgContext : Newcats.DataAccess.PostgreSql.DbContext
+    //{
+    //    public PgContext(IOptions<DbContextOptions> optionsAccessor) : base(optionsAccessor)
+    //    {
+    //    }
+    //}
+
+    public class SqliteContext : Newcats.DataAccess.Sqlite.DbContext
     {
-        public PgContext(IOptions<DbContextOptions> optionsAccessor) : base(optionsAccessor)
+        public SqliteContext(IOptions<DbContextOptions> optionsAccessor) : base(optionsAccessor)
         {
         }
     }

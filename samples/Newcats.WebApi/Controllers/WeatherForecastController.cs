@@ -26,7 +26,9 @@ namespace Newcats.WebApi.Controllers
 
         //private readonly DataAccess.MySql.IRepository<MySqlDbContext> _repository;
 
-        private readonly DataAccess.PostgreSql.IRepository<PgContext> _repository;
+        //private readonly DataAccess.PostgreSql.IRepository<PgContext> _repository;
+
+        private readonly DataAccess.Sqlite.IRepository<SqliteContext> _repository;
 
         private static readonly string[] Summaries = new[]
         {
@@ -35,7 +37,7 @@ namespace Newcats.WebApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(DataAccess.PostgreSql.IRepository<PgContext> repository)
+        public WeatherForecastController(DataAccess.Sqlite.IRepository<SqliteContext> repository)
         {
             _repository = repository;
         }
@@ -72,8 +74,35 @@ namespace Newcats.WebApi.Controllers
         //    return "ok";
         //}
 
+        [HttpGet]
         public async Task<string> Index()
         {
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            //List<UserInfo> list = new List<UserInfo>();
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    long id = IdHelper.Create();
+            //    string name = EncryptHelper.GetRandomString(Random.Shared.Next(20));
+            //    DateTime now = DateTime.Now;
+            //    list.Add(new UserInfo { Id = id, Name = name, CreateTime = now });
+            //}
+
+
+            //using (var tran = _repository.BeginTransaction())
+            //{
+            //    _repository.Insert<UserInfo>(new UserInfo { Id = 1, Name = "Newcats", CreateTime = DateTime.Now }, tran);
+            //    _repository.InsertSqlBulkCopy(list);
+            //    sw.Stop();
+            //    tran.Commit();
+
+
+            //}
+
+            //return sw.ElapsedMilliseconds.ToString() + "ms";
+
+
+
             //1.插入数据，返回主键
             object r1 = _repository.Insert<UserInfo>(new UserInfo { Name = "Newcats", CreateTime = DateTime.Now });
 
@@ -90,7 +119,7 @@ namespace Newcats.WebApi.Controllers
             int r5 = _repository.Delete<UserInfo>(1);
 
             //6.根据给定的条件，删除记录(删除CreateTime>=2021-12-12的记录)(delete from userinfo where createtime>='2021-12-12';)
-            int r6 = _repository.Delete<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.CreateTime, new DateTime(2021, 12, 12), OperateTypeEnum.GreaterEqual, LogicTypeEnum.And) });
+            int r6 = _repository.Delete<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.CreateTime, new DateTime(2022, 12, 12), OperateTypeEnum.GreaterEqual, LogicTypeEnum.And) });
 
             //7.根据主键，更新一条记录(update userinfo set Name='NewcatsHuang' where id=2;)
             //int r7 = _repository.Update<UserInfo>(2, new List<DbUpdate<UserInfo>>() { new DbUpdate<UserInfo>(s => s.Name, "NewcatsHuang") }, transaction, 60);
@@ -155,10 +184,12 @@ namespace Newcats.WebApi.Controllers
             //22.根据给定的条件，判断数据是否存在(select top 1 1 from userinfo where Name like '%newcats%';=>r==1?)
             bool r22 = _repository.Exists<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) });
 
+            return "ok";
+
             //23.执行存储过程
             DynamicParameters dp = new Dapper.DynamicParameters();
             dp.Add("@id", 1);
-            int r23 = _repository.ExecuteStoredProcedure("Usp_GetUserName", dp);
+            //int r23 = _repository.ExecuteStoredProcedure("Usp_GetUserName", dp);
 
             //24.执行sql语句，返回受影响的行数
             int r24 = _repository.Execute("delete from userinfo where Id=@id;", dp);
@@ -237,9 +268,10 @@ namespace Newcats.WebApi.Controllers
         }
 
 
-        [HttpGet]
+
         public async Task<string> Get()
         {
+            return "ok";
             (IEnumerable<PgUserInfo> list, int totalCount) r111 = _repository.GetPage<PgUserInfo>(1, 10);
             (IEnumerable<PgUserInfo> list, int totalCount) r222 = _repository.GetPage<PgUserInfo>(new PageInfo<PgUserInfo>(2, 20));
             PageInfo<PgUserInfo> r333 = _repository.GetPageInfo<PgUserInfo>(3, 30, returnTotal: false);
@@ -362,7 +394,7 @@ namespace Newcats.WebApi.Controllers
         }
     }
 
-    [Table("userinfo", Schema = "public")]
+    [Table("NewcatsUserInfoTest")]
     public class PgUserInfo
     {
         public long Id { get; set; }
@@ -373,7 +405,7 @@ namespace Newcats.WebApi.Controllers
         public DateTime JoinTime { get; set; }
     }
 
-    [Table("UserInfo")]
+    [Table("NewcatsUserInfoTest")]
     public class UserInfo
     {
         //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]

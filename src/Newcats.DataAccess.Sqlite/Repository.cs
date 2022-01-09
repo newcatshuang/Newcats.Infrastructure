@@ -73,10 +73,11 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <returns>成功的条数</returns>
     public override int InsertSqlBulkCopy<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
     {
+        //此方法需要包括在事务内，或者手动传入事务，才能有性能提升，否则性能和循环插入无异(每次插入都会启用一个事务，故性能较慢)
+        //https://docs.microsoft.com/zh-cn/dotnet/standard/data/sqlite/bulk-insert
+
         if (Connection.State != ConnectionState.Open)
             Connection.Open();
-        if (transaction == null)
-            transaction = Connection.BeginTransaction();
         return base.InsertBulk<TEntity>(list, transaction, commandTimeout);
     }
 
@@ -254,10 +255,11 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <returns>成功的条数</returns>
     public override async Task<int> InsertSqlBulkCopyAsync<TEntity>(IEnumerable<TEntity> list, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
     {
+        //此方法需要包括在事务内，或者手动传入事务，才能有性能提升，否则性能和循环插入无异(每次插入都会启用一个事务，故性能较慢)
+        //https://docs.microsoft.com/zh-cn/dotnet/standard/data/sqlite/bulk-insert
+
         if (Connection.State != ConnectionState.Open)
             Connection.Open();
-        if (transaction == null)
-            transaction = Connection.BeginTransaction();
         return await base.InsertBulkAsync<TEntity>(list, transaction, commandTimeout);
     }
 
