@@ -5,11 +5,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Newcats.Utils</PackageId>
-		<Version>1.0.9</Version>
+		<Version>1.0.10</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
-		<PackageTags>Utils;Extensions;Helpers;EnumDescription;Encrypt;AES;DES;Hash;RSA;SnowflakeId;Encrypt;Decrypt;</PackageTags>
+		<PackageTags>Utils;Extensions;Helpers;EnumDescription;Encrypt;AES;DES;Hash;RSA;SnowflakeId;Encrypt;Decrypt;PinYin</PackageTags>
 		<PackageProjectUrl>https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/src/Newcats.Utils</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/newcatshuang/Newcats.Infrastructure</RepositoryUrl>
 		<Description>Some common functions to make coding easy.</Description>
@@ -17,6 +17,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2022-1-9
+			1.完善中文拼音的方法,增加获取拼音和拼音简码
+
 			2022-1-8
 			1.完善RSA加密、解密、签名、验证、生成密钥、转换密钥的相关方法,加解密支持超长数据
 

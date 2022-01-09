@@ -84,7 +84,10 @@ bool r17 = "Newcats".IsNullOrWhiteSpace();//=>false
 string r18 = "NewcatsHuang".ToSubstring(7);//=>"Newcats"
 
 //25.获取汉字的拼音首字母
-string r19 = "中国".PinYin();//=>zg
+string r19 = "中国".FirstPinYin();//=>zg
+
+//43.获取汉字的拼音
+string r34 = "中国".PinYin();//=>ZhongGuo
 
 //26.一些正则表达式扩展方法
 bool r20 = "newcats@live.com".IsEmail();//=>true

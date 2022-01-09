@@ -26,12 +26,14 @@ namespace T1_ConsoleTests
             var r1 = PinYinHelper.GetFirstPinYin("中国");
             Console.WriteLine(r1);
 
-            var r2 = PinYinHelper.GetPinyin("NewcatsHuang是中国人!");
+            var r2 = PinYinHelper.GetPinYin("NewcatsHuang是中国人!");
             Console.WriteLine(r2);
 
-            Console.WriteLine(PinYinHelper.GetPinyin("秦始皇"));
+            Console.WriteLine(PinYinHelper.GetPinYin("秦始皇"));
 
             Console.WriteLine(PinYinHelper.GetChineseText("zhong"));
+
+            Console.WriteLine("李世民".PinYin());
 
             #region 归档2
             //            const string pub = @"-----BEGIN PUBLIC KEY-----
