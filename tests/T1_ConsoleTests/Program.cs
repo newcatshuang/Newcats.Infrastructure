@@ -23,50 +23,60 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
-            const string pub = @"-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAw++BrLzvOzCxuyNikLBpFRJ5
-z3ZyKLqknQjfyUwhW+AW+N/mc5fv86/eH9GePDMB44TTqat1Cs+MdWXQqgWNBEVi
-CEspGKg3hrA24zy9izeT2oXlnInvA9cZioIjNmH7TN4+iA2Y+nm+EypnUhLyAa+5
-Ca4Gw3kUdfk0PRKXsQIDAQAB
------END PUBLIC KEY-----";
+            var r1 = PinYinHelper.GetInitials("我是中国人");
+            Console.WriteLine(r1);
 
-            const string pri = @"-----BEGIN PRIVATE KEY-----
-MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAMDD74GsvO87MLG7
-I2KQsGkVEnnPdnIouqSdCN/JTCFb4Bb43+Zzl+/zr94f0Z48MwHjhNOpq3UKz4x1
-ZdCqBY0ERWIISykYqDeGsDbjPL2LN5PaheWcie8D1xmKgiM2YftM3j6IDZj6eb4T
-KmdSEvIBr7kJrgbDeRR1+TQ9EpexAgMBAAECgYABfEEHNcaK7WDVrcR7CPRjCueG
-isO143x0skUUPF/azfNvGeHXy8I69hy/0Gz0FDCsbg1i+Ca7EydARNNRBU5foVkI
-i+RQ8JDOFEiDhmg8Y6WCdqvgc3mqtK1cLd2b41h5RTAhwjPQyXqrsXV++7dYHYEi
-A3QLPEWY2URRf/ljBQJBAP72+buMiCrXZTcEPBdNjuJfEnRsO99wLQ3SJFjcbtYD
-8srP8/dRpAKYje28HGb8FhngsVifZAgXn1yptwnv5HcCQQDBjE579XZoHYxPXwX9
-Ok+rboBLD3ZcN5MmJPedOVilIGHmOWhOCQQG2wR8BSJBm8KivYgnpl2hGu7UykjW
-bLcXAkA66IlOwet8KoQiMAJKSAspVloHODKlL1/Zf6ISPewF2qewIFf33o8MYn74
-XKwbR0c792RCW6FbFUomuLenvhuFAkEAg7HlgWEPFV7tpuAgYiK4LQy+TNSTk8HY
-5T6IIbnwgEMdehqbx2VJESUb0wtnOL80W6mdKGWCFeoOkkml8Aj/NwJAafPLEeXo
-HtO7tkC2awxl58r6s6gg2EpNONJwftnwKDSAkJo+LW02eMbDeCapMlD0ZupzAO2b
-5fjuS4glGJ4Muw==
------END PRIVATE KEY-----";
+            var r2 = PinYinHelper.GetPinyin("我是中国人");
+            Console.WriteLine(r2);
 
-            //var s = EncryptHelper.RsaSignData("NewcatsHuang");
-            //Console.WriteLine(s);
+            Console.WriteLine(PinYinHelper.GetPinyin("黄家桢"));
 
-            //var r = EncryptHelper.RsaVerifyData("NewcatsHuang", s);
-            //Console.WriteLine(r);
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < 10; i++)
-            {
-                stringBuilder.Append("Newcats");
-            }
+            #region 归档2
+            //            const string pub = @"-----BEGIN PUBLIC KEY-----
+            //MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAw++BrLzvOzCxuyNikLBpFRJ5
+            //z3ZyKLqknQjfyUwhW+AW+N/mc5fv86/eH9GePDMB44TTqat1Cs+MdWXQqgWNBEVi
+            //CEspGKg3hrA24zy9izeT2oXlnInvA9cZioIjNmH7TN4+iA2Y+nm+EypnUhLyAa+5
+            //Ca4Gw3kUdfk0PRKXsQIDAQAB
+            //-----END PUBLIC KEY-----";
 
-            var enStr = EncryptHelper.RsaEncrypt(stringBuilder.ToString() + "Huang", pub);
-            Console.WriteLine(enStr);
-            Console.WriteLine("\n");
-            var deStr = EncryptHelper.RsaDecrypt(enStr, pri);
-            Console.WriteLine(deStr);
-            return;
+            //            const string pri = @"-----BEGIN PRIVATE KEY-----
+            //MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAMDD74GsvO87MLG7
+            //I2KQsGkVEnnPdnIouqSdCN/JTCFb4Bb43+Zzl+/zr94f0Z48MwHjhNOpq3UKz4x1
+            //ZdCqBY0ERWIISykYqDeGsDbjPL2LN5PaheWcie8D1xmKgiM2YftM3j6IDZj6eb4T
+            //KmdSEvIBr7kJrgbDeRR1+TQ9EpexAgMBAAECgYABfEEHNcaK7WDVrcR7CPRjCueG
+            //isO143x0skUUPF/azfNvGeHXy8I69hy/0Gz0FDCsbg1i+Ca7EydARNNRBU5foVkI
+            //i+RQ8JDOFEiDhmg8Y6WCdqvgc3mqtK1cLd2b41h5RTAhwjPQyXqrsXV++7dYHYEi
+            //A3QLPEWY2URRf/ljBQJBAP72+buMiCrXZTcEPBdNjuJfEnRsO99wLQ3SJFjcbtYD
+            //8srP8/dRpAKYje28HGb8FhngsVifZAgXn1yptwnv5HcCQQDBjE579XZoHYxPXwX9
+            //Ok+rboBLD3ZcN5MmJPedOVilIGHmOWhOCQQG2wR8BSJBm8KivYgnpl2hGu7UykjW
+            //bLcXAkA66IlOwet8KoQiMAJKSAspVloHODKlL1/Zf6ISPewF2qewIFf33o8MYn74
+            //XKwbR0c792RCW6FbFUomuLenvhuFAkEAg7HlgWEPFV7tpuAgYiK4LQy+TNSTk8HY
+            //5T6IIbnwgEMdehqbx2VJESUb0wtnOL80W6mdKGWCFeoOkkml8Aj/NwJAafPLEeXo
+            //HtO7tkC2awxl58r6s6gg2EpNONJwftnwKDSAkJo+LW02eMbDeCapMlD0ZupzAO2b
+            //5fjuS4glGJ4Muw==
+            //-----END PRIVATE KEY-----";
+
+            //            //var s = EncryptHelper.RsaSignData("NewcatsHuang");
+            //            //Console.WriteLine(s);
+
+            //            //var r = EncryptHelper.RsaVerifyData("NewcatsHuang", s);
+            //            //Console.WriteLine(r);
+            //            StringBuilder stringBuilder = new StringBuilder();
+            //            for (int i = 0; i < 10; i++)
+            //            {
+            //                stringBuilder.Append("Newcats");
+            //            }
+
+            //            var enStr = EncryptHelper.RsaEncrypt(stringBuilder.ToString() + "Huang", pub);
+            //            Console.WriteLine(enStr);
+            //            Console.WriteLine("\n");
+            //            var deStr = EncryptHelper.RsaDecrypt(enStr, pri);
+            //            Console.WriteLine(deStr);
+            //            return;
 
             //Console.WriteLine("\r\n\r\n");
-            //return;
+            //return; 
+            #endregion
 
             #region MyRegion
             //DES测试
