@@ -79,14 +79,18 @@ namespace Newcats.WebApi.Controllers
         {
             //Stopwatch sw = new Stopwatch();
             //sw.Start();
-            //List<UserInfo> list = new List<UserInfo>();
-            //for (int i = 0; i < 5000; i++)
-            //{
-            //    long id = IdHelper.Create();
-            //    string name = EncryptHelper.GetRandomString(Random.Shared.Next(20));
-            //    DateTime now = DateTime.Now;
-            //    list.Add(new UserInfo { Id = id, Name = name, CreateTime = now });
-            //}
+
+            //_repository.Execute("create table NewcatsUserInfoTest(Id bigint,Name varchar(64),CreateTime datetime);");
+
+            List<UserInfo> list = new List<UserInfo>();
+            for (int i = 0; i < 50; i++)
+            {
+                long id = IdHelper.Create();
+                string name = EncryptHelper.GetRandomString(Random.Shared.Next(20));
+                DateTime now = DateTime.Now;
+                list.Add(new UserInfo { Id = id, Name = name, CreateTime = now });
+            }
+            _repository.InsertBulk(list);
 
 
             //using (var tran = _repository.BeginTransaction())
@@ -101,7 +105,10 @@ namespace Newcats.WebApi.Controllers
 
             //return sw.ElapsedMilliseconds.ToString() + "ms";
 
-
+            var rrrr = _repository.Count<UserInfo>();
+            var all = _repository.GetAll<UserInfo>();
+            //_repository.Execute("drop table NewcatsUserInfoTest;");
+            return "ok";
 
             //1.插入数据，返回主键
             object r1 = _repository.Insert<UserInfo>(new UserInfo { Name = "Newcats", CreateTime = DateTime.Now });
