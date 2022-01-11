@@ -225,6 +225,22 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
             return true;
         return false;
     }
+
+    /// <summary>
+    /// 修改Sqlite加密文件的密码
+    /// </summary>
+    /// <param name="newPassword">新密码</param>
+    /// <returns>是否执行成功</returns>
+    public bool ChangePassword(string newPassword)
+    {
+        string sql1 = "SELECT quote($newPassword);";
+        DynamicParameters dp = new DynamicParameters();
+        dp.Add("$newPassword", newPassword);
+        string quotedNewPassword = base.ExecuteScalar<string>(sql1, dp);
+
+        string sql2 = $"PRAGMA rekey = {quotedNewPassword}";
+        return base.Execute(sql2) > 0;
+    }
     #endregion
 
     #region 异步方法
@@ -406,6 +422,22 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
             return true;
         return false;
+    }
+
+    /// <summary>
+    /// 修改Sqlite加密文件的密码
+    /// </summary>
+    /// <param name="newPassword">新密码</param>
+    /// <returns>是否执行成功</returns>
+    public async Task<bool> ChangePasswordAsync(string newPassword)
+    {
+        string sql1 = "SELECT quote($newPassword);";
+        DynamicParameters dp = new DynamicParameters();
+        dp.Add("$newPassword", newPassword);
+        string quotedNewPassword = await base.ExecuteScalarAsync<string>(sql1, dp);
+
+        string sql2 = $"PRAGMA rekey = {quotedNewPassword}";
+        return await base.ExecuteAsync(sql2) > 0;
     }
     #endregion
 }
