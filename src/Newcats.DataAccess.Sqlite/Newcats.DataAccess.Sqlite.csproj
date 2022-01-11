@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Title>Newcats.DataAccess.Sqlite</Title>
 		<PackageId>Newcats.DataAccess.Sqlite</PackageId>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -18,6 +18,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2022-1-11
+			1.增加修改Sqlite密码的方法
+
 			2022-1-9
 			1.批量插入的方法需要包括在事务内，或者手动传入事务，才能有性能提升，否则性能和循环插入无异(每次插入都会启用一个事务，故性能较慢)
 			2.https://docs.microsoft.com/zh-cn/dotnet/standard/data/sqlite/bulk-insert
