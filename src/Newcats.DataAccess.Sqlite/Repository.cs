@@ -239,7 +239,8 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string quotedNewPassword = base.ExecuteScalar<string>(sql1, dp);
 
         string sql2 = $"PRAGMA rekey = {quotedNewPassword}";
-        return base.Execute(sql2) > 0;
+        var r = base.ExecuteScalar<string>(sql2);
+        return r.Equals("ok", StringComparison.OrdinalIgnoreCase);
     }
     #endregion
 
@@ -437,7 +438,8 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string quotedNewPassword = await base.ExecuteScalarAsync<string>(sql1, dp);
 
         string sql2 = $"PRAGMA rekey = {quotedNewPassword}";
-        return await base.ExecuteAsync(sql2) > 0;
+        var r = await base.ExecuteScalarAsync<string>(sql2);
+        return r.Equals("ok", StringComparison.OrdinalIgnoreCase);
     }
     #endregion
 }

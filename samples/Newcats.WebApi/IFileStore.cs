@@ -53,7 +53,7 @@ namespace Newcats.WebApi
             //});
 
             const string file = @"C:\Users\newcats\Documents\Projects\Newcats.Infrastructure\docs\Sqlite3_Encrypt_NewcatsPwd.db";
-            const string sqliteConnStr = $"Data Source={file};Password=NewcatsPwd;";
+            const string sqliteConnStr = $"Data Source={file};Password=NewcatsPassword;";
             //const string sqliteConnStr = $"Data Source={file};";
             services.AddSqliteDataAccess<SqliteContext>(opt =>
             {
