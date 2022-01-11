@@ -16,4 +16,17 @@ namespace Newcats.DataAccess.Sqlite;
 /// <typeparam name="TDbContext">数据库上下文，不同的数据库连接注册不同的DbContext</typeparam>
 public interface IRepository<TDbContext> : Core.IRepository<TDbContext> where TDbContext : Core.IDbContext
 {
+    /// <summary>
+    /// 修改Sqlite加密文件的密码
+    /// </summary>
+    /// <param name="newPassword">新密码</param>
+    /// <returns>是否执行成功</returns>
+    bool ChangePassword(string newPassword);
+
+    /// <summary>
+    /// 修改Sqlite加密文件的密码
+    /// </summary>
+    /// <param name="newPassword">新密码</param>
+    /// <returns>是否执行成功</returns>
+    Task<bool> ChangePasswordAsync(string newPassword);
 }
