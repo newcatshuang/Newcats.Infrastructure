@@ -8,6 +8,7 @@
 
 * 注1：此处只展示同步方法示例，异步方法同理
 * 注2：批量插入的方法需要包括在事务内，或者手动传入事务，才能有性能提升，否则性能和循环插入无异(每次插入都会启用一个事务，故性能较慢) https://docs.microsoft.com/zh-cn/dotnet/standard/data/sqlite/bulk-insert
+* 注3：使用连接字符串添加Password属性初始化并加密数据库时，需要对数据库写入数据，否则不会进行加密(未知bug)
 
 ```c#
 //1.插入数据，返回主键
@@ -157,6 +158,9 @@ using (TransactionScope scope = TransactionScopeBuilder.Create(IsolationLevel.Re
         throw;
     }
 }
+
+//32.修改数据库密码
+bool r29 = _repository.ChangePassword("Newcats");
 ```
 
 # 使用说明
