@@ -1,7 +1,7 @@
 # Newcats.Office 使用说明
 
 [![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
-[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.0.7&color=blue)](https://www.nuget.org/packages/Newcats.Office)
+[![Nuget](https://img.shields.io/nuget/v/Newcats.Office.svg)](https://www.nuget.org/packages/Newcats.Office) [![Newcats.Office](https://img.shields.io/nuget/dt/Newcats.Office.svg)](https://www.nuget.org/packages/Newcats.Office)
 [![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
 
 ## 示例代码：

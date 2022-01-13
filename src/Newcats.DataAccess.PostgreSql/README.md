@@ -1,7 +1,7 @@
 ﻿# Newcats.DataAccess.PostgreSql 使用说明
 
 [![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
-[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.2.3&color=blue)](https://www.nuget.org/packages/Newcats.DataAccess.PostgreSql)
+[![Nuget](https://img.shields.io/nuget/v/Newcats.DataAccess.PostgreSql.svg)](https://www.nuget.org/packages/Newcats.DataAccess.PostgreSql) [![Newcats.DataAccess.PostgreSql](https://img.shields.io/nuget/dt/Newcats.DataAccess.PostgreSql.svg)](https://www.nuget.org/packages/Newcats.DataAccess.PostgreSql)
 [![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
 
 # 示例代码：

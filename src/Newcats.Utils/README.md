@@ -1,7 +1,7 @@
 # Newcats.Utils 使用说明
 
 [![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
-[![Nuget](https://img.shields.io/static/v1?label=Nuget&message=1.0.8&color=blue)](https://www.nuget.org/packages/Newcats.Utils)
+[![Nuget](https://img.shields.io/nuget/v/Newcats.Utils.svg)](https://www.nuget.org/packages/Newcats.Utils) [![Newcats.Utils](https://img.shields.io/nuget/dt/Newcats.Utils.svg)](https://www.nuget.org/packages/Newcats.Utils)
 [![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
 
 ## 示例代码：
