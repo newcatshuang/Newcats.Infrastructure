@@ -195,9 +195,9 @@ namespace Newcats.Utils.UnitTest.Extensions
             StringAssert.Contains(rsaKey2.PublicKey, "PUBLIC");
 
             Models.RsaKey rsaKey3 = EncryptHelper.CreateRsaKey(Models.RsaKeyFormatEnum.Xml, 1024, true);
-            Assert.IsNotNull(rsaKey1);
-            StringAssert.Contains(rsaKey1.PrivateKey, "<InverseQ>");
-            StringAssert.Contains(rsaKey1.PublicKey, "<Exponent>");
+            Assert.IsNotNull(rsaKey3);
+            StringAssert.Contains(rsaKey3.PrivateKey, "<InverseQ>");
+            StringAssert.Contains(rsaKey3.PublicKey, "<Exponent>");
         }
     }
 }
