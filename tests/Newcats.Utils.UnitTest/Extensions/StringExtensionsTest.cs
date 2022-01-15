@@ -199,5 +199,17 @@ namespace Newcats.Utils.UnitTest.Extensions
             StringAssert.Contains(rsaKey3.PrivateKey, "<InverseQ>");
             StringAssert.Contains(rsaKey3.PublicKey, "<Exponent>");
         }
+
+        [TestMethod]
+        public void TestSnowflakeId()
+        {
+            long id = IdHelper.Create();
+            Assert.IsNotNull(id);
+            Assert.AreEqual(19, id.ToString().Length);
+
+            string idStr = IdHelper.Create(true);
+            Assert.IsNotNull(idStr);
+            Assert.AreEqual(27, idStr.Length);
+        }
     }
 }
