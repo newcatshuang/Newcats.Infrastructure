@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newcats.Utils.Extensions;
+using Newcats.Utils.Helpers;
 
 namespace Newcats.Utils.UnitTest.Extensions
 {
@@ -146,6 +147,57 @@ namespace Newcats.Utils.UnitTest.Extensions
             string result2 = "秦始皇".PinYin();
             Assert.IsNotNull(result2);
             Assert.AreEqual("QinShiHuang", result2);
+        }
+
+        [TestMethod]
+        public void TestRandomString()
+        {
+            string result1 = EncryptHelper.GetRandomString(8);
+            Assert.IsNotNull(result1);
+            Assert.AreEqual(8, result1.Length);
+
+            string result2 = EncryptHelper.GetRandomNumber(8);
+            Assert.IsNotNull(result2);
+            Assert.AreEqual(8, result2.Length);
+
+            string result3 = EncryptHelper.GetRandomKey(8);
+            Assert.IsNotNull(result3);
+            Assert.AreEqual(8, result3.Length);
+        }
+
+        [TestMethod]
+        public void TestCreateKey()
+        {
+            string desKey = EncryptHelper.CreateDesKey();
+            Assert.IsNotNull(desKey);
+            Assert.AreEqual(8, desKey.Length);
+
+            string tripleDesKey = EncryptHelper.CreateTripleDesKey();
+            Assert.IsNotNull(tripleDesKey);
+            Assert.AreEqual(24, tripleDesKey.Length);
+
+            string aseKey = EncryptHelper.CreateAesKey();
+            Assert.IsNotNull(aseKey);
+            Assert.AreEqual(32, aseKey.Length);
+
+            string aesIv = EncryptHelper.CreateAesIv();
+            Assert.IsNotNull(aesIv);
+            Assert.AreEqual(16, aesIv.Length);
+
+            Models.RsaKey rsaKey1 = EncryptHelper.CreateRsaKey(Models.RsaKeyFormatEnum.Pkcs1, 1024, true);
+            Assert.IsNotNull(rsaKey1);
+            StringAssert.Contains(rsaKey1.PrivateKey, "PRIVATE");
+            StringAssert.Contains(rsaKey1.PublicKey, "PUBLIC");
+
+            Models.RsaKey rsaKey2 = EncryptHelper.CreateRsaKey(Models.RsaKeyFormatEnum.Pkcs8, 1024, true);
+            Assert.IsNotNull(rsaKey2);
+            StringAssert.Contains(rsaKey2.PrivateKey, "PRIVATE");
+            StringAssert.Contains(rsaKey2.PublicKey, "PUBLIC");
+
+            Models.RsaKey rsaKey3 = EncryptHelper.CreateRsaKey(Models.RsaKeyFormatEnum.Xml, 1024, true);
+            Assert.IsNotNull(rsaKey1);
+            StringAssert.Contains(rsaKey1.PrivateKey, "<InverseQ>");
+            StringAssert.Contains(rsaKey1.PublicKey, "<Exponent>");
         }
     }
 }
