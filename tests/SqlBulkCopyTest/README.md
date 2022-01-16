@@ -6,33 +6,33 @@
 
 ## 一.目录
 
-* [批量插入的几种方法](#id1)
-* [SqlBulkCopy介绍](#id2)
-* [For循环测试及Benchmark测试](#id3)
-* [使用时的注意事项](#id4)
+* [批量插入的几种方法](#批量插入的几种方法)
+* [SqlBulkCopy介绍](#SqlBulkCopy介绍)
+* [For循环测试及Benchmark测试](#For循环测试及Benchmark测试)
+* [使用时的注意事项](#使用时的注意事项)
 
-## <span id="id1">二.方法介绍</span>
+## <span id="批量插入的几种方法">二.方法介绍</span>
 
-1. for循环插入  
+### 1.for循环插入  
 对集合数据进行遍历，每次只插入集合的一条数据，对应的SQL语句为：
 
 ```sql
 insert into UserInfo(Id,Name) values (@Id,@Name);
 ```
 
-2. 拼接sql  
+### 2.拼接sql  
 也需要for循环遍历，只是一条语句能插入多个数据，对应的SQL语句为：
 
 ```sql
 insert into UserInfo(Id,Name) values (@Id1,@Name1),(@Id2,@Name2)...
 ```
 
-3. SqlBulkCopy批量插入  
+### 3.SqlBulkCopy批量插入  
 利用各个数据库的特性，直接从文件复制到表
 
-## <span id="id2">三.SqlBulkCopy介绍</span>
+## <span id="SqlBulkCopy介绍">三.SqlBulkCopy介绍</span>
 
-1. SqlServer数据库
+### 1.SqlServer数据库
 
 * 使用  Microsoft.Data.SqlClient.SqlBulkCopy 类封装的方法
 
@@ -46,7 +46,7 @@ insert into UserInfo(Id,Name) values (@Id1,@Name1),(@Id2,@Name2)...
 
 以上内容来自微软官方文档： [Bulk Copy Operations in SQL Server](https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/bulk-copy-operations-in-sql-server)  
 
-2. MySql数据库  
+### 2.MySql数据库  
 
 * 使用 MySqlConnector.MySqlBulkCopy 类封装的方法
 
@@ -56,7 +56,7 @@ insert into UserInfo(Id,Name) values (@Id1,@Name1),(@Id2,@Name2)...
   
 以上内容来自MySql官网：[LOAD DATA Statement](https://dev.mysql.com/doc/refman/8.0/en/load-data.html)  
 
-3. PostgreSql数据库
+### 3.PostgreSql数据库
 
 * COPY public.userinfo (id,name,createtime) FROM STDIN (FORMAT BINARY);  
 
@@ -73,9 +73,9 @@ COPY与文件名指示PostgreSQL服务器直接读取或写入文件。该文件
 以上内容来自PostgreSql官网：[sql copy](https://www.postgresql.org/docs/current/sql-copy.html
 )
 
-## <span id="id3">四.性能测试</span>
+## <span id="For循环测试及Benchmark测试">四.性能测试</span>
 
-1. 环境
+### 1.环境
 
 |数据库|版本|OS|CPU|RAM|说明|
 |-------|-------|-------|-------|-------|-------|
@@ -83,9 +83,9 @@ COPY与文件名指示PostgreSQL服务器直接读取或写入文件。该文件
 |MySql|v8.0.27|Ubuntu Server 21.10|i7-9700k 2core|4GB|VMWare虚拟机1|
 |PostgreSql|v13.5|Ubuntu Server 21.10|i7-9700k 2core|4GB|VMWare虚拟机2|
 
-2. 代码
+### 2.代码
 
-* for循环-dapper执行foreach循环插入数据  
+#### 2.1 for循环-dapper执行foreach循环插入数据  
 SqlServer版本
 
 ```csharp
@@ -111,7 +111,7 @@ internal long InsertForEach(List<NewcatsUserInfoTest> list)
 }
 ```
 
-* for循环-ADO.NET的foreach循环插入数据  
+#### 2.2 for循环-ADO.NET的foreach循环插入数据  
 MySql版本
 
 ```csharp
@@ -146,7 +146,7 @@ internal long InsertForEachNative(List<NewcatsUserInfoTest> list)
 }
 ```
 
-* for循环-dapper直接传list参数  
+#### 2.3 for循环-dapper直接传list参数  
 PostgreSql版本
 
 ```csharp
@@ -169,7 +169,7 @@ internal long InsertBulk(List<NewcatsUserInfoTest> list)
 }
 ```
 
-* for循环-dapper拼接sql语句  
+#### 2.4 for循环-dapper拼接sql语句  
 SqlServer版本
 
 ```csharp
@@ -209,7 +209,7 @@ internal long InsertAppend(List<NewcatsUserInfoTest> list)
 }
 ```
 
-* for循环-SqlBulkCopy插入-FromList  
+#### 2.5 for循环-SqlBulkCopy插入-FromList  
 MySql版本
 
 ```csharp
@@ -235,7 +235,7 @@ internal long SqlBulkCopyFromList(List<NewcatsUserInfoTest> list)
 }
 ```
 
-* for循环-SqlBulkCopy插入-FromDataTable  
+#### 2.6 for循环-SqlBulkCopy插入-FromDataTable  
 PostgreSql版本
 
 ```csharp
@@ -261,7 +261,7 @@ internal long SqlBulkCopyFromDataTable(DataTable dt)
 }
 ```
 
-* Benchmark测试(SqlServer示例)
+#### 2.7 Benchmark测试(SqlServer示例)
 
 ```csharp
 /// <summary>
@@ -351,7 +351,7 @@ public class BulkCopyContext
 }
 ```
 
-3. for循环测试结果
+### 3.for循环测试结果
 
 | Database/Method         | Counts | InsertForEach(ms) | InsertForEachNative(ms) | InsertBulk(ms) | InsertAppend(ms) | SqlBulkCopyFromList(ms) | SqlBulkCopyFromDataTable(ms) |
 |------------------|-----------|---------------|---------------------|------------|--------------|---------------------|--------------------------|
@@ -765,7 +765,8 @@ PostgreSql测试结果如下：
   
 <br>
 <br>
-4. Benchmark测试结果
+
+### 4.Benchmark测试结果
 
 ```cmd
 BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19044.1415 (21H2)
@@ -876,7 +877,7 @@ totalCount=100000
 | PostgreSql_SqlBulkCopy_FromDataTable |    280.6 ms |     5.55 ms |     9.57 ms |
 ---
 
-5. 结论
+### 5.结论
 
 * 注：*10W条数据的典型场景*
 
@@ -898,7 +899,7 @@ totalCount=100000
 * **MySql和PostgreSql的insert () values(),(),()....语句性能不错,尤其是PostgreSql**
 * **PostgreSql各项指标均优于MySql**
 
-## <span id="id4">五.注意事项</span>
+## <span id="使用时的注意事项">五.注意事项</span>
 
 * 构建的DataTable要跟数据库表完全一致，包含自增列，排除NotMapped
 * 构建DataColumn时列名要跟表一致，类型要传实际类型，不能不传或者传object
