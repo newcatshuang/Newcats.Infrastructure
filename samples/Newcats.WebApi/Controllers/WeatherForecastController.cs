@@ -83,9 +83,9 @@ namespace Newcats.WebApi.Controllers
             //_repository.Execute("create table NewcatsUserInfoTest(Id bigint,Name varchar(64),CreateTime datetime);");
 
             var getall = _repository.GetAll<UserInfo>();
-            bool success = await _repository.ChangePasswordAsync("NewcatsPassword");
+            //bool success = await _repository.ChangePasswordAsync("NewcatsPassword");
 
-            return success.ToString();
+            return getall.Count().ToString();
 
             List<UserInfo> list = new List<UserInfo>();
             for (int i = 0; i < 50; i++)

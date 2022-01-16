@@ -76,7 +76,7 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         //此方法需要包括在事务内，或者手动传入事务，才能有性能提升，否则性能和循环插入无异(每次插入都会启用一个事务，故性能较慢)
         //https://docs.microsoft.com/zh-cn/dotnet/standard/data/sqlite/bulk-insert
 
-        if (Connection.State != ConnectionState.Open)
+        if (Connection.State == ConnectionState.Closed)
             Connection.Open();
         return base.InsertBulk<TEntity>(list, transaction, commandTimeout);
     }
@@ -275,7 +275,7 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         //此方法需要包括在事务内，或者手动传入事务，才能有性能提升，否则性能和循环插入无异(每次插入都会启用一个事务，故性能较慢)
         //https://docs.microsoft.com/zh-cn/dotnet/standard/data/sqlite/bulk-insert
 
-        if (Connection.State != ConnectionState.Open)
+        if (Connection.State == ConnectionState.Closed)
             Connection.Open();
         return await base.InsertBulkAsync<TEntity>(list, transaction, commandTimeout);
     }
