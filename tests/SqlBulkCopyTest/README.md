@@ -1,7 +1,8 @@
 # 批量插入之SqlBulkCopy
 
 作者：NewcatsHuang  
-时间：2021-12-25
+时间：2021-12-25  
+完整代码：[Github传送门](https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/tests/SqlBulkCopyTest)
 
 ## 一.目录
 
@@ -875,6 +876,38 @@ totalCount=100000
 | PostgreSql_SqlBulkCopy_FromDataTable |    280.6 ms |     5.55 ms |     9.57 ms |
 ---
 
+5. 结论
 
+* 注：*10W条数据的典型场景*
 
-## 作者: newcats-2020/05/04
+|项目|SqlServer|MySql|PostgreSql|
+|-|-|-|-|
+|for循环|for循环|for循环|for循环|
+|最快|119ms(0.12s)|394ms(0.39s)|208ms(0.2s)|
+|最慢|43793ms(43.79s)|61492ms(61.49s)|55238ms(55.23s)|
+|差距|368倍|156倍|265倍|
+|-|-|-|-|
+|Benchmark|Benchmark|Benchmark|Benchmark|Benchmark|
+|最快|239ms(0.24s)|515ms(0.51s)|280ms(0.28s)|
+|最慢|19484ms(19.48s)|59331ms(59.33s)|53797ms(53.79s)|
+|差距|81倍|115倍|192倍|
+
+* **SqlBulkCopy方法能显著提高批量插入性能**
+* **SqlServer的insert () values(),(),()....语句似乎没有优化**
+* **SqlServer的整体表现比MySql和PostgreSql好一些(都是空数据库,表结构简单,应该还没有达到硬件限制)**
+* **MySql和PostgreSql的insert () values(),(),()....语句性能不错,尤其是PostgreSql**
+* **PostgreSql各项指标均优于MySql**
+
+## 五.注意事项
+
+* 构建的DataTable要跟数据库表完全一致，包含自增列，排除NotMapped
+* 构建DataColumn时列名要跟表一致，类型要传实际类型，不能不传或者传object
+* MySql连接字符串需要加上AllowLoadLocalInfile=true且服务端设置local_infile=1(建议修改全局配置文件)
+* PostgreSql的copy指令对表名大小写有特殊要求，建议建表和实体特性都使用小写
+* PostgreSql的NpgsqlBinaryImporter.Write(,)类型要求和数据库一致，需要使用枚举NpgsqlDbType
+
+---
+作者：NewcatsHuang  
+时间：2021-12-25  
+完整代码：[https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/tests/SqlBulkCopyTest](https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/tests/SqlBulkCopyTest)  
+转载请注明出处，谢谢O(∩_∩)O
