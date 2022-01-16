@@ -6,12 +6,12 @@
 
 ## 一.目录
 
-* 批量插入的几种方法
-* SqlBulkCopy介绍
-* For循环测试及Benchmark测试
-* 使用时的注意事项
+* [批量插入的几种方法](#id1)
+* [SqlBulkCopy介绍](#id2)
+* [For循环测试及Benchmark测试](#id3)
+* [使用时的注意事项](#id4)
 
-## 二.方法介绍
+## <span id="id1">二.方法介绍</span>
 
 1. for循环插入  
 对集合数据进行遍历，每次只插入集合的一条数据，对应的SQL语句为：
@@ -30,7 +30,7 @@ insert into UserInfo(Id,Name) values (@Id1,@Name1),(@Id2,@Name2)...
 3. SqlBulkCopy批量插入  
 利用各个数据库的特性，直接从文件复制到表
 
-## 三.SqlBulkCopy介绍
+## <span id="id2">三.SqlBulkCopy介绍</span>
 
 1. SqlServer数据库
 
@@ -73,7 +73,7 @@ COPY与文件名指示PostgreSQL服务器直接读取或写入文件。该文件
 以上内容来自PostgreSql官网：[sql copy](https://www.postgresql.org/docs/current/sql-copy.html
 )
 
-## 四.性能测试
+## <span id="id3">四.性能测试</span>
 
 1. 环境
 
@@ -898,7 +898,7 @@ totalCount=100000
 * **MySql和PostgreSql的insert () values(),(),()....语句性能不错,尤其是PostgreSql**
 * **PostgreSql各项指标均优于MySql**
 
-## 五.注意事项
+## <span id="id4">五.注意事项</span>
 
 * 构建的DataTable要跟数据库表完全一致，包含自增列，排除NotMapped
 * 构建DataColumn时列名要跟表一致，类型要传实际类型，不能不传或者传object
