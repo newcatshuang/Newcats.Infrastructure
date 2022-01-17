@@ -32,32 +32,32 @@ namespace T1_ConsoleTests
                 new WeightedRoundRobinModel(){ ProviderIndex=1, ProviderName="Name1", Weight=10},
                 new WeightedRoundRobinModel(){ProviderIndex=2, ProviderName="Name2", Weight=20},
                  new WeightedRoundRobinModel(){ProviderIndex=3, ProviderName="Name3",Weight=30},
-                 new WeightedRoundRobinModel(){ProviderIndex=4, ProviderName="Name4",Weight=40},
-                 new WeightedRoundRobinModel(){ProviderIndex=5, ProviderName="Name5",Weight=50}
+                 //new WeightedRoundRobinModel(){ProviderIndex=4, ProviderName="Name4",Weight=4},
+                 //new WeightedRoundRobinModel(){ProviderIndex=5, ProviderName="Name5",Weight=5}
             });
 
-            Parallel.For(1, 1000, (n) =>
-            {
-                var s = selector.GetService();
-                var key = $"Server:{s.ProviderName},Weight:{s.Weight}";
-                Console.WriteLine(key);
-                dic.AddOrUpdate(key, 1, (k, v) => v + 1);
-            });
-
-            //for (int i = 0; i < 1000; i++)
+            //Parallel.For(1, 100, (n) =>
             //{
-            //    var res = selector.GetService();
-            //    var key = $"Server:{res.ProviderName},Weight:{res.Weight}";
-            //    Console.WriteLine(res.ProviderName);
+            //    var s = selector.GetService();
+            //    var key = $"Server:{s.ProviderName},Weight:{s.Weight}";
+            //    Console.WriteLine(key);
             //    dic.AddOrUpdate(key, 1, (k, v) => v + 1);
-            //}
+            //});
+
+            for (int i = 0; i < 100; i++)
+            {
+                var res = selector.GetService();
+                var key = $"Server:{res.ProviderName},Weight:{res.Weight}";
+                Console.WriteLine(res.ProviderName);
+                dic.AddOrUpdate(key, 1, (k, v) => v + 1);
+            }
 
             foreach (var kvp in dic)
             {
                 Console.WriteLine($"{kvp.Key} Processed {kvp.Value} Request");
             }
 
-
+            //TODO:需要实现平滑加权轮询算法，当前算法会导致权重大的节点一开始承受很大的量
             return;
 
             var r1 = PinYinHelper.GetFirstPinYin("中国");
