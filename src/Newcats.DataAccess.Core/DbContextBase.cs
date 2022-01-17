@@ -108,6 +108,7 @@ public abstract class DbContextBase : IDbContext
     {
         ArgumentNullException.ThrowIfNull(nameof(configs));
         string[] connStrs = configs.Where(c => !string.IsNullOrWhiteSpace(c.ReplicaConnectionString)).Select(c => c.ReplicaConnectionString).ToArray();
-        return connStrs[Random.Shared.Next(connStrs.Length)];
+        int index = Random.Shared.Next(connStrs.Length);
+        return connStrs[index];
     }
 }

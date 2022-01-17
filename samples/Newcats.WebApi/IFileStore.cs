@@ -57,7 +57,15 @@ namespace Newcats.WebApi
             //const string sqliteConnStr = $"Data Source={file};";
             services.AddSqliteDataAccess<SqliteContext>(opt =>
             {
-                opt.ConnectionString = sqliteConnStr;
+                opt.ConnectionString = sqliteConnStr;//主库连接
+                opt.EnableReadWriteSplit = true;//启用读写分离
+                opt.ReplicaPolicy = ReplicaSelectPolicyEnum.Random;
+                opt.ReplicaConfigs = new ReplicaConfig[]//从库配置
+                {
+                    new ReplicaConfig(){ Id=1, ReplicaConnectionString=sqliteConnStr, Weight=10},
+                    new ReplicaConfig(){ Id=2, ReplicaConnectionString=sqliteConnStr, Weight=20},
+                    new ReplicaConfig(){ Id=3, ReplicaConnectionString=sqliteConnStr, Weight=30}
+                };
             });
 
         }

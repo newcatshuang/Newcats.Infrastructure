@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -23,6 +25,41 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            var dic = new ConcurrentDictionary<string, int>();
+
+            var selector = new WeightedRoundRobin(new List<WeightedRoundRobinModel>
+            {
+                new WeightedRoundRobinModel(){ ProviderIndex=1, ProviderName="Name1", Weight=10},
+                new WeightedRoundRobinModel(){ProviderIndex=2, ProviderName="Name2", Weight=20},
+                 new WeightedRoundRobinModel(){ProviderIndex=3, ProviderName="Name3",Weight=30},
+                 new WeightedRoundRobinModel(){ProviderIndex=4, ProviderName="Name4",Weight=40},
+                 new WeightedRoundRobinModel(){ProviderIndex=5, ProviderName="Name5",Weight=50}
+            });
+
+            Parallel.For(1, 1000, (n) =>
+            {
+                var s = selector.GetService();
+                var key = $"Server:{s.ProviderName},Weight:{s.Weight}";
+                Console.WriteLine(key);
+                dic.AddOrUpdate(key, 1, (k, v) => v + 1);
+            });
+
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    var res = selector.GetService();
+            //    var key = $"Server:{res.ProviderName},Weight:{res.Weight}";
+            //    Console.WriteLine(res.ProviderName);
+            //    dic.AddOrUpdate(key, 1, (k, v) => v + 1);
+            //}
+
+            foreach (var kvp in dic)
+            {
+                Console.WriteLine($"{kvp.Key} Processed {kvp.Value} Request");
+            }
+
+
+            return;
+
             var r1 = PinYinHelper.GetFirstPinYin("中国");
             Console.WriteLine(r1);
 
