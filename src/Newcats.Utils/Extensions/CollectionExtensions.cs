@@ -140,6 +140,18 @@ namespace Newcats.Utils.Extensions
             return list.AddIf(item, item != null);
         }
 
+        /// <summary>
+        /// 随机返回集合中的一个元素
+        /// </summary>
+        /// <typeparam name="T">集合的元素类型</typeparam>
+        /// <param name="list">当前集合</param>
+        /// <returns>随机元素</returns>
+        public static T Random<T>(this IEnumerable<T> list)
+        {
+            int index = System.Random.Shared.Next(list.Count());
+            return list.ElementAt(index);
+        }
+
         #region WhereIf
         /// <summary>
         /// Filters a <see cref="IEnumerable{T}"/> by given predicate if given condition is true.
