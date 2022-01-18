@@ -18,6 +18,11 @@ namespace Newcats.DataAccess.Core;
 public abstract class DbContextBase : IDbContext
 {
     /// <summary>
+    /// 加权轮询选择器
+    /// </summary>
+    private static WeightedRoundRobinHelper<string>? wrrSelector;
+
+    /// <summary>
     /// 选项
     /// </summary>
     private readonly DbContextOptions _options;
@@ -107,8 +112,60 @@ public abstract class DbContextBase : IDbContext
     private string SelectReplicaConnectionString(ReplicaConfig[] configs, ReplicaSelectPolicyEnum policy)
     {
         ArgumentNullException.ThrowIfNull(nameof(configs));
-        string[] connStrs = configs.Where(c => !string.IsNullOrWhiteSpace(c.ReplicaConnectionString)).Select(c => c.ReplicaConnectionString).ToArray();
-        int index = Random.Shared.Next(connStrs.Length);
-        return connStrs[index];
+
+        List<WeightedNode<string>> wrrNodes = new();//加权轮询节点
+        List<WeightedNode<string>> rrNodes = new();//轮询的节点
+        List<string> randNodes = new();//随机的节点
+
+        foreach (var config in configs)
+        {
+            if (config != null && !string.IsNullOrWhiteSpace(config.ReplicaConnectionString))
+            {
+                wrrNodes.Add(new WeightedNode<string>() { Value = config.ReplicaConnectionString, Weight = config.Weight });
+                rrNodes.Add(new WeightedNode<string>() { Value = config.ReplicaConnectionString, Weight = 1 });
+                randNodes.Add(config.ReplicaConnectionString);
+            }
+        }
+
+        string result = string.Empty;
+
+        switch (policy)
+        {
+            case ReplicaSelectPolicyEnum.WeightedRoundRobin:
+                result = GetWeightedRoundRobinResult(wrrNodes);
+                break;
+            case ReplicaSelectPolicyEnum.RoundRobin:
+                result = GetWeightedRoundRobinResult(rrNodes);
+                break;
+            case ReplicaSelectPolicyEnum.Random:
+                result = GetRandomResult(randNodes);
+                break;
+            case ReplicaSelectPolicyEnum.Customize:
+                break;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 获取加权轮询的结果
+    /// </summary>
+    private string GetWeightedRoundRobinResult(List<WeightedNode<string>> nodes)
+    {
+        if (wrrSelector == null)
+            wrrSelector = new WeightedRoundRobinHelper<string>(nodes);
+        if (!wrrSelector.NodesJsonMd5.Equals(Helper.JsonMd5(nodes)))
+            wrrSelector = new WeightedRoundRobinHelper<string>(nodes);
+
+        var result = wrrSelector.GetResult();
+        return result.Value;
+    }
+
+    /// <summary>
+    /// 获取随机选择的结果
+    /// </summary>
+    private string GetRandomResult(List<string> configs)
+    {
+        return configs[Random.Shared.Next(configs.Count)];
     }
 }
