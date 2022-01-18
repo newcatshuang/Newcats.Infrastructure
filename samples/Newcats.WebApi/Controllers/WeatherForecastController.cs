@@ -156,7 +156,7 @@ namespace Newcats.WebApi.Controllers
             UserInfo r10 = _repository.Get<UserInfo>(new List<DbWhere<UserInfo>>
             {
                 new DbWhere<UserInfo> (s=>s.Name,"Newcats", OperateTypeEnum.Equal, LogicTypeEnum.And)
-            }, null, null, new DbOrderBy<UserInfo>(s => s.CreateTime, SortTypeEnum.DESC));
+            }, null, null, false, new DbOrderBy<UserInfo>(s => s.CreateTime, SortTypeEnum.DESC));
 
             //11.根据给定的条件及排序，分页获取数据(获取Name包含'newcats'字符串的第2页的20条数据)
             (IEnumerable<UserInfo> list, int totalCount) r11 = _repository.GetPage<UserInfo>(1, 20, new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) });
@@ -182,7 +182,7 @@ namespace Newcats.WebApi.Controllers
             IEnumerable<UserInfo> r17 = _repository.GetTop<UserInfo>(10);
 
             //18.根据给定的条件及排序，获取指定数量的数据(select top 10 * from userinfo where Name like '%newcats%' order by Id;)
-            IEnumerable<UserInfo> r18 = _repository.GetTop<UserInfo>(10, new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) }, null, null, new DbOrderBy<UserInfo>(s => s.Id, SortTypeEnum.ASC));
+            IEnumerable<UserInfo> r18 = _repository.GetTop<UserInfo>(10, new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.Name, "newcats", OperateTypeEnum.Like, LogicTypeEnum.And) }, null, null, false, new DbOrderBy<UserInfo>(s => s.Id, SortTypeEnum.ASC));
 
             //19.获取记录总数量(select count(1) from userinfo;)
             int r19 = _repository.Count<UserInfo>();

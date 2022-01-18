@@ -23,7 +23,7 @@ namespace Newcats.DataAccess.Core
         IDbConnection Connection { get; }
 
         /// <summary>
-        /// 从库数据库连接
+        /// 从库数据库连接(不为null则表示启用了读写分离)
         /// </summary>
         IDbConnection? ReplicaConnection { get; }
     }

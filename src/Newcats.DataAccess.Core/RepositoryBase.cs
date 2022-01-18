@@ -11,12 +11,15 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <summary>
     /// 数据库连接
     /// </summary>
-    public abstract IDbConnection Connection
-    {
-        get;
-    }
+    public abstract IDbConnection Connection { get; }
+
+    /// <summary>
+    /// 从库数据库连接(不为null则表示启用了读写分离)
+    /// </summary>
+    public abstract IDbConnection? ReplicaConnection { get; }
 
     #region 同步方法
+    #region 写操作
     /// <summary>
     /// 插入一条数据，成功时返回当前主键的值，否则返回主键类型的默认值
     /// </summary>
@@ -160,16 +163,19 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
         string sqlText = $" UPDATE {tableName} SET {sqlUpdate} {sqlWhere} ;";
         return Connection.Execute(sqlText, wherePars, transaction, commandTimeout, CommandType.Text);
     }
+    #endregion
 
+    #region 读操作
     /// <summary>
     /// 根据主键，获取一条记录
     /// </summary>
     /// <param name="primaryKeyValue">主键的值</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
+    public abstract TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class;
 
     /// <summary>
     /// 根据给定的条件，获取一条记录
@@ -177,10 +183,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序集合</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    public abstract TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
     /// <summary>
     /// 根据给定的条件及排序，分页获取数据
@@ -192,9 +199,10 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="dbOrderBy">排序</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public abstract (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    public abstract (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
     /// <summary>
     /// 分页获取数据
@@ -203,11 +211,12 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据</returns>
-    public (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
+    public (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false) where TEntity : class
     {
-        return GetPage(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
+        return GetPage(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, forceToMain, pageInfo.OrderBy?.ToArray());
     }
 
     /// <summary>
@@ -220,11 +229,12 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <returns>分页数据集合</returns>
-    public PageInfo<TEntity> GetPageInfo<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public PageInfo<TEntity> GetPageInfo<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var r = GetPage(pageIndex, pageSize, dbWheres, transaction, commandTimeout, returnTotal, dbOrderBy);
+        var r = GetPage(pageIndex, pageSize, dbWheres, transaction, commandTimeout, returnTotal, forceToMain, dbOrderBy);
         PageInfo<TEntity> page = new PageInfo<TEntity>(pageIndex, pageSize);
         page.TotalRecords = r.totalCount;
         page.Data = r.list == null ? null : r.list.ToList();
@@ -239,10 +249,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <returns>分页数据集合</returns>
-    public PageInfo<TEntity> GetPageInfo<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
+    public PageInfo<TEntity> GetPageInfo<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false) where TEntity : class
     {
-        return GetPageInfo(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
+        return GetPageInfo(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, forceToMain, pageInfo.OrderBy?.ToArray());
     }
 
     /// <summary>
@@ -262,12 +273,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public IEnumerable<TEntity> GetAll<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public IEnumerable<TEntity> GetAll<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = GetPage(0, 0, dbWheres, transaction, commandTimeout, false, dbOrderBy);
+        var (list, _) = GetPage(0, 0, dbWheres, transaction, commandTimeout, false, forceToMain, dbOrderBy);
         return list;
     }
 
@@ -275,11 +287,12 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// 根据默认排序，获取指定数量的数据
     /// </summary>
     /// <param name="top">指定数量</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>指定数量的数据集合</returns>
-    public IEnumerable<TEntity> GetTop<TEntity>(int top) where TEntity : class
+    public IEnumerable<TEntity> GetTop<TEntity>(int top, bool forceToMain = false) where TEntity : class
     {
-        var (list, _) = GetPage<TEntity>(0, top, null, null, null, false);
+        var (list, _) = GetPage<TEntity>(0, top, null, null, null, false, forceToMain);
         return list;
     }
 
@@ -290,12 +303,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public IEnumerable<TEntity> GetTop<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public IEnumerable<TEntity> GetTop<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = GetPage(0, top, dbWheres, transaction, commandTimeout, false, dbOrderBy);
+        var (list, _) = GetPage(0, top, dbWheres, transaction, commandTimeout, false, forceToMain, dbOrderBy);
         return list;
     }
 
@@ -315,22 +329,29 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>记录数量</returns>
-    public int Count<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public int Count<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
         if (dbWheres != null && dbWheres.Any())
         {
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT COUNT(1) FROM {tableName} WHERE 1=1 {sqlWhere} ;";
-            return Connection.ExecuteScalar<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
+            return useReplica ?
+                ReplicaConnection.ExecuteScalar<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text) :
+                Connection.ExecuteScalar<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
         }
         else
         {
             string sqlText = $" SELECT COUNT(1) FROM {tableName} ;";
-            return Connection.ExecuteScalar<int>(sqlText, null, transaction, commandTimeout, CommandType.Text);
+            return useReplica ?
+                ReplicaConnection.ExecuteScalar<int>(sqlText, null, transaction, commandTimeout, CommandType.Text) :
+                Connection.ExecuteScalar<int>(sqlText, null, transaction, commandTimeout, CommandType.Text);
         }
     }
 
@@ -338,9 +359,10 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// 根据主键，判断数据是否存在
     /// </summary>
     /// <param name="primaryKeyValue">主键值</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public abstract bool Exists<TEntity>(object primaryKeyValue) where TEntity : class;
+    public abstract bool Exists<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class;
 
     /// <summary>
     /// 根据给定的条件，判断数据是否存在
@@ -348,10 +370,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public abstract bool Exists<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
+    public abstract bool Exists<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class;
+    #endregion
 
+    #region 执行自定义sql
     /// <summary>
     /// 执行存储过程
     /// </summary>
@@ -450,8 +475,10 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
         return Connection.QueryFirstOrDefault<T>(sqlText, pars, transaction, commandTimeout, commandType);
     }
     #endregion
+    #endregion
 
     #region 异步方法
+    #region 写操作
     /// <summary>
     /// 插入一条数据，成功时返回当前主键的值，否则返回主键类型的默认值
     /// </summary>
@@ -595,16 +622,19 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
         string sqlText = $" UPDATE {tableName} SET {sqlUpdate} {sqlWhere} ;";
         return await Connection.ExecuteAsync(sqlText, wherePars, transaction, commandTimeout, CommandType.Text);
     }
+    #endregion
 
+    #region 读操作
     /// <summary>
     /// 根据主键，获取一条记录
     /// </summary>
     /// <param name="primaryKeyValue">主键的值</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
+    public abstract Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class;
 
     /// <summary>
     /// 根据给定的条件，获取一条记录
@@ -612,10 +642,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序集合</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    public abstract Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
     /// <summary>
     /// 根据给定的条件及排序，分页获取数据
@@ -627,9 +658,10 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="dbOrderBy">排序</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public abstract Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    public abstract Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
 
     /// <summary>
     /// 分页获取数据
@@ -638,11 +670,12 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据</returns>
-    public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
+    public async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false) where TEntity : class
     {
-        return await GetPageAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
+        return await GetPageAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, forceToMain, pageInfo.OrderBy?.ToArray());
     }
 
     /// <summary>
@@ -655,11 +688,12 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <returns>分页数据集合</returns>
-    public async Task<PageInfo<TEntity>> GetPageInfoAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public async Task<PageInfo<TEntity>> GetPageInfoAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var r = await GetPageAsync(pageIndex, pageSize, dbWheres, transaction, commandTimeout, returnTotal, dbOrderBy);
+        var r = await GetPageAsync(pageIndex, pageSize, dbWheres, transaction, commandTimeout, returnTotal, forceToMain, dbOrderBy);
         PageInfo<TEntity> page = new PageInfo<TEntity>(pageIndex, pageSize);
         page.TotalRecords = r.totalCount;
         page.Data = r.list == null ? null : r.list.ToList();
@@ -674,10 +708,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <returns>分页数据集合</returns>
-    public async Task<PageInfo<TEntity>> GetPageInfoAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true) where TEntity : class
+    public async Task<PageInfo<TEntity>> GetPageInfoAsync<TEntity>(PageInfo<TEntity> pageInfo, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false) where TEntity : class
     {
-        return await GetPageInfoAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, pageInfo.OrderBy?.ToArray());
+        return await GetPageInfoAsync(pageInfo.PageIndex, pageInfo.PageSize, pageInfo.Where, transaction, commandTimeout, returnTotal, forceToMain, pageInfo.OrderBy?.ToArray());
     }
 
     /// <summary>
@@ -697,12 +732,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据集合</returns>
-    public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = await GetPageAsync(0, 0, dbWheres, transaction, commandTimeout, false, dbOrderBy);
+        var (list, _) = await GetPageAsync(0, 0, dbWheres, transaction, commandTimeout, false, forceToMain, dbOrderBy);
         return list;
     }
 
@@ -710,11 +746,12 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// 根据默认排序，获取指定数量的数据
     /// </summary>
     /// <param name="top">指定数量</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>指定数量的数据集合</returns>
-    public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top) where TEntity : class
+    public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top, bool forceToMain = false) where TEntity : class
     {
-        var (list, _) = await GetPageAsync<TEntity>(0, top, null, null, null, false);
+        var (list, _) = await GetPageAsync<TEntity>(0, top, null, null, null, false, forceToMain);
         return list;
     }
 
@@ -725,12 +762,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>指定数量的数据集合</returns>
-    public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public async Task<IEnumerable<TEntity>> GetTopAsync<TEntity>(int top, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
-        var (list, _) = await GetPageAsync(0, top, dbWheres, transaction, commandTimeout, false, dbOrderBy);
+        var (list, _) = await GetPageAsync(0, top, dbWheres, transaction, commandTimeout, false, forceToMain, dbOrderBy);
         return list;
     }
 
@@ -750,22 +788,29 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>记录数量</returns>
-    public async Task<int> CountAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public async Task<int> CountAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
         if (dbWheres != null && dbWheres.Any())
         {
             string sqlWhere = string.Empty;
             DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
             string sqlText = $" SELECT COUNT(1) FROM {tableName} WHERE 1=1 {sqlWhere} ;";
-            return await Connection.ExecuteScalarAsync<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
+            return useReplica ?
+               await ReplicaConnection.ExecuteScalarAsync<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text) :
+               await Connection.ExecuteScalarAsync<int>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
         }
         else
         {
             string sqlText = $" SELECT COUNT(1) FROM {tableName} ;";
-            return await Connection.ExecuteScalarAsync<int>(sqlText, null, transaction, commandTimeout, CommandType.Text);
+            return useReplica ?
+               await ReplicaConnection.ExecuteScalarAsync<int>(sqlText, null, transaction, commandTimeout, CommandType.Text) :
+               await Connection.ExecuteScalarAsync<int>(sqlText, null, transaction, commandTimeout, CommandType.Text);
         }
     }
 
@@ -773,9 +818,10 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// 根据主键，判断数据是否存在
     /// </summary>
     /// <param name="primaryKeyValue">主键值</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public abstract Task<bool> ExistsAsync<TEntity>(object primaryKeyValue) where TEntity : class;
+    public abstract Task<bool> ExistsAsync<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class;
 
     /// <summary>
     /// 根据给定的条件，判断数据是否存在
@@ -783,10 +829,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public abstract Task<bool> ExistsAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class;
+    public abstract Task<bool> ExistsAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class;
+    #endregion
 
+    #region 执行自定义sql
     /// <summary>
     /// 执行存储过程
     /// </summary>
@@ -885,6 +934,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
             throw new ArgumentNullException(nameof(sqlText));
         return await Connection.QueryFirstOrDefaultAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
     }
+    #endregion
     #endregion
 
     #region 事务

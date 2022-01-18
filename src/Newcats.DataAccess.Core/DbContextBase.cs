@@ -38,9 +38,9 @@ public abstract class DbContextBase : IDbContext
     public IDbConnection Connection { get; }
 
     /// <summary>
-    /// 从库数据库连接
+    /// 从库数据库连接(不为null则表示启用了读写分离)
     /// </summary>
-    public IDbConnection? ReplicaConnection { get; set; }
+    public IDbConnection? ReplicaConnection { get; }
 
     /// <summary>
     /// 创建数据库连接
@@ -107,6 +107,12 @@ public abstract class DbContextBase : IDbContext
                 ReplicaConnection.Open();
             }
         }
+        else//如果未启用读写分离，则置空
+        {
+            if (ReplicaConnection != null && ReplicaConnection.State != ConnectionState.Closed)
+                ReplicaConnection.Close();
+            ReplicaConnection = null;
+        }
     }
 
     /// <summary>
@@ -116,6 +122,9 @@ public abstract class DbContextBase : IDbContext
     {
         if (Connection != null && Connection.State != ConnectionState.Closed)
             Connection.Close();
+
+        if (ReplicaConnection != null && ReplicaConnection.State != ConnectionState.Closed)
+            ReplicaConnection.Close();
     }
 
     /// <summary>

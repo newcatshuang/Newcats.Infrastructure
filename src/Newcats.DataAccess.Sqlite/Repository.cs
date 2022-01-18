@@ -37,6 +37,17 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     }
 
     /// <summary>
+    /// 从库数据库连接(不为null则表示启用了读写分离)
+    /// </summary>
+    public override IDbConnection? ReplicaConnection
+    {
+        get
+        {
+            return _context.ReplicaConnection;
+        }
+    }
+
+    /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="context">数据库上下文</param>
@@ -87,10 +98,13 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="primaryKeyValue">主键的值</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public override TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public override TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
 
         Type type = typeof(TEntity);
@@ -100,7 +114,9 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
         DynamicParameters parameters = new();
         parameters.Add("@p_1", primaryKeyValue);
-        return Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
+        return useReplica ?
+            ReplicaConnection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
+            Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
     }
 
     /// <summary>
@@ -109,11 +125,14 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序集合</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public override TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public override TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         Type type = typeof(TEntity);
         string tableName = RepositoryHelper.GetTableName(type);
         string fields = RepositoryHelper.GetTableFieldsQuery(type);
@@ -125,7 +144,9 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         if (!string.IsNullOrWhiteSpace(sqlOrderBy))
             sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
         string sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT 1;";
-        return Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
+        return useReplica ?
+            ReplicaConnection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
+            Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
     }
 
     /// <summary>
@@ -137,11 +158,14 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public override (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public override (IEnumerable<TEntity> list, int totalCount) GetPage<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         int totalCount = 0;
         Type type = typeof(TEntity);
         string tableName = RepositoryHelper.GetTableName(type);
@@ -179,9 +203,15 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
                 sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageSize} OFFSET {pageSize * pageIndex};";
             }
         }
-        IEnumerable<TEntity> list = Connection.Query<TEntity>(sqlText, pars, transaction, true, commandTimeout, CommandType.Text);
+        IEnumerable<TEntity> list = useReplica ?
+            ReplicaConnection.Query<TEntity>(sqlText, pars, transaction, true, commandTimeout, CommandType.Text) :
+            Connection.Query<TEntity>(sqlText, pars, transaction, true, commandTimeout, CommandType.Text);
         if (returnTotal.HasValue && returnTotal.Value)
-            totalCount = Connection.ExecuteScalar<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
+        {
+            totalCount = useReplica ?
+                ReplicaConnection.ExecuteScalar<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text) :
+                Connection.ExecuteScalar<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
+        }
         return (list, totalCount);
     }
 
@@ -189,10 +219,13 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// 根据主键，判断数据是否存在
     /// </summary>
     /// <param name="primaryKeyValue">主键值</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public override bool Exists<TEntity>(object primaryKeyValue) where TEntity : class
+    public override bool Exists<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
         Type type = typeof(TEntity);
         string tableName = RepositoryHelper.GetTableName(type);
@@ -200,7 +233,9 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
         DynamicParameters parameters = new();
         parameters.Add("@p_1", primaryKeyValue);
-        object o = Connection.ExecuteScalar(sqlText, parameters, null, null, CommandType.Text);
+        object o = useReplica ?
+            ReplicaConnection.ExecuteScalar(sqlText, parameters, null, null, CommandType.Text) :
+            Connection.ExecuteScalar(sqlText, parameters, null, null, CommandType.Text);
         if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
             return true;
         return false;
@@ -212,15 +247,20 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public override bool Exists<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public override bool Exists<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
         string sqlWhere = string.Empty;
         DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
         string sqlText = $" SELECT 1 FROM {tableName} WHERE 1=1 {sqlWhere} LIMIT 1;";
-        object o = Connection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, CommandType.Text);
+        object o = useReplica ?
+            ReplicaConnection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, CommandType.Text) :
+            Connection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, CommandType.Text);
         if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
             return true;
         return false;
@@ -286,10 +326,13 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="primaryKeyValue">主键的值</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public override async Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public override async Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
 
         Type type = typeof(TEntity);
@@ -299,7 +342,9 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
         DynamicParameters parameters = new();
         parameters.Add("@p_1", primaryKeyValue);
-        return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
+        return useReplica ?
+            await ReplicaConnection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
+            await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
     }
 
     /// <summary>
@@ -308,11 +353,14 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序集合</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public override async Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public override async Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         Type type = typeof(TEntity);
         string tableName = RepositoryHelper.GetTableName(type);
         string fields = RepositoryHelper.GetTableFieldsQuery(type);
@@ -324,7 +372,9 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         if (!string.IsNullOrWhiteSpace(sqlOrderBy))
             sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
         string sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT 1;";
-        return await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
+        return useReplica ?
+            await ReplicaConnection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
+            await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
     }
 
     /// <summary>
@@ -336,11 +386,14 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="returnTotal">是否查询总记录数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="dbOrderBy">排序</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>分页数据集合</returns>
-    public override async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    public override async Task<(IEnumerable<TEntity> list, int totalCount)> GetPageAsync<TEntity>(int pageIndex, int pageSize, IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool? returnTotal = true, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         Type type = typeof(TEntity);
         string tableName = RepositoryHelper.GetTableName(type);
         string fields = RepositoryHelper.GetTableFieldsQuery(type);
@@ -378,9 +431,17 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
                 sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT {pageSize} OFFSET {pageSize * pageIndex};";
             }
         }
-        IEnumerable<TEntity> list = await Connection.QueryAsync<TEntity>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
+
+        IEnumerable<TEntity> list = useReplica ?
+            await ReplicaConnection.QueryAsync<TEntity>(sqlText, pars, transaction, commandTimeout, CommandType.Text) :
+            await Connection.QueryAsync<TEntity>(sqlText, pars, transaction, commandTimeout, CommandType.Text);
         if (returnTotal.HasValue && returnTotal.Value)
-            totalCount = await Connection.ExecuteScalarAsync<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
+        {
+            totalCount = useReplica ?
+                await ReplicaConnection.ExecuteScalarAsync<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text) :
+                await Connection.ExecuteScalarAsync<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
+        }
+
         return (list, totalCount);
     }
 
@@ -388,10 +449,13 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// 根据主键，判断数据是否存在
     /// </summary>
     /// <param name="primaryKeyValue">主键值</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public override async Task<bool> ExistsAsync<TEntity>(object primaryKeyValue) where TEntity : class
+    public override async Task<bool> ExistsAsync<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
         Type type = typeof(TEntity);
         string tableName = RepositoryHelper.GetTableName(type);
@@ -399,7 +463,9 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
         DynamicParameters parameters = new();
         parameters.Add("@p_1", primaryKeyValue);
-        object o = await Connection.ExecuteScalarAsync(sqlText, parameters, null, null, CommandType.Text);
+        object o = useReplica ?
+            await ReplicaConnection.ExecuteScalarAsync(sqlText, parameters, null, null, CommandType.Text) :
+            await Connection.ExecuteScalarAsync(sqlText, parameters, null, null, CommandType.Text);
         if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
             return true;
         return false;
@@ -411,15 +477,20 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     /// <param name="dbWheres">条件集合</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public override async Task<bool> ExistsAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null) where TEntity : class
+    public override async Task<bool> ExistsAsync<TEntity>(IEnumerable<DbWhere<TEntity>>? dbWheres = null, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         string tableName = RepositoryHelper.GetTableName(typeof(TEntity));
         string sqlWhere = string.Empty;
         DynamicParameters pars = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
         string sqlText = $" SELECT 1 FROM {tableName} WHERE 1=1 {sqlWhere} LIMIT 1;";
-        object o = await Connection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, CommandType.Text);
+        object o = useReplica ?
+            await ReplicaConnection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, CommandType.Text) :
+            await Connection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, CommandType.Text);
         if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
             return true;
         return false;
