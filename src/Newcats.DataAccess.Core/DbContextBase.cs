@@ -23,6 +23,11 @@ public abstract class DbContextBase : IDbContext
     private static WeightedRoundRobinHelper<string>? wrrSelector;
 
     /// <summary>
+    /// 锁
+    /// </summary>
+    private static readonly object _locker = new object();
+
+    /// <summary>
     /// 选项
     /// </summary>
     private readonly DbContextOptions _options;
@@ -152,10 +157,24 @@ public abstract class DbContextBase : IDbContext
     /// </summary>
     private string GetWeightedRoundRobinResult(List<WeightedNode<string>> nodes)
     {
+        //正序排列，保证MD5结果一致
+        List<WeightedNode<string>> sortNodes = nodes.OrderBy(x => x.Weight).ToList();
+
+        //对于同一批节点，必须保证是同一个实例，才能确保加权轮询的结果符合预期
         if (wrrSelector == null)
-            wrrSelector = new WeightedRoundRobinHelper<string>(nodes);
-        if (!wrrSelector.NodesJsonMd5.Equals(Helper.JsonMd5(nodes)))
-            wrrSelector = new WeightedRoundRobinHelper<string>(nodes);
+        {
+            lock (_locker)
+            {
+                if (wrrSelector == null)
+                {
+                    wrrSelector = new WeightedRoundRobinHelper<string>(sortNodes);
+                }
+            }
+        }
+
+        //当改变了节点或者权重的时候，需要重新实例化
+        if (!wrrSelector.Md5Value.Equals(Helper.JsonMd5(sortNodes), StringComparison.OrdinalIgnoreCase))
+            wrrSelector = new WeightedRoundRobinHelper<string>(sortNodes);
 
         var result = wrrSelector.GetResult();
         return result.Value;
