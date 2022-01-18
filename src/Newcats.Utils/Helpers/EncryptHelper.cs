@@ -114,7 +114,7 @@ namespace Newcats.Utils.Helpers
         {
             if (string.IsNullOrWhiteSpace(value))
                 return string.Empty;
-            var md5 = new MD5CryptoServiceProvider();
+            var md5 = MD5.Create();// new MD5CryptoServiceProvider();
             string result;
             try
             {

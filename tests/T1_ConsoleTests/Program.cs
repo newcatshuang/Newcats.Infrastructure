@@ -25,9 +25,22 @@ namespace T1_ConsoleTests
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(EncryptHelper.MD5By32("Newcats"));//A659F0864BCF9A600D048E6158482459
+            Console.WriteLine(EncryptHelper.MD5By32("Haung"));//EF4715E9177D85E525AC31176193F0EB
+
+
+
+
+
+
+
+
+            return;
+
+
             var dic = new ConcurrentDictionary<string, int>();
 
-            var selector = new WeightedRoundRobin<string>(new List<WeightedNode<string>>
+            var selector = new WeightedRoundRobinHelper<string>(new List<WeightedNode<string>>
             {
                 new WeightedNode<string>(){ Value="1111111111111111", Weight=11},
                 new WeightedNode<string>(){ Value="2222222222222222", Weight=22},
@@ -58,7 +71,6 @@ namespace T1_ConsoleTests
                 Console.WriteLine($"{kvp.Key} Processed {kvp.Value} Request");
             }
 
-            //TODO:需要实现平滑加权轮询算法，当前算法会导致权重大的节点一开始承受很大的量
             return;
 
             var r1 = PinYinHelper.GetFirstPinYin("中国");
