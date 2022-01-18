@@ -1,0 +1,159 @@
+﻿/***************************************************************************
+ *GUID: 698a7d02-3094-4b66-8a2f-008d3c01f22a
+ *CLR Version: 4.0.30319.42000
+ *DateCreated：2022-01-17 22:31:15
+ *Author: NewcatsHuang
+ *Email: newcats@live.com
+ *Github: https://github.com/newcatshuang
+ *Copyright NewcatsHuang All rights reserved.
+*****************************************************************************/
+namespace Newcats.Utils.Helpers;
+
+/// <summary>
+/// 平滑加权轮询(需要实例化为单例)
+/// </summary>
+/// <typeparam name="T">节点值类型</typeparam>
+public class WeightedRoundRobinHelper<T>
+{
+    #region 字段
+    /// <summary>
+    /// 最大公约数
+    /// </summary>
+    private readonly int _gcd = 0;
+
+    /// <summary>
+    /// 最大权重值
+    /// </summary>
+    private readonly int _maxWeight = 0;
+
+    /// <summary>
+    /// 节点数
+    /// </summary>
+    private readonly int _nodesCount = 0;
+
+    /// <summary>
+    /// 当前权重
+    /// </summary>
+    private int _currentWeight = 0;
+
+    /// <summary>
+    /// 上次选中的节点
+    /// </summary>
+    private int _lastChosenNode = -1;
+
+    /// <summary>
+    /// 锁
+    /// </summary>
+    private SpinLock _sLock = new SpinLock(true);
+
+    /// <summary>
+    /// 节点
+    /// </summary>
+    private readonly List<WeightedNode<T>> _nodes;
+    #endregion
+
+    /// <summary>
+    /// 当前所有节点的json字符串的md5值(System.Text.Json的默认配置)
+    /// </summary>
+    public string NodesJsonMd5 { get; set; }
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="nodes">节点</param>
+    public WeightedRoundRobinHelper(List<WeightedNode<T>> nodes)
+    {
+        _nodes = nodes.OrderBy(q => q.Weight).ToList();
+        _gcd = GetGcd(_nodes);
+        _maxWeight = GetMaxWeight(_nodes);
+        _nodesCount = _nodes.Count;
+        NodesJsonMd5 = GetMd5(nodes);
+    }
+
+    /// <summary>
+    /// 获取此次选择结果
+    /// </summary>
+    public WeightedNode<T> GetResult()
+    {
+        var isLocked = false;
+        _sLock.Enter(ref isLocked);
+
+        do
+        {
+            _lastChosenNode = (_lastChosenNode + 1) % _nodesCount;
+            if (_lastChosenNode == 0)
+            {
+                _currentWeight -= _gcd;
+                if (_currentWeight <= 0)
+                {
+                    _currentWeight = _maxWeight;
+                }
+            }
+        } while (_nodes[_lastChosenNode].Weight < _currentWeight);
+
+        if (isLocked)
+        {
+            _sLock.Exit(true);
+        }
+
+        return _nodes[_lastChosenNode];
+    }
+
+    /// <summary>
+    /// 取权重的最大公约数(GreatestCommonDivisor)
+    /// </summary>
+    private int GetGcd(List<WeightedNode<T>> nodes)
+    {
+        int index = _lastChosenNode;
+        if (index < 0)
+            index = 0;
+
+        int a = nodes[index].Weight;
+
+        if (index >= _nodesCount - 1)
+            index = -1;
+
+        int b = nodes[index + 1].Weight;
+        while (b != 0)
+        {
+            var t = b;
+            b = a % b;
+            a = t;
+        }
+        return a;
+    }
+
+    /// <summary>
+    /// 取最大权重值
+    /// </summary>
+    private int GetMaxWeight(List<WeightedNode<T>> nodes)
+    {
+        int max = nodes.Max(n => n.Weight);
+        return max;
+    }
+
+    /// <summary>
+    /// 取所有节点的json字符串的md5值(System.Text.Json的默认配置)
+    /// </summary>
+    private string GetMd5(List<WeightedNode<T>> nodes)
+    {
+        string json = System.Text.Json.JsonSerializer.Serialize(nodes);
+        return EncryptHelper.MD5By32(json);
+    }
+}
+
+/// <summary>
+/// 权重节点
+/// </summary>
+public class WeightedNode<T>
+{
+    /// <summary>
+    /// 节点值
+    /// </summary>
+    public T Value { get; set; }
+
+    /// <summary>
+    /// 初始权重
+    /// </summary>
+    public int Weight { get; set; }
+}

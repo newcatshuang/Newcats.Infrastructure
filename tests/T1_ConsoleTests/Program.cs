@@ -27,31 +27,32 @@ namespace T1_ConsoleTests
         {
             var dic = new ConcurrentDictionary<string, int>();
 
-            var selector = new WeightedRoundRobin(new List<WeightedRoundRobinModel>
+            var selector = new WeightedRoundRobin<string>(new List<WeightedNode<string>>
             {
-                new WeightedRoundRobinModel(){ ProviderIndex=1, ProviderName="Name1", Weight=10},
-                new WeightedRoundRobinModel(){ProviderIndex=2, ProviderName="Name2", Weight=20},
-                 new WeightedRoundRobinModel(){ProviderIndex=3, ProviderName="Name3",Weight=30},
-                 //new WeightedRoundRobinModel(){ProviderIndex=4, ProviderName="Name4",Weight=4},
-                 //new WeightedRoundRobinModel(){ProviderIndex=5, ProviderName="Name5",Weight=5}
+                new WeightedNode<string>(){ Value="1111111111111111", Weight=11},
+                new WeightedNode<string>(){ Value="2222222222222222", Weight=22},
+                new WeightedNode<string>(){ Value="3333333333333333", Weight=33},
+                new WeightedNode<string>(){ Value="4444444444444444", Weight=44},
+                new WeightedNode<string>(){ Value="5555555555555555", Weight=55},
             });
 
-            //Parallel.For(1, 100, (n) =>
+            //Parallel.For(1, 1000, (n) =>
             //{
-            //    var s = selector.GetService();
-            //    var key = $"Server:{s.ProviderName},Weight:{s.Weight}";
-            //    Console.WriteLine(key);
+            //    var s = selector.GetResult();
+            //    var key = $"Server:{s.Value},Weight:{s.Weight}";
+            //    Console.WriteLine(s.Value);
             //    dic.AddOrUpdate(key, 1, (k, v) => v + 1);
             //});
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1000; i++)
             {
-                var res = selector.GetService();
-                var key = $"Server:{res.ProviderName},Weight:{res.Weight}";
-                Console.WriteLine(res.ProviderName);
+                var res = selector.GetResult();
+                var key = $"Server:{res.Value},Weight:{res.Weight}";
+                Console.WriteLine(res.Value);
                 dic.AddOrUpdate(key, 1, (k, v) => v + 1);
             }
 
+            Console.WriteLine("\r\n");
             foreach (var kvp in dic)
             {
                 Console.WriteLine($"{kvp.Key} Processed {kvp.Value} Request");
