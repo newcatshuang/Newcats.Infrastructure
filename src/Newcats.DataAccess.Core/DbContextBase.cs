@@ -132,6 +132,12 @@ public abstract class DbContextBase : IDbContext
             }
         }
 
+        if (randNodes.Count == 0)
+            throw new ArgumentException("There is no legal connection string in the ReplicaConfigs.");
+
+        if (randNodes.Count == 1)
+            return randNodes.First();
+
         string result = string.Empty;
 
         switch (policy)
