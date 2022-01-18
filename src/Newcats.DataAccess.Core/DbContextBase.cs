@@ -50,6 +50,16 @@ public abstract class DbContextBase : IDbContext
     public abstract IDbConnection CreateConnection(string connectionString);
 
     /// <summary>
+    /// 自定义从库连接字符串选择器
+    /// </summary>
+    /// <param name="replicaConnections">从库连接字符串</param>
+    /// <returns>从库连接字符串</returns>
+    public virtual string CustomizeReplicaStringSelector(List<string> replicaConnections)
+    {
+        return GetRandomResult(replicaConnections);
+    }
+
+    /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="optionsAccessor">配置项</param>
@@ -152,6 +162,7 @@ public abstract class DbContextBase : IDbContext
                 result = GetRandomResult(randNodes);
                 break;
             case ReplicaSelectPolicyEnum.Customize:
+                result = CustomizeReplicaStringSelector(randNodes);
                 break;
         }
 

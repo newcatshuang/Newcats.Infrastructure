@@ -76,9 +76,9 @@ namespace Newcats.DataAccess.Core
     public enum ReplicaSelectPolicyEnum
     {
         /// <summary>
-        /// 加权轮询
+        /// 平滑加权轮询
         /// </summary>
-        [Description("加权轮询")]
+        [Description("平滑加权轮询")]
         WeightedRoundRobin = 0,
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Newcats.DataAccess.Core
         Random = 2,
 
         /// <summary>
-        /// 自定义
+        /// 自定义(默认实现为Random算法，否则需要重写<see cref="DbContextBase.CustomizeReplicaStringSelector(List{string})"/>方法)
         /// </summary>
         [Description("自定义")]
         Customize = 3

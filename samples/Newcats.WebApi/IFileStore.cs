@@ -97,5 +97,10 @@ namespace Newcats.WebApi
         public SqliteContext(IOptions<DbContextOptions> optionsAccessor) : base(optionsAccessor)
         {
         }
+
+        public override string CustomizeReplicaStringSelector(List<string> replicaConnections)
+        {
+            return base.CustomizeReplicaStringSelector(replicaConnections);
+        }
     }
 }
