@@ -53,9 +53,9 @@ public class WeightedRoundRobinHelper<T>
     #endregion
 
     /// <summary>
-    /// 当前所有节点的json字符串的md5值(System.Text.Json的默认配置)
+    /// 当前所有节点按权重正序排列之后序列化的json字符串的md5值(System.Text.Json的默认配置)
     /// </summary>
-    public string NodesJsonMd5 { get; set; }
+    public string Md5Value { get; set; }
 
     /// <summary>
     /// 构造函数
@@ -67,7 +67,7 @@ public class WeightedRoundRobinHelper<T>
         _gcd = GetGcd(_nodes);
         _maxWeight = GetMaxWeight(_nodes);
         _nodesCount = _nodes.Count;
-        NodesJsonMd5 = GetMd5(nodes);
+        Md5Value = GetMd5(_nodes);
     }
 
     /// <summary>
