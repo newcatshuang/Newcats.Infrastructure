@@ -55,11 +55,6 @@ namespace Newcats.DataAccess.Core
     public class ReplicaConfig
     {
         /// <summary>
-        /// 从库Id(只需要保证当前从库数组里唯一即可，自定义数值)
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
         /// 从库连接字符串
         /// </summary>
         public string? ReplicaConnectionString { get; set; }

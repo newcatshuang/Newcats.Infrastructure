@@ -62,9 +62,9 @@ namespace Newcats.WebApi
                 opt.ReplicaPolicy = ReplicaSelectPolicyEnum.Random;
                 opt.ReplicaConfigs = new ReplicaConfig[]//从库配置
                 {
-                    new ReplicaConfig(){ Id=1, ReplicaConnectionString=sqliteConnStr, Weight=10},
-                    new ReplicaConfig(){ Id=2, ReplicaConnectionString=sqliteConnStr, Weight=20},
-                    new ReplicaConfig(){ Id=3, ReplicaConnectionString=sqliteConnStr, Weight=30}
+                    new ReplicaConfig(){ ReplicaConnectionString=sqliteConnStr, Weight=3},
+                    new ReplicaConfig(){ ReplicaConnectionString=sqliteConnStr, Weight=2},
+                    new ReplicaConfig(){ ReplicaConnectionString=sqliteConnStr, Weight=1}
                 };
             });
 
