@@ -26,7 +26,7 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
     private readonly TDbContext _context;
 
     /// <summary>
-    /// 数据库连接
+    /// 主库数据库连接
     /// </summary>
     public override IDbConnection Connection
     {

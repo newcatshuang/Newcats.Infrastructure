@@ -9,7 +9,7 @@ namespace Newcats.DataAccess.Core;
 public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where TDbContext : IDbContext
 {
     /// <summary>
-    /// 数据库连接
+    /// 主库数据库连接
     /// </summary>
     public abstract IDbConnection Connection { get; }
 
