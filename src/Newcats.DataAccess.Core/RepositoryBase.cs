@@ -382,30 +382,40 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <param name="storedProcedureName">存储过程名称</param>
     /// <param name="pars">参数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <returns>受影响的行数</returns>
-    public int ExecuteStoredProcedure(string storedProcedureName, DynamicParameters pars, IDbTransaction? transaction = null, int? commandTimeout = null)
+    public int ExecuteStoredProcedure(string storedProcedureName, DynamicParameters pars, bool forceToMain, IDbTransaction? transaction = null, int? commandTimeout = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(storedProcedureName))
             throw new ArgumentNullException(nameof(storedProcedureName));
-        return Connection.Execute(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure);
+        return useReplica ?
+            ReplicaConnection.Execute(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure) :
+            Connection.Execute(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure);
     }
 
     /// <summary>
     /// 执行sql语句，返回受影响的行数
     /// </summary>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>受影响的行数</returns>
-    public int Execute(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public int Execute(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return Connection.Execute(sqlText, pars, transaction, commandTimeout, commandType);
+        return useReplica ?
+            ReplicaConnection.Execute(sqlText, pars, transaction, commandTimeout, commandType) :
+            Connection.Execute(sqlText, pars, transaction, commandTimeout, commandType);
     }
 
     /// <summary>
@@ -413,32 +423,43 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    public T ExecuteScalar<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public T ExecuteScalar<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return Connection.ExecuteScalar<T>(sqlText, pars, transaction, commandTimeout, commandType);
+        return useReplica ?
+            ReplicaConnection.ExecuteScalar<T>(sqlText, pars, transaction, commandTimeout, commandType) :
+            Connection.ExecuteScalar<T>(sqlText, pars, transaction, commandTimeout, commandType);
     }
 
     /// <summary>
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
     /// </summary>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    public object ExecuteScalar(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public object ExecuteScalar(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return Connection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, commandType);
+        return
+            useReplica ?
+            ReplicaConnection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, commandType) :
+            Connection.ExecuteScalar(sqlText, pars, transaction, commandTimeout, commandType);
     }
 
     /// <summary>
@@ -446,16 +467,21 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果集</returns>
-    public IEnumerable<T> Query<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public IEnumerable<T> Query<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return Connection.Query<T>(sqlText, pars, transaction, true, commandTimeout, commandType);
+        return useReplica ?
+            ReplicaConnection.Query<T>(sqlText, pars, transaction, true, commandTimeout, commandType) :
+            Connection.Query<T>(sqlText, pars, transaction, true, commandTimeout, commandType);
     }
 
     /// <summary>
@@ -463,16 +489,21 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    public T QueryFirstOrDefault<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public T QueryFirstOrDefault<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return Connection.QueryFirstOrDefault<T>(sqlText, pars, transaction, commandTimeout, commandType);
+        return useReplica ?
+            ReplicaConnection.QueryFirstOrDefault<T>(sqlText, pars, transaction, commandTimeout, commandType) :
+            Connection.QueryFirstOrDefault<T>(sqlText, pars, transaction, commandTimeout, commandType);
     }
     #endregion
     #endregion
@@ -841,30 +872,41 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <param name="storedProcedureName">存储过程名称</param>
     /// <param name="pars">参数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <returns>受影响的行数</returns>
-    public async Task<int> ExecuteStoredProcedureAsync(string storedProcedureName, DynamicParameters pars, IDbTransaction? transaction = null, int? commandTimeout = null)
+    public async Task<int> ExecuteStoredProcedureAsync(string storedProcedureName, DynamicParameters pars, bool forceToMain, IDbTransaction? transaction = null, int? commandTimeout = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(storedProcedureName))
             throw new ArgumentNullException(nameof(storedProcedureName));
-        return await Connection.ExecuteAsync(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure);
+        return useReplica ?
+            await ReplicaConnection.ExecuteAsync(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure) :
+            await Connection.ExecuteAsync(storedProcedureName, pars, transaction, commandTimeout, CommandType.StoredProcedure);
     }
 
     /// <summary>
     /// 执行sql语句，返回受影响的行数
     /// </summary>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>受影响的行数</returns>
-    public async Task<int> ExecuteAsync(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public async Task<int> ExecuteAsync(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return await Connection.ExecuteAsync(sqlText, pars, transaction, commandTimeout, commandType);
+        return
+            useReplica ?
+            await ReplicaConnection.ExecuteAsync(sqlText, pars, transaction, commandTimeout, commandType) :
+            await Connection.ExecuteAsync(sqlText, pars, transaction, commandTimeout, commandType);
     }
 
     /// <summary>
@@ -872,33 +914,42 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    public async Task<T> ExecuteScalarAsync<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public async Task<T> ExecuteScalarAsync<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return await Connection.ExecuteScalarAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
+        return useReplica ?
+            await ReplicaConnection.ExecuteScalarAsync<T>(sqlText, pars, transaction, commandTimeout, commandType) :
+            await Connection.ExecuteScalarAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
     }
 
     /// <summary>
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
     /// </summary>
-    /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    public async Task<object> ExecuteScalarAsync(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public async Task<object> ExecuteScalarAsync(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return await Connection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, commandType);
+        return useReplica ?
+            await ReplicaConnection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, commandType) :
+            await Connection.ExecuteScalarAsync(sqlText, pars, transaction, commandTimeout, commandType);
     }
 
     /// <summary>
@@ -906,16 +957,21 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果集</returns>
-    public async Task<IEnumerable<T>> QueryAsync<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public async Task<IEnumerable<T>> QueryAsync<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return await Connection.QueryAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
+        return useReplica ?
+            await ReplicaConnection.QueryAsync<T>(sqlText, pars, transaction, commandTimeout, commandType) :
+            await Connection.QueryAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
     }
 
     /// <summary>
@@ -923,23 +979,28 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    public async Task<T> QueryFirstOrDefaultAsync<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+    public async Task<T> QueryFirstOrDefaultAsync<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
     {
+        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
+
         if (string.IsNullOrWhiteSpace(sqlText))
             throw new ArgumentNullException(nameof(sqlText));
-        return await Connection.QueryFirstOrDefaultAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
+        return useReplica ?
+            await ReplicaConnection.QueryFirstOrDefaultAsync<T>(sqlText, pars, transaction, commandTimeout, commandType) :
+            await Connection.QueryFirstOrDefaultAsync<T>(sqlText, pars, transaction, commandTimeout, commandType);
     }
     #endregion
     #endregion
 
     #region 事务
     /// <summary>
-    /// 开启事务
+    /// 开启主库事务
     /// </summary>
     /// <returns>事务</returns>
     public IDbTransaction BeginTransaction()
@@ -950,7 +1011,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     }
 
     /// <summary>
-    /// 开启事务
+    /// 开启主库事务
     /// </summary>
     /// <param name="il">事务等级</param>
     /// <returns>事务</returns>
@@ -962,7 +1023,7 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     }
 
     /// <summary>
-    /// 执行通用事务
+    /// 执行主库通用事务
     /// </summary>
     /// <param name="actions">事务方法</param>
     /// <returns>是否成功</returns>
@@ -988,6 +1049,100 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
                 throw;
             }
         }
+        return success;
+    }
+
+    /// <summary>
+    /// 开启从库事务(若未启用从库，则返回主库事务)
+    /// </summary>
+    /// <returns>事务</returns>
+    public IDbTransaction BeginReplicaTransaction()
+    {
+        if (ReplicaConnection != null)
+        {
+            if (ReplicaConnection.State == ConnectionState.Closed)
+                ReplicaConnection.Open();
+            return ReplicaConnection.BeginTransaction();
+        }
+
+        if (Connection.State == ConnectionState.Closed)
+            Connection.Open();
+        return Connection.BeginTransaction();
+    }
+
+    /// <summary>
+    /// 开启从库事务(若未启用从库，则返回主库事务)
+    /// </summary>
+    /// <param name="il">事务等级</param>
+    /// <returns>事务</returns>
+    public IDbTransaction BeginReplicaTransaction(IsolationLevel il)
+    {
+        if (ReplicaConnection != null)
+        {
+            if (ReplicaConnection.State == ConnectionState.Closed)
+                ReplicaConnection.Open();
+            return ReplicaConnection.BeginTransaction(il);
+        }
+
+        if (Connection.State == ConnectionState.Closed)
+            Connection.Open();
+        return Connection.BeginTransaction(il);
+    }
+
+    /// <summary>
+    /// 执行从库通用事务(若未启用从库，则返回主库事务)
+    /// </summary>
+    /// <param name="actions">事务方法</param>
+    /// <returns>是否成功</returns>
+    public bool ExecuteReplica(IEnumerable<Action<IDbTransaction>> actions)
+    {
+        bool success = false;
+
+        if (ReplicaConnection != null)
+        {
+            if (ReplicaConnection.State == ConnectionState.Closed)
+                ReplicaConnection.Open();
+            using (IDbTransaction transaction = ReplicaConnection.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var action in actions)
+                    {
+                        action(transaction);
+                    }
+                    transaction.Commit();
+                    success = true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+        else
+        {
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
+            using (IDbTransaction transaction = Connection.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var action in actions)
+                    {
+                        action(transaction);
+                    }
+                    transaction.Commit();
+                    success = true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+
         return success;
     }
     #endregion

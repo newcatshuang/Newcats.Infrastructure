@@ -260,7 +260,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <returns>受影响的行数</returns>
-    int ExecuteStoredProcedure(string storedProcedureName, DynamicParameters pars, IDbTransaction? transaction = null, int? commandTimeout = null);
+    int ExecuteStoredProcedure(string storedProcedureName, DynamicParameters pars, bool forceToMain, IDbTransaction? transaction = null, int? commandTimeout = null);
 
     /// <summary>
     /// 执行sql语句，返回受影响的行数
@@ -271,7 +271,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>受影响的行数</returns>
-    int Execute(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    int Execute(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
@@ -283,7 +283,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    T ExecuteScalar<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    T ExecuteScalar<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
@@ -294,7 +294,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    object ExecuteScalar(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    object ExecuteScalar(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行查询，返回结果集
@@ -306,7 +306,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果集</returns>
-    IEnumerable<T> Query<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    IEnumerable<T> Query<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行单行查询，返回结果
@@ -318,7 +318,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    T QueryFirstOrDefault<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    T QueryFirstOrDefault<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
     #endregion
     #endregion
 
@@ -571,90 +571,116 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// </summary>
     /// <param name="storedProcedureName">存储过程名称</param>
     /// <param name="pars">参数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <returns>受影响的行数</returns>
-    Task<int> ExecuteStoredProcedureAsync(string storedProcedureName, DynamicParameters pars, IDbTransaction? transaction = null, int? commandTimeout = null);
+    Task<int> ExecuteStoredProcedureAsync(string storedProcedureName, DynamicParameters pars, bool forceToMain, IDbTransaction? transaction = null, int? commandTimeout = null);
 
     /// <summary>
     /// 执行sql语句，返回受影响的行数
     /// </summary>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>受影响的行数</returns>
-    Task<int> ExecuteAsync(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    Task<int> ExecuteAsync(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    Task<T> ExecuteScalarAsync<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    Task<T> ExecuteScalarAsync<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
     /// </summary>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    Task<object> ExecuteScalarAsync(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    Task<object> ExecuteScalarAsync(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行查询，返回结果集
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果集</returns>
-    Task<IEnumerable<T>> QueryAsync<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    Task<IEnumerable<T>> QueryAsync<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     /// <summary>
     /// 执行单行查询，返回结果
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <param name="commandType">执行类型，默认为CommandType.Text</param>
     /// <returns>查询结果</returns>
-    Task<T> QueryFirstOrDefaultAsync<T>(string sqlText, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+    Task<T> QueryFirstOrDefaultAsync<T>(string sqlText, bool forceToMain, DynamicParameters? pars = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null);
     #endregion
     #endregion
 
     #region 事务
     /// <summary>
-    /// 开启事务
+    /// 开启主库事务
     /// </summary>
     /// <returns>事务</returns>
     IDbTransaction BeginTransaction();
 
     /// <summary>
-    /// 开启事务
+    /// 开启主库事务
     /// </summary>
     /// <param name="il">事务等级</param>
     /// <returns>事务</returns>
     IDbTransaction BeginTransaction(IsolationLevel il);
 
     /// <summary>
-    /// 执行通用事务
+    /// 执行主库通用事务(若未启用从库，则返回主库事务)
     /// </summary>
     /// <param name="actions">事务方法</param>
     /// <returns>是否成功</returns>
     bool Execute(IEnumerable<Action<IDbTransaction>> actions);
+
+    /// <summary>
+    /// 开启从库事务(若未启用从库，则返回主库事务)
+    /// </summary>
+    /// <returns>事务</returns>
+    IDbTransaction BeginReplicaTransaction();
+
+    /// <summary>
+    /// 开启从库事务(若未启用从库，则返回主库事务)
+    /// </summary>
+    /// <param name="il">事务等级</param>
+    /// <returns>事务</returns>
+    IDbTransaction BeginReplicaTransaction(IsolationLevel il);
+
+    /// <summary>
+    /// 执行从库通用事务(若未启用从库，则返回主库事务)
+    /// </summary>
+    /// <param name="actions">事务方法</param>
+    /// <returns>是否成功</returns>
+    bool ExecuteReplica(IEnumerable<Action<IDbTransaction>> actions);
     #endregion
 }
