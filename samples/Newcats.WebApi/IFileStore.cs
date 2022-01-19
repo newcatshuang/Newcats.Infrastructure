@@ -53,18 +53,21 @@ namespace Newcats.WebApi
             //});
 
             const string file = @"C:\Users\newcats\Documents\Projects\Newcats.Infrastructure\docs\Sqlite3_Encrypt_NewcatsPwd.db";
+            const string file1 = @"C:\Users\newcats\Documents\Projects\Newcats.Infrastructure\docs\Sqlite3_Encrypt_NewcatsPwd_r1.db";
+            const string file2 = @"C:\Users\newcats\Documents\Projects\Newcats.Infrastructure\docs\Sqlite3_Encrypt_NewcatsPwd_r2.db";
+            const string file3 = @"C:\Users\newcats\Documents\Projects\Newcats.Infrastructure\docs\Sqlite3_Encrypt_NewcatsPwd_r3.db";
             const string sqliteConnStr = $"Data Source={file};Password=NewcatsPassword;";
             //const string sqliteConnStr = $"Data Source={file};";
             services.AddSqliteDataAccess<SqliteContext>(opt =>
             {
                 opt.ConnectionString = sqliteConnStr;//主库连接
                 opt.EnableReadWriteSplit = true;//启用读写分离
-                opt.ReplicaPolicy = ReplicaSelectPolicyEnum.Random;
+                opt.ReplicaPolicy = ReplicaSelectPolicyEnum.WeightedRoundRobin;
                 opt.ReplicaConfigs = new ReplicaConfig[]//从库配置
                 {
-                    new ReplicaConfig(){ ReplicaConnectionString=sqliteConnStr, Weight=3},
-                    new ReplicaConfig(){ ReplicaConnectionString=sqliteConnStr, Weight=2},
-                    new ReplicaConfig(){ ReplicaConnectionString=sqliteConnStr, Weight=1}
+                    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file1};Password=NewcatsPassword;", Weight=3},
+                    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file2};Password=NewcatsPassword;", Weight=2},
+                    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file3};Password=NewcatsPassword;", Weight=1}
                 };
             });
 

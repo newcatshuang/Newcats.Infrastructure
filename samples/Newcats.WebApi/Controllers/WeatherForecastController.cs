@@ -85,7 +85,8 @@ namespace Newcats.WebApi.Controllers
             var getall = _repository.GetAll<UserInfo>();
             //bool success = await _repository.ChangePasswordAsync("NewcatsPassword");
 
-            return getall.Count().ToString();
+            //return getall.Count().ToString();
+            var getall2 = _repository.GetAll<UserInfo>(forceToMain: true);
 
             List<UserInfo> list = new List<UserInfo>();
             for (int i = 0; i < 50; i++)
@@ -110,10 +111,10 @@ namespace Newcats.WebApi.Controllers
 
             //return sw.ElapsedMilliseconds.ToString() + "ms";
 
-            var rrrr = _repository.Count<UserInfo>();
+            var rrrr = _repository.Count<UserInfo>(forceToMain: true);
             var all = _repository.GetAll<UserInfo>();
             //_repository.Execute("drop table NewcatsUserInfoTest;");
-            return "ok";
+            //return "ok";
 
             //1.插入数据，返回主键
             object r1 = _repository.Insert<UserInfo>(new UserInfo { Name = "Newcats", CreateTime = DateTime.Now });
@@ -131,7 +132,7 @@ namespace Newcats.WebApi.Controllers
             int r5 = _repository.Delete<UserInfo>(1);
 
             //6.根据给定的条件，删除记录(删除CreateTime>=2021-12-12的记录)(delete from userinfo where createtime>='2021-12-12';)
-            int r6 = _repository.Delete<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.CreateTime, new DateTime(2022, 12, 12), OperateTypeEnum.GreaterEqual, LogicTypeEnum.And) });
+            int r6 = _repository.Delete<UserInfo>(new List<DbWhere<UserInfo>> { new DbWhere<UserInfo>(s => s.CreateTime, new DateTime(2022, 12, 12), OperateTypeEnum.Less, LogicTypeEnum.And) });
 
             //7.根据主键，更新一条记录(update userinfo set Name='NewcatsHuang' where id=2;)
             //int r7 = _repository.Update<UserInfo>(2, new List<DbUpdate<UserInfo>>() { new DbUpdate<UserInfo>(s => s.Name, "NewcatsHuang") }, transaction, 60);
@@ -217,6 +218,8 @@ namespace Newcats.WebApi.Controllers
 
             //28.执行单行查询，返回结果
             UserInfo r28 = _repository.QueryFirstOrDefault<UserInfo>("select * from userinfo where Id=@id;", false, dp);
+
+            return "ok";
 
             //29.事务一
             using (var tran = _repository.BeginTransaction())
