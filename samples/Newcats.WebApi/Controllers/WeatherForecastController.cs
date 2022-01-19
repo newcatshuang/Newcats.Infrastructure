@@ -204,19 +204,19 @@ namespace Newcats.WebApi.Controllers
             //int r23 = _repository.ExecuteStoredProcedure("Usp_GetUserName", dp);
 
             //24.执行sql语句，返回受影响的行数
-            int r24 = _repository.Execute("delete from userinfo where Id=@id;", dp);
+            int r24 = _repository.Execute("delete from userinfo where Id=@id;", true, dp);
 
             //25.执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
-            string r25 = _repository.ExecuteScalar<string>("select Name from userinfo where Id=@id;", dp);
+            string r25 = _repository.ExecuteScalar<string>("select Name from userinfo where Id=@id;", false, dp);
 
             //26.执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
-            object r26 = _repository.ExecuteScalar("select Name from userinfo where Id=@id;", dp);
+            object r26 = _repository.ExecuteScalar("select Name from userinfo where Id=@id;", false, dp);
 
             //27.执行查询，返回结果集
-            IEnumerable<UserInfo> r27 = _repository.Query<UserInfo>("select * from userinfo where Id=@id;", dp);
+            IEnumerable<UserInfo> r27 = _repository.Query<UserInfo>("select * from userinfo where Id=@id;", false, dp);
 
             //28.执行单行查询，返回结果
-            UserInfo r28 = _repository.QueryFirstOrDefault<UserInfo>("select * from userinfo where Id=@id;", dp);
+            UserInfo r28 = _repository.QueryFirstOrDefault<UserInfo>("select * from userinfo where Id=@id;", false, dp);
 
             //29.事务一
             using (var tran = _repository.BeginTransaction())

@@ -276,10 +276,10 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string sql1 = "SELECT quote($newPassword);";
         DynamicParameters dp = new DynamicParameters();
         dp.Add("$newPassword", newPassword);
-        string quotedNewPassword = base.ExecuteScalar<string>(sql1, dp);
+        string quotedNewPassword = base.ExecuteScalar<string>(sql1, true, dp);
 
         string sql2 = $"PRAGMA rekey = {quotedNewPassword}";
-        var r = base.ExecuteScalar<string>(sql2);
+        var r = base.ExecuteScalar<string>(sql2, true);
         return r.Equals("ok", StringComparison.OrdinalIgnoreCase);
     }
     #endregion
@@ -506,10 +506,10 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, Sqlite.IR
         string sql1 = "SELECT quote($newPassword);";
         DynamicParameters dp = new DynamicParameters();
         dp.Add("$newPassword", newPassword);
-        string quotedNewPassword = await base.ExecuteScalarAsync<string>(sql1, dp);
+        string quotedNewPassword = await base.ExecuteScalarAsync<string>(sql1, true, dp);
 
         string sql2 = $"PRAGMA rekey = {quotedNewPassword}";
-        var r = await base.ExecuteScalarAsync<string>(sql2);
+        var r = await base.ExecuteScalarAsync<string>(sql2, true);
         return r.Equals("ok", StringComparison.OrdinalIgnoreCase);
     }
     #endregion
