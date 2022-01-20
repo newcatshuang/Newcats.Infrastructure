@@ -97,33 +97,6 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, PostgreSq
     }
 
     /// <summary>
-    /// 根据主键，获取一条记录
-    /// </summary>
-    /// <param name="primaryKeyValue">主键的值</param>
-    /// <param name="transaction">事务</param>
-    /// <param name="commandTimeout">超时时间(单位：秒)</param>
-    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <returns>数据库实体或null</returns>
-    public override TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
-    {
-        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
-
-        ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
-
-        Type type = typeof(TEntity);
-        string tableName = RepositoryHelper.GetTableName(type);
-        string pkName = RepositoryHelper.GetTablePrimaryKey(type);
-        string fields = RepositoryHelper.GetTableFieldsQuery(type);
-        string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-        DynamicParameters parameters = new();
-        parameters.Add("@p_1", primaryKeyValue);
-        return useReplica ?
-            ReplicaConnection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
-            Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
-    }
-
-    /// <summary>
     /// 根据给定的条件，获取一条记录
     /// </summary>
     /// <param name="dbWheres">条件集合</param>
@@ -220,32 +193,6 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, PostgreSq
     }
 
     /// <summary>
-    /// 根据主键，判断数据是否存在
-    /// </summary>
-    /// <param name="primaryKeyValue">主键值</param>
-    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <returns>是否存在</returns>
-    public override bool Exists<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class
-    {
-        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
-
-        ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
-        Type type = typeof(TEntity);
-        string tableName = RepositoryHelper.GetTableName(type);
-        string pkName = RepositoryHelper.GetTablePrimaryKey(type);
-        string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-        DynamicParameters parameters = new();
-        parameters.Add("@p_1", primaryKeyValue);
-        object o = useReplica ?
-            ReplicaConnection.ExecuteScalar(sqlText, parameters, null, null, CommandType.Text) :
-            Connection.ExecuteScalar(sqlText, parameters, null, null, CommandType.Text);
-        if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
-            return true;
-        return false;
-    }
-
-    /// <summary>
     /// 根据给定的条件，判断数据是否存在
     /// </summary>
     /// <param name="dbWheres">条件集合</param>
@@ -310,33 +257,6 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, PostgreSq
             ulong r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
             return Convert.ToInt32(r);
         }
-    }
-
-    /// <summary>
-    /// 根据主键，获取一条记录
-    /// </summary>
-    /// <param name="primaryKeyValue">主键的值</param>
-    /// <param name="transaction">事务</param>
-    /// <param name="commandTimeout">超时时间(单位：秒)</param>
-    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <returns>数据库实体或null</returns>
-    public override async Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
-    {
-        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
-
-        ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
-
-        Type type = typeof(TEntity);
-        string tableName = RepositoryHelper.GetTableName(type);
-        string pkName = RepositoryHelper.GetTablePrimaryKey(type);
-        string fields = RepositoryHelper.GetTableFieldsQuery(type);
-        string sqlText = $" SELECT {fields} FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-        DynamicParameters parameters = new();
-        parameters.Add("@p_1", primaryKeyValue);
-        return useReplica ?
-            await ReplicaConnection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
-            await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
     }
 
     /// <summary>
@@ -433,32 +353,6 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, PostgreSq
                 await Connection.ExecuteScalarAsync<int>(sqlCount, pars, transaction, commandTimeout, CommandType.Text);
         }
         return (list, totalCount);
-    }
-
-    /// <summary>
-    /// 根据主键，判断数据是否存在
-    /// </summary>
-    /// <param name="primaryKeyValue">主键值</param>
-    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <returns>是否存在</returns>
-    public override async Task<bool> ExistsAsync<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class
-    {
-        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
-
-        ArgumentNullException.ThrowIfNull(nameof(primaryKeyValue));
-        Type type = typeof(TEntity);
-        string tableName = RepositoryHelper.GetTableName(type);
-        string pkName = RepositoryHelper.GetTablePrimaryKey(type);
-        string sqlText = $" SELECT 1 FROM {tableName} WHERE {pkName}=@p_1 LIMIT 1;";
-        DynamicParameters parameters = new();
-        parameters.Add("@p_1", primaryKeyValue);
-        object o = useReplica ?
-            await ReplicaConnection.ExecuteScalarAsync(sqlText, parameters, null, null, CommandType.Text) :
-            await Connection.ExecuteScalarAsync(sqlText, parameters, null, null, CommandType.Text);
-        if (o != null && o != DBNull.Value && Convert.ToInt32(o) == 1)
-            return true;
-        return false;
     }
 
     /// <summary>

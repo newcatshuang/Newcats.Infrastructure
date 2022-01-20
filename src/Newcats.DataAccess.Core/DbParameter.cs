@@ -1,4 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿/***************************************************************************
+ *GUID: 71cc9bd7-0746-42d7-8836-f86ad3cdb238
+ *CLR Version: 4.0.30319.42000
+ *DateCreated：2021-10-19 23:43:23
+ *Author: NewcatsHuang
+ *Email: newcats@live.com
+ *Github: https://github.com/newcatshuang
+ *Copyright NewcatsHuang All rights reserved.
+*****************************************************************************/
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -143,7 +152,7 @@ namespace Newcats.DataAccess.Core
         /// <summary>
         /// 对应字段的值
         /// </summary>
-        public object Value { get; private set; } = null;
+        public object? Value { get; private set; }
 
         /// <summary>
         /// 操作逻辑
@@ -165,15 +174,30 @@ namespace Newcats.DataAccess.Core
         public DbWhere(Expression<Func<TEntity, object>> expression, object value, OperateTypeEnum operateType = OperateTypeEnum.Equal, LogicTypeEnum logicType = LogicTypeEnum.And)
         {
             PropertyInfo property = GetProperty(expression) as PropertyInfo;
-            var real = property.GetCustomAttribute(typeof(ColumnAttribute), false);
-            if (real != null && real is ColumnAttribute)
+            ColumnAttribute? real = property.GetCustomAttribute<ColumnAttribute>(false);
+            if (real != null)
             {
-                PropertyName = ((ColumnAttribute)real).Name;
+                PropertyName = real.Name;
             }
             else
             {
                 PropertyName = property.Name;
             }
+            Value = value;
+            OperateType = operateType;
+            LogicType = logicType;
+        }
+
+        /// <summary>
+        /// 数据库sql where参数封装类
+        /// </summary>
+        /// <param name="propertyName">字段名</param>
+        /// <param name="value">字段值</param>
+        /// <param name="operateType">操作逻辑</param>
+        /// <param name="logicType">连接逻辑</param>
+        public DbWhere(string propertyName, object value, OperateTypeEnum operateType = OperateTypeEnum.Equal, LogicTypeEnum logicType = LogicTypeEnum.And)
+        {
+            PropertyName = propertyName;
             Value = value;
             OperateType = operateType;
             LogicType = logicType;
@@ -218,7 +242,7 @@ namespace Newcats.DataAccess.Core
         /// <summary>
         /// 对应字段的值
         /// </summary>
-        public object Value { get; private set; } = null;
+        public object? Value { get; private set; }
 
         /// <summary>
         /// 数据库sql update参数的封装类
@@ -228,7 +252,26 @@ namespace Newcats.DataAccess.Core
         public DbUpdate(Expression<Func<TEntity, object>> expression, object value)
         {
             PropertyInfo property = GetProperty(expression) as PropertyInfo;
-            PropertyName = property.Name;
+            ColumnAttribute? real = property.GetCustomAttribute<ColumnAttribute>(false);
+            if (real != null)
+            {
+                PropertyName = real.Name;
+            }
+            else
+            {
+                PropertyName = property.Name;
+            }
+            Value = value;
+        }
+
+        /// <summary>
+        /// 数据库sql update参数的封装类
+        /// </summary>
+        /// <param name="propertyName">属性名（即数据库表的字段名）</param>
+        /// <param name="value">表达式的值</param>
+        public DbUpdate(string propertyName, object value)
+        {
+            PropertyName = propertyName;
             Value = value;
         }
 
@@ -281,10 +324,10 @@ namespace Newcats.DataAccess.Core
         public DbOrderBy(Expression<Func<TEntity, object>> expression, SortTypeEnum orderByType = SortTypeEnum.ASC)
         {
             PropertyInfo property = GetProperty(expression) as PropertyInfo;
-            var real = property.GetCustomAttribute(typeof(ColumnAttribute), false);
-            if (real != null && real is ColumnAttribute)
+            ColumnAttribute? real = property.GetCustomAttribute<ColumnAttribute>(false);
+            if (real != null)
             {
-                PropertyName = ((ColumnAttribute)real).Name;
+                PropertyName = real.Name;
             }
             else
             {

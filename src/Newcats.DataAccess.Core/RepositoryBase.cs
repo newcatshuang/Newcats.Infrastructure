@@ -184,7 +184,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class;
+    public TEntity Get<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
+    {
+        DbWhere<TEntity> dbWhere = new DbWhere<TEntity>(RepositoryHelper.GetTablePrimaryKey(typeof(TEntity)), primaryKeyValue);
+        return Get(new List<DbWhere<TEntity>> { dbWhere }, transaction, commandTimeout, forceToMain);
+    }
 
     /// <summary>
     /// 根据给定的条件，获取一条记录
@@ -197,6 +201,14 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
     public abstract TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    //{
+    //var r = GetTop(1, dbWheres, transaction, commandTimeout, forceToMain, dbOrderBy);
+    //if (r != null && r.Any())
+    //    return r.First();
+    //return null;
+
+
+    //}
 
     /// <summary>
     /// 根据给定的条件及排序，分页获取数据
@@ -371,7 +383,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public abstract bool Exists<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class;
+    public bool Exists<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class
+    {
+        DbWhere<TEntity> dbWhere = new DbWhere<TEntity>(RepositoryHelper.GetTablePrimaryKey(typeof(TEntity)), primaryKeyValue);
+        return Exists(new List<DbWhere<TEntity>> { dbWhere }, null, null, forceToMain);
+    }
 
     /// <summary>
     /// 根据给定的条件，判断数据是否存在
@@ -674,7 +690,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class;
+    public async Task<TEntity> GetAsync<TEntity>(object primaryKeyValue, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false) where TEntity : class
+    {
+        DbWhere<TEntity> dbWhere = new DbWhere<TEntity>(RepositoryHelper.GetTablePrimaryKey(typeof(TEntity)), primaryKeyValue);
+        return await GetAsync(new List<DbWhere<TEntity>> { dbWhere }, transaction, commandTimeout, forceToMain);
+    }
 
     /// <summary>
     /// 根据给定的条件，获取一条记录
@@ -861,7 +881,11 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>是否存在</returns>
-    public abstract Task<bool> ExistsAsync<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class;
+    public async Task<bool> ExistsAsync<TEntity>(object primaryKeyValue, bool forceToMain = false) where TEntity : class
+    {
+        DbWhere<TEntity> dbWhere = new DbWhere<TEntity>(RepositoryHelper.GetTablePrimaryKey(typeof(TEntity)), primaryKeyValue);
+        return await ExistsAsync(new List<DbWhere<TEntity>> { dbWhere }, null, null, forceToMain);
+    }
 
     /// <summary>
     /// 根据给定的条件，判断数据是否存在
