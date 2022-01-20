@@ -1,4 +1,13 @@
-﻿using System.Data;
+﻿/***************************************************************************
+ *GUID: b6a5cac1-5597-422d-a5ad-ffb20320ee14
+ *CLR Version: 4.0.30319.42000
+ *DateCreated：2021-11-18 19:01:26
+ *Author: NewcatsHuang
+ *Email: newcats@live.com
+ *Github: https://github.com/newcatshuang
+ *Copyright NewcatsHuang All rights reserved.
+*****************************************************************************/
+using System.Data;
 using Dapper;
 
 namespace Newcats.DataAccess.Core;
