@@ -266,6 +266,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// </summary>
     /// <param name="storedProcedureName">存储过程名称</param>
     /// <param name="pars">参数</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
     /// <returns>受影响的行数</returns>
@@ -275,6 +276,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// 执行sql语句，返回受影响的行数
     /// </summary>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
@@ -287,6 +289,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
@@ -298,6 +301,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// 执行查询，并返回由查询返回的结果集中的第一行的第一列，其他行或列将被忽略
     /// </summary>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
@@ -310,6 +314,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
@@ -322,6 +327,7 @@ public interface IRepository<TDbContext> where TDbContext : IDbContext
     /// </summary>
     /// <typeparam name="T">返回类型</typeparam>
     /// <param name="sqlText">sql语句</param>
+    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
     /// <param name="pars">参数</param>
     /// <param name="transaction">事务</param>
     /// <param name="commandTimeout">超时时间(单位：秒)</param>
