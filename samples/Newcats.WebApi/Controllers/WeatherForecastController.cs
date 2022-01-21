@@ -77,6 +77,10 @@ namespace Newcats.WebApi.Controllers
         [HttpGet]
         public async Task<string> Index()
         {
+
+
+            var top1 = _repository.GetTop<UserInfo>(1, new List<DbWhere<UserInfo>>() { new DbWhere<UserInfo>("Id", 3966643277142298628) });
+
             //Stopwatch sw = new Stopwatch();
             //sw.Start();
 
@@ -84,6 +88,10 @@ namespace Newcats.WebApi.Controllers
 
             var getall = _repository.GetAll<UserInfo>();
             //bool success = await _repository.ChangePasswordAsync("NewcatsPassword");
+
+            var one = _repository.Get<UserInfo>(3966643277142298628);
+
+            return one?.Name;
 
             //return getall.Count().ToString();
             var getall2 = _repository.GetAll<UserInfo>(forceToMain: true);

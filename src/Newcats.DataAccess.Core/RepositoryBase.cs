@@ -200,15 +200,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbOrderBy">排序集合</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
-    //{
-    //var r = GetTop(1, dbWheres, transaction, commandTimeout, forceToMain, dbOrderBy);
-    //if (r != null && r.Any())
-    //    return r.First();
-    //return null;
-
-
-    //}
+    public TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    {
+        IEnumerable<TEntity>? r = GetTop(1, dbWheres, transaction, commandTimeout, forceToMain, dbOrderBy);
+        if (r != null && r.Any())
+            return r.First();
+        return null;
+    }
 
     /// <summary>
     /// 根据给定的条件及排序，分页获取数据
@@ -706,7 +704,13 @@ public abstract class RepositoryBase<TDbContext> : IRepository<TDbContext> where
     /// <param name="dbOrderBy">排序集合</param>
     /// <typeparam name="TEntity">数据库实体类</typeparam>
     /// <returns>数据库实体或null</returns>
-    public abstract Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class;
+    public async Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
+    {
+        IEnumerable<TEntity>? r = await GetTopAsync(1, dbWheres, transaction, commandTimeout, forceToMain, dbOrderBy);
+        if (r != null && r.Any())
+            return r.First();
+        return null;
+    }
 
     /// <summary>
     /// 根据给定的条件及排序，分页获取数据

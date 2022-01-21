@@ -97,36 +97,6 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, PostgreSq
     }
 
     /// <summary>
-    /// 根据给定的条件，获取一条记录
-    /// </summary>
-    /// <param name="dbWheres">条件集合</param>
-    /// <param name="transaction">事务</param>
-    /// <param name="commandTimeout">超时时间(单位：秒)</param>
-    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
-    /// <param name="dbOrderBy">排序集合</param>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <returns>数据库实体或null</returns>
-    public override TEntity Get<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
-    {
-        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
-
-        Type type = typeof(TEntity);
-        string tableName = RepositoryHelper.GetTableName(type);
-        string fields = RepositoryHelper.GetTableFieldsQuery(type);
-        string sqlWhere = string.Empty;
-        DynamicParameters parameters = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
-        if (!string.IsNullOrWhiteSpace(sqlWhere))
-            sqlWhere = $" WHERE 1=1 {sqlWhere} ";
-        string sqlOrderBy = SqlBuilder.GetOrderBySql(dbOrderBy);
-        if (!string.IsNullOrWhiteSpace(sqlOrderBy))
-            sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
-        string sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT 1;";
-        return useReplica ?
-            ReplicaConnection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
-            Connection.QueryFirstOrDefault<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
-    }
-
-    /// <summary>
     /// 根据给定的条件及排序，分页获取数据
     /// </summary>
     /// <param name="pageIndex">页码索引（从0开始）（pageIndex小于等于0，返回第0页数据）</param>
@@ -257,36 +227,6 @@ public class Repository<TDbContext> : Core.RepositoryBase<TDbContext>, PostgreSq
             ulong r = await copy.WriteToServerAsync(RepositoryHelper.ToDataTable(list));
             return Convert.ToInt32(r);
         }
-    }
-
-    /// <summary>
-    /// 根据给定的条件，获取一条记录
-    /// </summary>
-    /// <param name="dbWheres">条件集合</param>
-    /// <param name="transaction">事务</param>
-    /// <param name="commandTimeout">超时时间(单位：秒)</param>
-    /// <param name="forceToMain">启用读写分离时，强制此方法使用主库</param>
-    /// <param name="dbOrderBy">排序集合</param>
-    /// <typeparam name="TEntity">数据库实体类</typeparam>
-    /// <returns>数据库实体或null</returns>
-    public override async Task<TEntity> GetAsync<TEntity>(IEnumerable<DbWhere<TEntity>> dbWheres, IDbTransaction? transaction = null, int? commandTimeout = null, bool forceToMain = false, params DbOrderBy<TEntity>[] dbOrderBy) where TEntity : class
-    {
-        bool useReplica = ReplicaConnection != null && forceToMain == false;//useReplica=true表示使用从库
-
-        Type type = typeof(TEntity);
-        string tableName = RepositoryHelper.GetTableName(type);
-        string fields = RepositoryHelper.GetTableFieldsQuery(type);
-        string sqlWhere = string.Empty;
-        DynamicParameters parameters = SqlBuilder.GetWhereDynamicParameter(dbWheres, ref sqlWhere);
-        if (!string.IsNullOrWhiteSpace(sqlWhere))
-            sqlWhere = $" WHERE 1=1 {sqlWhere} ";
-        string sqlOrderBy = SqlBuilder.GetOrderBySql(dbOrderBy);
-        if (!string.IsNullOrWhiteSpace(sqlOrderBy))
-            sqlOrderBy = $" ORDER BY {sqlOrderBy} ";
-        string sqlText = $" SELECT {fields} FROM {tableName} {sqlWhere} {sqlOrderBy} LIMIT 1;";
-        return useReplica ?
-            await ReplicaConnection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text) :
-            await Connection.QueryFirstOrDefaultAsync<TEntity>(sqlText, parameters, transaction, commandTimeout, CommandType.Text);
     }
 
     /// <summary>

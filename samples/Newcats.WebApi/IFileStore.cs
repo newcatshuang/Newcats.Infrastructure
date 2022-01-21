@@ -61,14 +61,14 @@ namespace Newcats.WebApi
             services.AddSqliteDataAccess<SqliteContext>(opt =>
             {
                 opt.ConnectionString = sqliteConnStr;//主库连接
-                opt.EnableReadWriteSplit = true;//启用读写分离
-                opt.ReplicaPolicy = ReplicaSelectPolicyEnum.WeightedRoundRobin;
-                opt.ReplicaConfigs = new ReplicaConfig[]//从库配置
-                {
-                    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file1};Password=NewcatsPassword;", Weight=3},
-                    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file2};Password=NewcatsPassword;", Weight=2},
-                    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file3};Password=NewcatsPassword;", Weight=1}
-                };
+                //opt.EnableReadWriteSplit = true;//启用读写分离
+                //opt.ReplicaPolicy = ReplicaSelectPolicyEnum.WeightedRoundRobin;
+                //opt.ReplicaConfigs = new ReplicaConfig[]//从库配置
+                //{
+                //    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file1};Password=NewcatsPassword;", Weight=3},
+                //    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file2};Password=NewcatsPassword;", Weight=2},
+                //    new ReplicaConfig(){ ReplicaConnectionString=$"Data Source={file3};Password=NewcatsPassword;", Weight=1}
+                //};
             });
 
         }
