@@ -199,7 +199,7 @@ public abstract class DbContextBase : IDbContext
         }
 
         //当改变了节点或者权重的时候，需要重新实例化
-        if (!wrrSelector.Md5Value.Equals(Helper.JsonMd5(sortNodes), StringComparison.OrdinalIgnoreCase))
+        if (!wrrSelector.Md5Value.Equals(RepositoryHelper.JsonMd5(sortNodes), StringComparison.OrdinalIgnoreCase))
             wrrSelector = new WeightedRoundRobinHelper<string>(sortNodes);
 
         var result = wrrSelector.GetResult();

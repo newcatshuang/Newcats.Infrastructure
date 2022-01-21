@@ -2,7 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Newcats.DataAccess.Core
@@ -393,5 +395,58 @@ namespace Newcats.DataAccess.Core
             return !t.IsValueType || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
         #endregion
+
+        internal static MemberInfo GetProperty(LambdaExpression lambda)
+        {
+            Expression expr = lambda;
+            for (; ; )
+            {
+                switch (expr.NodeType)
+                {
+                    case ExpressionType.Lambda:
+                        expr = ((LambdaExpression)expr).Body;
+                        break;
+                    case ExpressionType.Convert:
+                        expr = ((UnaryExpression)expr).Operand;
+                        break;
+                    case ExpressionType.MemberAccess:
+                        MemberExpression memberExpression = (MemberExpression)expr;
+                        MemberInfo mi = memberExpression.Member;
+                        return mi;
+                    default:
+                        return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 先序列化为json字符串，在计算Md5指纹
+        /// </summary>
+        internal static string JsonMd5<T>(T obj)
+        {
+            string json = System.Text.Json.JsonSerializer.Serialize(obj);
+            return Md5(json);
+        }
+
+        /// <summary>
+        /// Md5加密
+        /// </summary>
+        private static string Md5(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+            var md5 = MD5.Create();
+            string result;
+            try
+            {
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(value));
+                result = BitConverter.ToString(hash);
+            }
+            finally
+            {
+                md5.Clear();
+            }
+            return result.Replace("-", "");
+        }
     }
 }

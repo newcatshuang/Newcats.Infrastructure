@@ -7,8 +7,6 @@
  *Github: https://github.com/newcatshuang
  *Copyright NewcatsHuang All rights reserved.
 *****************************************************************************/
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Newcats.DataAccess.Core;
 
@@ -140,7 +138,7 @@ internal class WeightedRoundRobinHelper<T>
     /// </summary>
     private string GetMd5(List<WeightedNode<T>> nodes)
     {
-        return Helper.JsonMd5(nodes);
+        return RepositoryHelper.JsonMd5(nodes);
     }
 }
 
@@ -158,40 +156,4 @@ internal class WeightedNode<T>
     /// 初始权重
     /// </summary>
     public int Weight { get; set; }
-}
-
-/// <summary>
-/// 帮助类
-/// </summary>
-internal class Helper
-{
-    /// <summary>
-    /// 先序列化为json字符串，在计算Md5指纹
-    /// </summary>
-    internal static string JsonMd5<T>(T obj)
-    {
-        string json = System.Text.Json.JsonSerializer.Serialize(obj);
-        return Md5(json);
-    }
-
-    /// <summary>
-    /// Md5加密
-    /// </summary>
-    private static string Md5(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return string.Empty;
-        var md5 = MD5.Create();
-        string result;
-        try
-        {
-            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(value));
-            result = BitConverter.ToString(hash);
-        }
-        finally
-        {
-            md5.Clear();
-        }
-        return result.Replace("-", "");
-    }
 }
