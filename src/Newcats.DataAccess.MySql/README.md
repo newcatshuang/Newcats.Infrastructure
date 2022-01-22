@@ -263,7 +263,15 @@ public class Startup
         //第一个DbContext
         services.AddMySqlDataAccess<MyDbContext>(opt =>
         {
-            opt.ConnectionString = "ConnectionStringOfMyDbContext";
+            opt.ConnectionString = "ConnectionStringOfMyDbContext";//主库连接
+            opt.EnableReadWriteSplit = true;//启用读写分离
+            opt.ReplicaPolicy = ReplicaSelectPolicyEnum.WeightedRoundRobin;//从库选择策略为平滑加权轮询
+            opt.ReplicaConfigs = new ReplicaConfig[]//从库配置
+            {
+                new ReplicaConfig(){ ReplicaConnectionString="从库连接字符串1", Weight=3},
+                new ReplicaConfig(){ ReplicaConnectionString="从库连接字符串2", Weight=2},
+                new ReplicaConfig(){ ReplicaConnectionString="从库连接字符串3", Weight=1}
+            };
         });
 
         //第二个DbContext
