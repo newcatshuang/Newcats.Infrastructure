@@ -1,8 +1,25 @@
-﻿# Newcats.DataAccess.MySql 使用说明
+﻿# Newcats.DataAccess.MySql 数据访问扩组件
 
 [![Net Core](https://img.shields.io/badge/.NET-6-brightgreen.svg?style=flat-square)](https://dotnet.microsoft.com/download)
 [![Nuget](https://img.shields.io/nuget/v/Newcats.DataAccess.MySql.svg)](https://www.nuget.org/packages/Newcats.DataAccess.MySql) [![Newcats.DataAccess.MySql](https://img.shields.io/nuget/dt/Newcats.DataAccess.MySql.svg)](https://www.nuget.org/packages/Newcats.DataAccess.MySql)
 [![GitHub License](https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square)](https://github.com/newcatshuang/Newcats.Infrastructure/blob/master/LICENSE)
+
+## 主要功能
+
+* 基于实体类的增删改查（CRUD）
+* 强类型where条件
+* 更新指定字段
+* 支持基于实体类的简单连接查询
+* 约定大于配置（可实现实体类零配置零特性）
+* 基于SqlBulkCopy的批量插入（[性能测试结果](https://github.com/newcatshuang/Newcats.Infrastructure/tree/master/tests/SqlBulkCopyTest)）
+* 支持读写分离，支持一主多从，默认实现平滑加权轮询、轮询、随机等算法的从库选择策略
+* 支持自定义从库选择策略
+* 支持手写sql
+* 支持依赖注入
+* 支持Sqlite数据库加密
+* 计划支持多租户（计划中……）
+
+---
 
 # 示例代码：
 
