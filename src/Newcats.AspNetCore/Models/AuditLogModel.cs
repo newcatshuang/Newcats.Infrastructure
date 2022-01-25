@@ -38,7 +38,7 @@ namespace Newcats.AspNetCore.Models
         /// <summary>
         /// 执行耗时(单位:ms)
         /// </summary>
-        public int ExecuteDuration { get; set; }
+        public long ExecuteDuration { get; set; }
 
         /// <summary>
         /// 日志时间

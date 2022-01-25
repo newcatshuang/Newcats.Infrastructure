@@ -47,7 +47,7 @@ namespace Newcats.AspNetCore.Filters
                         Action = context.ActionDescriptor.DisplayName.ToSubstring(127),
                         HttpMethod = context.HttpContext.Request.Method,
                         IP = HttpHelper.GetIP(context.HttpContext),
-                        ExecuteDuration = (int)stopwatch.ElapsedMilliseconds,
+                        ExecuteDuration = stopwatch.ElapsedMilliseconds,
                         ExecuteTime = DateTime.Now,
                         Arguments = context.ActionArguments.Count > 0 ? context.ActionArguments.ToJson().ToSubstring(1023) : string.Empty,
                         Exception = resultContext.Exception?.Message.ToSubstring(127),

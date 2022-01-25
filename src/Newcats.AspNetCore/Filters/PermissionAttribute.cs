@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Newcats.AspNetCore.Abstractions;
@@ -37,7 +38,7 @@ namespace Newcats.AspNetCore.Filters
             bool isAuthenticated = context.HttpContext.User.Identity.IsAuthenticated;
             if (!isAuthenticated)
             {
-                context.Result = new ContentResult() { StatusCode = 403, Content = "You have no permission to access this service." };
+                context.Result = new ContentResult() { StatusCode = (int)HttpStatusCode.Forbidden, Content = "You have no permission to access this service." };
                 return;
             }
 
@@ -60,7 +61,7 @@ namespace Newcats.AspNetCore.Filters
 
             if (!hasPermission)
             {
-                context.Result = new ContentResult() { StatusCode = 403, Content = "You have no permission to access this service." };
+                context.Result = new ContentResult() { StatusCode = (int)HttpStatusCode.Forbidden, Content = "You have no permission to access this service." };
                 return;
             }
 
