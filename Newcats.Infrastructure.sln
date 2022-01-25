@@ -35,7 +35,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlBulkCopyTest", "tests\Sq
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.DataAccess.Sqlite", "src\Newcats.DataAccess.Sqlite\Newcats.DataAccess.Sqlite.csproj", "{730AFCF8-756E-4B29-8DC6-5CE2055B56BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newcats.Utils.UnitTest", "tests\Newcats.Utils.UnitTest\Newcats.Utils.UnitTest.csproj", "{AAF417C1-4514-4F9E-88EF-2AC956965B0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.Utils.UnitTest", "tests\Newcats.Utils.UnitTest\Newcats.Utils.UnitTest.csproj", "{AAF417C1-4514-4F9E-88EF-2AC956965B0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerializerTest", "tests\SerializerTest\SerializerTest.csproj", "{6A60E392-E605-4E8B-BABE-A1AF06DDB379}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,10 @@ Global
 		{AAF417C1-4514-4F9E-88EF-2AC956965B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAF417C1-4514-4F9E-88EF-2AC956965B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAF417C1-4514-4F9E-88EF-2AC956965B0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A60E392-E605-4E8B-BABE-A1AF06DDB379}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A60E392-E605-4E8B-BABE-A1AF06DDB379}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A60E392-E605-4E8B-BABE-A1AF06DDB379}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A60E392-E605-4E8B-BABE-A1AF06DDB379}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +124,7 @@ Global
 		{DE8B1AD1-DBE2-436A-A037-197D4B931352} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 		{730AFCF8-756E-4B29-8DC6-5CE2055B56BF} = {98EE4B75-AED3-4D0F-BA3C-A0432473229D}
 		{AAF417C1-4514-4F9E-88EF-2AC956965B0C} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
+		{6A60E392-E605-4E8B-BABE-A1AF06DDB379} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B820ECAE-681C-4186-91AF-AA66A4EF0FB2}
