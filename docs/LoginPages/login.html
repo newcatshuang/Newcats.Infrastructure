@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>登录</title>
+	<link rel="stylesheet" href="css/loginStyle.css">
+</head>
+
+<body>
+
+	<div id="stars">
+	</div>
+	<div class="login">
+		<div class="login-brand">
+			<img src="img/kodinger.jpg" alt="logo">
+		</div>
+		<div class="login-wrapper">
+			<div class="login-box login-login">
+				<div class="login-box-inner">
+					<form>
+						<p>Sign in to continue</p>
+						<div class="login-group">
+							<label>Email <a href="#" class="login-back-link">Sign in?</a></label>
+							<input type="email" autocomplete="email" name="email" class="login-input">
+						</div>
+						<div class="login-group password-group">
+							<label>Password <a href="#" class="forgot-link">Forgot Password?</a></label>
+							<input type="password" name="password" autocomplete="current-password" class="login-input">
+						</div>
+						<button class="login-btn login-btn">
+							Sign In
+						</button>
+
+						<div class="text-foot">
+							Don't have an account? <a href="" class="register-link">Register</a>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="login-box login-register">
+				<div class="login-box-inner">
+					<form>
+						<p>Let's create your account</p>
+						<div class="login-group">
+							<label>Name</label>
+							<input type="text" name="name" autocomplete="name" class="login-input">
+						</div>
+						<div class="login-group">
+							<label>Email</label>
+							<input type="email" autocomplete="email" name="email" class="login-input">
+						</div>
+						<div class="login-group">
+							<label>Password</label>
+							<input type="password" name="password" autocomplete="current-password" class="login-input">
+						</div>
+						<button class="login-btn">
+							Sign Up
+						</button>
+
+						<div class="text-foot">
+							Already have an account? <a href="" class="login-link">Login</a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<footer class="login-footer">
+			Copyright NewcatsHuang All rights reserved.
+		</footer>
+	</div>
+	<script src="js/login.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		LoginFun.init({
+			login_url: '#login',
+			forgot_url: '#forgot'
+		});
+
+		// 流星
+		window.onload = function () {
+			let stars = document.getElementById('stars');
+			for (var j = 0; j < 30; j++) {
+				let newStar = document.createElement("div");
+				newStar.className = "star"
+				newStar.style.top = randomDistance(500, -100) + 'px'
+				newStar.style.left = randomDistance(1300, 300) + 'px'
+				stars.appendChild(newStar)
+			}
+
+			function randomDistance(max, min) {
+				let distance = Math.floor(Math.random() * (max - min + 1) + min)
+				return distance
+			}
+			var star = document.getElementsByClassName('star')
+			for (var i = 0, len = star.length; i < len; i++) {
+				star[i].style.animationDelay = i % 6 == 0 ? '0s' : i * 0.1 + 's'
+			}
+		}
+	</script>
+</body>
+
+</html>
