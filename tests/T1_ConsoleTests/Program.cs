@@ -26,7 +26,7 @@ namespace T1_ConsoleTests
         static void Main(string[] args)
         {
             int[] IntArr = new int[] { 1, 2, 3, 4 }; //整型数组
-            List<int[]> ListCombination = PermutationAndCombination<int>.GetPermutation(IntArr); //求全部的5取3排列
+            List<int[]> ListCombination = PermutationAndCombination<int>.GetPermutation(IntArr, 2); //求全部的5取3排列
             foreach (int[] arr in ListCombination)
             {
                 foreach (int item in arr)
