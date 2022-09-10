@@ -37,7 +37,7 @@ namespace Newcats.Utils.Extensions
                 des = desAttr.Description;
             else
                 des = memberInfo.Name;
-            _cacheDes.TryAdd(key, des);
+            _ = _cacheDes.TryAdd(key, des);
             return des;
         }
 
@@ -66,6 +66,22 @@ namespace Newcats.Utils.Extensions
         {
             Type type = value.GetType();
             return Helpers.EnumHelper.GetAllEnumDescriptions(type);
+        }
+
+        /// <summary>
+        /// 字符串转为对应的枚举值
+        /// </summary>
+        /// <typeparam name="T">枚举类</typeparam>
+        /// <param name="value">字符串值</param>
+        /// <param name="defaultValue">枚举默认值</param>
+        /// <returns>枚举值</returns>
+        public static T? ToEnum<T>(this string value, T? defaultValue = default) where T : struct
+        {
+            if (value.IsNullOrWhiteSpace())
+                return defaultValue;
+
+            T result;
+            return Enum.TryParse<T>(value, true, out result) ? result : defaultValue;
         }
     }
 }
