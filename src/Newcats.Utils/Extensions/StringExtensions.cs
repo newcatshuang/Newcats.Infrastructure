@@ -922,6 +922,41 @@ public static class StringExtensions
             throw new ArgumentNullException(nameof(value));
     }
     #endregion
+
+    #region Decimal
+    /// <summary>
+    /// 四舍五入（默认保留2位小数）
+    /// </summary>
+    /// <param name="value">值</param>
+    /// <returns>返回值</returns>
+    public static decimal ToRound(this decimal value)
+    {
+        return value.ToRound(2);
+    }
+
+    /// <summary>
+    /// 四舍五入（指定保留小数位数）
+    /// </summary>
+    /// <param name="value">值</param>
+    /// <param name="decimals">小数位数</param>
+    /// <returns>返回值</returns>
+    public static decimal ToRound(this decimal value, int decimals)
+    {
+        return value.ToRound(decimals, MidpointRounding.AwayFromZero);
+    }
+
+    /// <summary>
+    /// 四舍五入（指定保留小数位数和策略）
+    /// </summary>
+    /// <param name="value">值</param>
+    /// <param name="decimals">小数位数</param>
+    /// <param name="mode">策略</param>
+    /// <returns>返回值</returns>
+    public static decimal ToRound(this decimal value, int decimals, MidpointRounding mode)
+    {
+        return Math.Round(value, decimals, mode);
+    }
+    #endregion
 }
 
 #region System.Text.Json的自定义转换器

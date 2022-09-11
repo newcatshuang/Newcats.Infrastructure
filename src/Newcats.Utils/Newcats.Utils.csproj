@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Newcats.Utils</PackageId>
-		<Version>1.0.11</Version>
+		<Version>1.0.12</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -17,6 +17,10 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2022-9-11
+			1.增加四舍五入扩展方法
+			2.增加字符串转枚举扩展方法
+			
 			2022-3-20
 			1.增加排列组合算法
 
