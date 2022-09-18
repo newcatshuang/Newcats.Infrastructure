@@ -915,11 +915,24 @@ public static class StringExtensions
     /// Throws an System.ArgumentNullException if the string is null, empty, or consists only of white-space characters.
     /// </summary>
     /// <param name="value">The string</param>
+    /// <param name="message">A message that describes the error.</param>
     /// <exception cref="ArgumentNullException">the string is null, empty, or consists only of white-space characters</exception>
-    public static void ThrowIfNullOrWhiteSpace(this string value)
+    public static void ThrowIfNullOrWhiteSpace(this string value, string message = "")
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentNullException(nameof(value));
+            throw new ArgumentNullException(nameof(value), message);
+    }
+
+    /// <summary>
+    /// Throws an System.ArgumentNullException if the string is null or empty.
+    /// </summary>
+    /// <param name="value">The string</param>
+    /// <param name="message">A message that describes the error.</param>
+    /// <exception cref="ArgumentNullException">the string is null, empty, or consists only of white-space characters</exception>
+    public static void ThrowIfNullOrEmpty(this string value, string message = "")
+    {
+        if (string.IsNullOrEmpty(value))
+            throw new ArgumentNullException(nameof(value), message);
     }
     #endregion
 

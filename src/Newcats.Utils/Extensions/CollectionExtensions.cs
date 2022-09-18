@@ -26,7 +26,7 @@ namespace Newcats.Utils.Extensions
             foreach (PropertyInfo prop in props)
             {
                 Type t = GetCoreType(prop.PropertyType);
-                tb.Columns.Add(prop.Name, t);
+                _ = tb.Columns.Add(prop.Name, t);
             }
 
             foreach (T item in collection)
@@ -37,7 +37,7 @@ namespace Newcats.Utils.Extensions
                 {
                     values[i] = props[i].GetValue(item, null);
                 }
-                tb.Rows.Add(values);
+                _ = tb.Rows.Add(values);
             }
             return tb;
         }
@@ -55,9 +55,7 @@ namespace Newcats.Utils.Extensions
                 return list;
 
             //获得此模型的类型   
-            Type type = typeof(T);
-            string tempName = "";
-
+            _ = typeof(T);
             foreach (DataRow dr in source.Rows)
             {
                 T t = new();
@@ -65,7 +63,7 @@ namespace Newcats.Utils.Extensions
                 PropertyInfo[] propertys = t.GetType().GetProperties();
                 foreach (PropertyInfo pi in propertys)
                 {
-                    tempName = pi.Name;  //检查DataTable是否包含此列    
+                    string tempName = pi.Name;
                     if (source.Columns.Contains(tempName))
                     {
                         //判断此属性是否有Setter      
@@ -243,11 +241,12 @@ namespace Newcats.Utils.Extensions
         /// </summary>
         /// <typeparam name="T">The type of objects to enumerate</typeparam>
         /// <param name="collection">The collection</param>
+        /// <param name="message">A message that describes the error.</param>
         /// <exception cref="ArgumentException">collection is empty</exception>
-        public static void ThrowIfEmpty<T>(this IEnumerable<T> collection)
+        public static void ThrowIfEmpty<T>(this IEnumerable<T> collection, string message = "")
         {
             if (!collection.Any())
-                throw new ArgumentException("The collection is empty.", nameof(collection));
+                throw new ArgumentException(message, nameof(collection));
         }
 
         /// <summary>
@@ -255,11 +254,12 @@ namespace Newcats.Utils.Extensions
         /// </summary>
         /// <typeparam name="T">The type of objects to enumerate</typeparam>
         /// <param name="collection">The collection</param>
+        /// <param name="message">A message that describes the error.</param>
         /// <exception cref="ArgumentNullException">collection is null or empty</exception>
-        public static void ThrowIfNullOrEmpty<T>(this IEnumerable<T> collection)
+        public static void ThrowIfNullOrEmpty<T>(this IEnumerable<T> collection, string message = "")
         {
             if (collection == null || !collection.Any())
-                throw new ArgumentNullException(nameof(collection), "The collection is null or empty.");
+                throw new ArgumentNullException(nameof(collection), message);
         }
 
         /// <summary>

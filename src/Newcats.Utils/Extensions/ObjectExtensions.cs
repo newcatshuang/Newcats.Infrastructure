@@ -19,11 +19,12 @@ namespace Newcats.Utils.Extensions
         /// Throws an System.ArgumentNullException if the object is null
         /// </summary>
         /// <param name="obj">object</param>
+        /// <param name="message">A message that describes the error.</param>
         /// <exception cref="ArgumentNullException">object is null</exception>
-        public static void ThrowIfNull(this object obj)
+        public static void ThrowIfNull(this object obj, string message = "")
         {
             if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
+                throw new ArgumentNullException(nameof(obj), message);
         }
     }
 }
