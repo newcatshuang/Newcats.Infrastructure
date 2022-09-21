@@ -272,5 +272,15 @@ namespace Newcats.Utils.Extensions
         {
             return collection == null || !collection.Any();
         }
+
+        /// <summary>
+        /// Whether the current object is not null and the collection has element and the string is not empty(also not whitespace).
+        /// </summary>
+        /// <param name="collection">The collection</param>
+        /// <returns>true if has value</returns>
+        public static bool HasValue<T>(this IEnumerable<T> collection)
+        {
+            return collection != null && collection.Any();
+        }
     }
 }

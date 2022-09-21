@@ -26,5 +26,15 @@ namespace Newcats.Utils.Extensions
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj), message);
         }
+
+        /// <summary>
+        /// Whether the current object is not null and the collection has element and the string is not empty(also not whitespace).
+        /// </summary>
+        /// <param name="obj">object</param>
+        /// <returns>true if has value</returns>
+        public static bool HasValue(this object obj)
+        {
+            return obj != null;
+        }
     }
 }

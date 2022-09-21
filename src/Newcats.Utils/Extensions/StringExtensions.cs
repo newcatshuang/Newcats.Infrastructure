@@ -742,6 +742,16 @@ public static class StringExtensions
             return str.Substring(startIndex);
         return str.Substring(startIndex, length);
     }
+
+    /// <summary>
+    /// Whether the current object is not null and the collection has element and the string is not empty(also not whitespace).
+    /// </summary>
+    /// <param name="str">The string</param>
+    /// <returns>true if has value</returns>
+    public static bool HasValue(this string str)
+    {
+        return !str.IsNullOrWhiteSpace();
+    }
     #endregion
 
     #region PinYin(获取汉字的拼音和拼音简码)
