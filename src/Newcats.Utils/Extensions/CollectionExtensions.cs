@@ -122,8 +122,25 @@ namespace Newcats.Utils.Extensions
         {
             if (condition)
                 return list.Append(item);
-            else
+            return list;
+        }
+
+        /// <summary>
+        /// 根据condition条件，判断是否加入当前list集合
+        /// </summary>
+        /// <typeparam name="T">集合的元素类型</typeparam>
+        /// <param name="list">当前集合</param>
+        /// <param name="collection">另一个集合</param>
+        /// <param name="condition">是否加入集合</param>
+        /// <returns>加入了元素的集合</returns>
+        public static List<T> AddRangeIf<T>(this List<T> list, IEnumerable<T> collection, bool condition)
+        {
+            if (condition)
+            {
+                list.AddRange(collection);
                 return list;
+            }
+            return list;
         }
 
         /// <summary>
@@ -136,6 +153,18 @@ namespace Newcats.Utils.Extensions
         public static IEnumerable<T> AddIfNotNull<T>(this IEnumerable<T> list, T item)
         {
             return list.AddIf(item, item != null);
+        }
+
+        /// <summary>
+        /// 若另一个集合有元素，则加入当前list集合
+        /// </summary>
+        /// <typeparam name="T">集合的元素类型</typeparam>
+        /// <param name="list">当前集合</param>
+        /// <param name="collection">另一个集合</param>
+        /// <returns>加入了元素的集合</returns>
+        public static IEnumerable<T> AddRangeIfNotNullAndEmpty<T>(this List<T> list, IEnumerable<T> collection)
+        {
+            return list.AddRangeIf(collection, collection.HasValue());
         }
 
         /// <summary>
