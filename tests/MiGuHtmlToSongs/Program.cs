@@ -10,7 +10,7 @@ namespace MiGuHtmlToSongs
         static async Task Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"[{DateTime.Now}]开始解析...");
+            Console.WriteLine($"[{DateTime.Now}] 开始解析...");
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             const string TempDownPath = @"C:\\Users\\Newcats\\Music\\TempDown\";
@@ -30,7 +30,7 @@ namespace MiGuHtmlToSongs
             stopwatch.Stop();
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"[{DateTime.Now}]全部下载完成，耗时[{stopwatch.ElapsedMilliseconds / 1000 / 60} mins]  o(*￣▽￣*)ブ   [总列表：{list.Count}].....[已存在：{existsCount}].....[新下载：{newCount}]");
+            Console.WriteLine($"[{DateTime.Now}] 全部下载完成，耗时[{stopwatch.ElapsedMilliseconds / 1000 / 60} mins]  o(*￣▽￣*)ブ   [总列表：{list.Count}].....[已存在：{existsCount}].....[新下载：{newCount}]");
             Console.Read();
         }
 
@@ -121,7 +121,7 @@ namespace MiGuHtmlToSongs
                         {
                             fileStream.CopyTo(fs);
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"[{DateTime.Now}]{song.Index}-{song.Artist}-{song.Album}-{song.Name}    下载完成 φ(゜▽゜*)φ");
+                            Console.WriteLine($"[{DateTime.Now}] {song.Index}-{song.Artist}-{song.Album}-{song.Name}    下载完成 φ(゜▽゜*)φ");
                             newCount++;
                         }
                     }
@@ -146,7 +146,7 @@ namespace MiGuHtmlToSongs
                 catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[{DateTime.Now}]{song.Index}-{song.Artist}-{song.Album}-{song.Name}    下载失败 /(ㄒoㄒ)/~~  ____________ {ex.Message}");
+                    Console.WriteLine($"[{DateTime.Now}] {song.Index}-{song.Artist}-{song.Album}-{song.Name}    下载失败 /(ㄒoㄒ)/~~  ____________ {ex.Message}");
                     //throw;
                 }
             }
