@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Newcats.Utils.Extensions;
 
@@ -9,6 +10,37 @@ namespace MiGuHtmlToSongs
     {
         static async Task Main(string[] args)
         {
+            string AlbumId = "8612";
+            string fullUrl = $"https://app.c.nf.migu.cn/MIGUM2.0/v1.0/content/resourceinfo.do?needSimple=01&resourceId={AlbumId}&resourceType=2003";
+
+            HttpClient client = new();
+            //client.DefaultRequestHeaders.Add("User-agent", @"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.11(0x17000b21) NetType/4G Language/zh_CN");
+            //client.DefaultRequestHeaders.Add("Accept", @"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+            //client.DefaultRequestHeaders.Add("Host", @"app.c.nf.migu.cn");
+            //client.DefaultRequestHeaders.Add("Content-Type", @"application/json;charset=utf-8");
+
+            //var response = await client.GetAsync(fullUrl);
+
+
+            HttpRequestMessage httpRequest = new(HttpMethod.Get, fullUrl);
+            httpRequest.Headers.TryAddWithoutValidation("User-agent", @"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.11(0x17000b21) NetType/4G Language/zh_CN");
+            httpRequest.Headers.TryAddWithoutValidation("Accept", @"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+            httpRequest.Headers.TryAddWithoutValidation("Host", @"app.c.nf.migu.cn");
+            httpRequest.Headers.TryAddWithoutValidation("Content-Type", @"application/json;charset=utf-8");
+
+            var response = await client.SendAsync(httpRequest);
+            var result = response.Content.ReadAsStringAsync();
+
+            Url url = new("ftp://218.200.160.122:21/public/product9th/product43/product/24bit/2021/04/09/60054035878/60054035878.flac")
+            {
+                Protocol = "https",
+                HostName = "freetyst.nf.migu.cn"
+            };
+
+            string httpUrl = url.Href.Replace("ftp", "https");
+
+            return;
+
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"[{DateTime.Now}] 开始解析...");
             Stopwatch stopwatch = Stopwatch.StartNew();
