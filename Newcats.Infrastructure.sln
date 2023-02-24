@@ -39,7 +39,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.Utils.UnitTest", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializerTest", "tests\SerializerTest\SerializerTest.csproj", "{6A60E392-E605-4E8B-BABE-A1AF06DDB379}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiGuHtmlToSongs", "tests\MiGuHtmlToSongs\MiGuHtmlToSongs.csproj", "{F5B6E8BA-4B51-4235-8810-CDA28C3F2461}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiGuHtmlToSongs", "tests\MiGuHtmlToSongs\MiGuHtmlToSongs.csproj", "{F5B6E8BA-4B51-4235-8810-CDA28C3F2461}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newcats.MusicDownloader", "tests\Newcats.MusicDownloader\Newcats.MusicDownloader.csproj", "{D889296D-77FC-4303-A486-FCF49C041A83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,10 @@ Global
 		{F5B6E8BA-4B51-4235-8810-CDA28C3F2461}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5B6E8BA-4B51-4235-8810-CDA28C3F2461}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5B6E8BA-4B51-4235-8810-CDA28C3F2461}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D889296D-77FC-4303-A486-FCF49C041A83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D889296D-77FC-4303-A486-FCF49C041A83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D889296D-77FC-4303-A486-FCF49C041A83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D889296D-77FC-4303-A486-FCF49C041A83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,6 +138,7 @@ Global
 		{AAF417C1-4514-4F9E-88EF-2AC956965B0C} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 		{6A60E392-E605-4E8B-BABE-A1AF06DDB379} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 		{F5B6E8BA-4B51-4235-8810-CDA28C3F2461} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
+		{D889296D-77FC-4303-A486-FCF49C041A83} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B820ECAE-681C-4186-91AF-AA66A4EF0FB2}
