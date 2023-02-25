@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
 
 namespace Newcats.MusicDownloader
 {
@@ -6,11 +6,81 @@ namespace Newcats.MusicDownloader
     {
         static async Task Main(string[] args)
         {
-            string sss = Assembly.GetExecutingAssembly().Location;
-            Console.WriteLine("Hello, World!");
-            string albumId = Console.ReadLine();
+            //string defaultSavePath = Directory.GetCurrentDirectory();
+            string defaultSavePath = @"C:\Users\Newcats\Music\";
 
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("==========================咪咕音乐下载器[Newcats-2023/02/25]==========================");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
 
+            Console.WriteLine("1.输入专辑ID(多个ID请用英文逗号分割，例如：10086,10010)：");
+            string albumIds = Console.ReadLine();//专辑Id
+            Console.WriteLine("2.输入专辑链接(多个链接请用英文逗号分割，例如：https://music.migu.cn/v3/music/digital_album/1139605801,https://music.migu.cn/v3/music/album/63205)：");
+            string albumUrls = Console.ReadLine();
+            while (string.IsNullOrWhiteSpace(albumIds) && string.IsNullOrWhiteSpace(albumUrls))
+            {
+                Console.WriteLine("专辑ID或专辑链接至少要输入一个......");
+
+                Console.WriteLine("1.输入专辑ID(多个ID请用英文逗号分割，例如：10086,10010)：");
+                albumIds = Console.ReadLine();//专辑Id
+                Console.WriteLine("2.输入专辑链接(多个链接请用英文逗号分割，例如：https://music.migu.cn/v3/music/digital_album/1139605801,https://music.migu.cn/v3/music/album/63205)：");
+                albumUrls = Console.ReadLine();
+            }
+            Console.WriteLine(@$"3.输入文件保存路径(默认路径为 {defaultSavePath})：");
+            string path = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(path))
+                path = defaultSavePath;
+
+            List<string> albumIdList = new();
+            if (!string.IsNullOrWhiteSpace(albumIds) && !albumIds.Contains(','))
+            {
+                albumIdList.Add(albumIds);
+            }
+            if (!string.IsNullOrWhiteSpace(albumIds) && albumIds.Contains(','))
+            {
+                albumIdList.AddRange(albumIds.Split(','));
+            }
+            if (!string.IsNullOrWhiteSpace(albumUrls) && !albumUrls.Contains(','))
+            {
+                Uri uri = new(albumUrls);
+                albumIdList.Add(uri.Segments.Last());
+            }
+            if (!string.IsNullOrWhiteSpace(albumUrls) && albumUrls.Contains(','))
+            {
+                var urls = albumUrls.Split(',');
+                foreach (var url in urls)
+                {
+                    Uri uri = new(url);
+                    albumIdList.Add(uri.Segments.Last());
+                }
+            }
+            albumIdList = albumIdList.Distinct().ToList();
+            int allCount = 0;//总歌曲数
+            int allNewCount = 0;//总的新下载数
+            int allExistsCount = 0;//总的已存在数
+            long totalMilliseconds = 0;//总耗时毫秒数
+            foreach (var albumId in albumIdList)
+            {
+                Stopwatch stopwatch = new();
+                stopwatch.Start();
+                var musics = await GetMusicsFromAlbumIdAsync(albumId);
+                if (musics != null && musics.Count > 0)
+                {
+                    var (newCount, existsCount) = await DownloadAndSaveMusicAsync(musics, path);
+                    allCount += musics.Count;
+                    allNewCount += newCount;
+                    allExistsCount += existsCount;
+
+                    stopwatch.Stop();
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"[{DateTime.Now}] {albumId}下载完成，耗时[{stopwatch.ElapsedMilliseconds / 1000 / 60} mins] [总列表：{musics.Count}].....[已存在：{existsCount}].....[新下载：{newCount}]");
+                }
+                stopwatch.Stop();
+            }
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"[{DateTime.Now}] 所有专辑下载完成，耗时[{totalMilliseconds / 1000 / 60} mins] [歌曲总数：{allCount}].....[已存在：{allExistsCount}].....[新下载：{allNewCount}]");
         }
 
         /// <summary>
@@ -36,6 +106,7 @@ namespace Newcats.MusicDownloader
                 var response = await client.SendAsync(httpRequest);
                 if (!response.IsSuccessStatusCode)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"专辑Id={albumId}请求失败(；′⌒`)");
                 }
 
@@ -52,11 +123,11 @@ namespace Newcats.MusicDownloader
                         {
                             MusicModel music = new()
                             {
-                                SongId = item.songId?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", ""),
-                                Name = item.songName?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", ""),
-                                Singer = item.singer?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", ""),
-                                AlbumId = item.albumId?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", ""),
-                                AlbumName = item.album?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", ""),
+                                SongId = item.songId?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", "").Replace("\\", ",").Replace(":", ",").Replace("*", ",").Replace("\"", ",").Replace("<", ",").Replace(">", ",").Replace("|", ","),
+                                Name = item.songName?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", "").Replace("\\", ",").Replace(":", ",").Replace("*", ",").Replace("\"", ",").Replace("<", ",").Replace(">", ",").Replace("|", ","),
+                                Singer = item.singer?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", "").Replace("\\", ",").Replace(":", ",").Replace("*", ",").Replace("\"", ",").Replace("<", ",").Replace(">", ",").Replace("|", ","),
+                                AlbumId = item.albumId?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", "").Replace("\\", ",").Replace(":", ",").Replace("*", ",").Replace("\"", ",").Replace("<", ",").Replace(">", ",").Replace("|", ","),
+                                AlbumName = item.album?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", "").Replace("\\", ",").Replace(":", ",").Replace("*", ",").Replace("\"", ",").Replace("<", ",").Replace(">", ",").Replace("|", ","),
                                 AlbumPictureUrl = item.albumImgs?.OrderByDescending(f => f.imgSize)?.FirstOrDefault().img
                             };
 
@@ -64,22 +135,29 @@ namespace Newcats.MusicDownloader
                             music.FileExtension = file?.fileType?.Replace(" ", "").Replace("/", "").Replace("?", "").Replace("!", "").Replace("\n", "").Replace("\r", "").Replace("?", "").Replace("!", "");
                             music.FileSize = file?.androidSizeLong > 0 ? file.androidSizeLong : file.sizeLong;
                             string ftpUrl = string.IsNullOrWhiteSpace(file.androidUrl) ? file.url : file.androidUrl;
-                            music.FileUrl = $"{httpPrifix}{ftpUrl.Split("public").Last()}";
+                            music.FileUrl = $"{httpPrifix}/public{ftpUrl.Split("public").Last()}";
 
                             musics.Add(music);
                         }
                     }
                 }
                 if (musics.Count > 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine($"[{DateTime.Now}] 解析专辑【{musics.FirstOrDefault()?.AlbumName}】成功，共{musics.Count}首歌曲 O(∩_∩)O");
+                }
                 else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"[{DateTime.Now}] 专辑Id={albumId}请求失败 (；′⌒`)");
+                }
 
                 return musics;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[{DateTime.Now}] 专辑Id={albumId}解析失败 /(ㄒoㄒ)/~~");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[{DateTime.Now}] 专辑Id={albumId}解析失败 /(ㄒoㄒ)/~~ ____________ {ex.Message}");
                 return null;
             }
         }
@@ -93,7 +171,7 @@ namespace Newcats.MusicDownloader
         private static async Task<(int, int)> DownloadAndSaveMusicAsync(List<MusicModel> songs, string tempDownPath)
         {
             if (string.IsNullOrWhiteSpace(tempDownPath))
-                tempDownPath = Assembly.GetExecutingAssembly().Location;
+                tempDownPath = Directory.GetCurrentDirectory();
             int newCount = 0;
             int existsCount = 0;
             var baseDir = new DirectoryInfo(tempDownPath);
