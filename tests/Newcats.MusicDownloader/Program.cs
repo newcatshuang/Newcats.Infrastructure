@@ -11,23 +11,29 @@ namespace Newcats.MusicDownloader
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("==========================咪咕音乐下载器[Newcats-2023/02/25]==========================");
+            Console.WriteLine("1.咪咕音乐官网：https://music.migu.cn/v3");
+            Console.WriteLine("2.专辑ID：专辑唯一ID，入参支持多个，多个ID请用英文逗号分割，例如：10086,10010");
+            Console.WriteLine("3.专辑链接：咪咕音乐的专辑页链接，入参支持多个，多个链接请用英文逗号分割，例如：https://music.migu.cn/v3/music/digital_album/1139605801,https://music.migu.cn/v3/music/album/63205");
+            Console.Write($"4.文件保存路径：下载的音乐文件的保存根目录，子目录以[歌手名-专辑名]自动创建，默认路径为 ");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(defaultSavePath);
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
 
-            Console.WriteLine("1.输入专辑ID(多个ID请用英文逗号分割，例如：10086,10010)：");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("1.专辑ID：");
             string albumIds = Console.ReadLine();//专辑Id
-            Console.WriteLine("2.输入专辑链接(多个链接请用英文逗号分割，例如：https://music.migu.cn/v3/music/digital_album/1139605801,https://music.migu.cn/v3/music/album/63205)：");
+            Console.WriteLine("2.专辑链接：");
             string albumUrls = Console.ReadLine();
             while (string.IsNullOrWhiteSpace(albumIds) && string.IsNullOrWhiteSpace(albumUrls))
             {
                 Console.WriteLine("专辑ID或专辑链接至少要输入一个......");
 
-                Console.WriteLine("1.输入专辑ID(多个ID请用英文逗号分割，例如：10086,10010)：");
+                Console.WriteLine("1.专辑ID：");
                 albumIds = Console.ReadLine();//专辑Id
-                Console.WriteLine("2.输入专辑链接(多个链接请用英文逗号分割，例如：https://music.migu.cn/v3/music/digital_album/1139605801,https://music.migu.cn/v3/music/album/63205)：");
+                Console.WriteLine("2.专辑链接：");
                 albumUrls = Console.ReadLine();
             }
-            Console.WriteLine(@$"3.输入文件保存路径(默认路径为 {defaultSavePath})：");
+            Console.WriteLine("3.文件保存路径：");
             string path = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(path))
                 path = defaultSavePath;
@@ -39,7 +45,7 @@ namespace Newcats.MusicDownloader
             }
             if (!string.IsNullOrWhiteSpace(albumIds) && albumIds.Contains(','))
             {
-                albumIdList.AddRange(albumIds.Split(','));
+                albumIdList.AddRange(albumIds.Split(',', StringSplitOptions.RemoveEmptyEntries));
             }
             if (!string.IsNullOrWhiteSpace(albumUrls) && !albumUrls.Contains(','))
             {
@@ -48,7 +54,7 @@ namespace Newcats.MusicDownloader
             }
             if (!string.IsNullOrWhiteSpace(albumUrls) && albumUrls.Contains(','))
             {
-                var urls = albumUrls.Split(',');
+                var urls = albumUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
                 foreach (var url in urls)
                 {
                     Uri uri = new(url);
@@ -73,14 +79,17 @@ namespace Newcats.MusicDownloader
                     allExistsCount += existsCount;
 
                     stopwatch.Stop();
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"[{DateTime.Now}] {albumId}下载完成，耗时[{stopwatch.ElapsedMilliseconds / 1000 / 60} mins] [总列表：{musics.Count}].....[已存在：{existsCount}].....[新下载：{newCount}]");
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine($"[{DateTime.Now}] [{albumId}]下载完成，耗时[{FormatMilliseconds(stopwatch.ElapsedMilliseconds)}] [总列表：{musics.Count}]...[已存在：{existsCount}]...[新下载：{newCount}]");
+                    Console.WriteLine();
                 }
                 stopwatch.Stop();
+                totalMilliseconds += stopwatch.ElapsedMilliseconds;
             }
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"[{DateTime.Now}] 所有专辑下载完成，耗时[{totalMilliseconds / 1000 / 60} mins] [歌曲总数：{allCount}].....[已存在：{allExistsCount}].....[新下载：{allNewCount}]");
+            Console.WriteLine($"[{DateTime.Now}] 所有专辑下载完成，耗时[{FormatMilliseconds(totalMilliseconds)}] [歌曲总数：{allCount}]...[已存在：{allExistsCount}]...[新下载：{allNewCount}]");
+            Console.ReadLine();
         }
 
         /// <summary>
@@ -111,7 +120,6 @@ namespace Newcats.MusicDownloader
                 }
 
                 var result = await response.Content.ReadAsStringAsync();
-
 
                 var miguModel = System.Text.Json.JsonSerializer.Deserialize<MiguResponse>(result);
                 if (miguModel != null && miguModel.resource != null && miguModel.resource.Any())
@@ -203,7 +211,7 @@ namespace Newcats.MusicDownloader
                         {
                             fileStream.CopyTo(fs);
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"[{DateTime.Now}] {song.Singer}-{song.AlbumName}-{song.Name}    下载完成 φ(゜▽゜*)φ");
+                            Console.WriteLine($"[{DateTime.Now}] {song.Singer}-{song.AlbumName}-{song.Name}  下载完成 φ(゜▽゜*)φ");
                             newCount++;
                         }
                     }
@@ -212,27 +220,49 @@ namespace Newcats.MusicDownloader
                         existsCount++;
                     }
 
-                    //下载专辑封面
-                    var pic = Path.Combine(albumDir.FullName, song.AlbumName + "." + song.AlbumPictureUrl.Split('.').Last());
-                    FileInfo picFile = new(pic);
-                    if (!picFile.Exists)
+                    try
                     {
-                        HttpClient http = new();
-                        var fileStream = await http.GetStreamAsync(song.AlbumPictureUrl);
-                        using (var fs = File.Create(pic))
+                        //下载专辑封面
+                        var pic = Path.Combine(albumDir.FullName, song.AlbumName + "." + song.AlbumPictureUrl.Split('.').Last());
+                        FileInfo picFile = new(pic);
+                        if (!picFile.Exists)
                         {
-                            fileStream.CopyTo(fs);
+                            HttpClient http = new();
+                            var fileStream = await http.GetStreamAsync(song.AlbumPictureUrl);
+                            using (var fs = File.Create(pic))
+                            {
+                                fileStream.CopyTo(fs);
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[{DateTime.Now}] {song.Singer}-{song.AlbumName}-{song.Name}    下载失败 /(ㄒoㄒ)/~~  ____________ {ex.Message}");
+                    Console.WriteLine($"[{DateTime.Now}] {song.Singer}-{song.AlbumName}-{song.Name}  下载失败 /(ㄒoㄒ)/~~  ____________ {ex.Message}");
                 }
             }
 
             return (newCount, existsCount);
+        }
+
+        /// <summary>
+        /// 时间格式化
+        /// </summary>
+        /// <param name="secs"></param>
+        /// <returns></returns>
+        public static string FormatMilliseconds(long secs)
+        {
+            if (secs <= 1000)
+                return $"{secs}ms";
+            else if (secs > 1000 && secs < 1000 * 60)
+                return $"{secs / 1000}s";
+            else
+                return $"{secs / 1000 / 60}mins";
         }
     }
 }
