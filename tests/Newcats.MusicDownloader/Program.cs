@@ -38,57 +38,67 @@ namespace Newcats.MusicDownloader
             if (string.IsNullOrWhiteSpace(path))
                 path = defaultSavePath;
 
-            List<string> albumIdList = new();
-            if (!string.IsNullOrWhiteSpace(albumIds) && !albumIds.Contains(','))
+            if (albumIds == "10086")
             {
-                albumIdList.Add(albumIds);
+                ReportRepeat(path);
             }
-            if (!string.IsNullOrWhiteSpace(albumIds) && albumIds.Contains(','))
+            else
             {
-                albumIdList.AddRange(albumIds.Split(',', StringSplitOptions.RemoveEmptyEntries));
-            }
-            if (!string.IsNullOrWhiteSpace(albumUrls) && !albumUrls.Contains(','))
-            {
-                Uri uri = new(albumUrls);
-                albumIdList.Add(uri.Segments.Last());
-            }
-            if (!string.IsNullOrWhiteSpace(albumUrls) && albumUrls.Contains(','))
-            {
-                var urls = albumUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach (var url in urls)
+                List<string> albumIdList = new();
+                if (!string.IsNullOrWhiteSpace(albumIds) && !albumIds.Contains(','))
                 {
-                    Uri uri = new(url);
+                    albumIdList.Add(albumIds);
+                }
+                if (!string.IsNullOrWhiteSpace(albumIds) && albumIds.Contains(','))
+                {
+                    albumIdList.AddRange(albumIds.Split(',', StringSplitOptions.RemoveEmptyEntries));
+                }
+                if (!string.IsNullOrWhiteSpace(albumUrls) && !albumUrls.Contains(','))
+                {
+                    Uri uri = new(albumUrls);
                     albumIdList.Add(uri.Segments.Last());
                 }
-            }
-            albumIdList = albumIdList.Distinct().ToList();
-            int allCount = 0;//总歌曲数
-            int allNewCount = 0;//总的新下载数
-            int allExistsCount = 0;//总的已存在数
-            long totalMilliseconds = 0;//总耗时毫秒数
-            foreach (var albumId in albumIdList)
-            {
-                Stopwatch stopwatch = new();
-                stopwatch.Start();
-                var musics = await GetMusicsFromAlbumIdAsync(albumId);
-                if (musics != null && musics.Count > 0)
+                if (!string.IsNullOrWhiteSpace(albumUrls) && albumUrls.Contains(','))
                 {
-                    var (newCount, existsCount) = await DownloadAndSaveMusicAsync(musics, path);
-                    allCount += musics.Count;
-                    allNewCount += newCount;
-                    allExistsCount += existsCount;
-
-                    stopwatch.Stop();
-                    Console.ForegroundColor = ConsoleColor.DarkCyan;
-                    Console.WriteLine($"[{DateTime.Now}] [{albumId}]下载完成，耗时[{FormatMilliseconds(stopwatch.ElapsedMilliseconds)}] [总列表：{musics.Count}]...[已存在：{existsCount}]...[新下载：{newCount}]");
-                    Console.WriteLine();
+                    var urls = albumUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var url in urls)
+                    {
+                        Uri uri = new(url);
+                        albumIdList.Add(uri.Segments.Last());
+                    }
                 }
-                stopwatch.Stop();
-                totalMilliseconds += stopwatch.ElapsedMilliseconds;
+                albumIdList = albumIdList.Distinct().ToList();
+                int allCount = 0;//总歌曲数
+                int allNewCount = 0;//总的新下载数
+                int allExistsCount = 0;//总的已存在数
+                long totalMilliseconds = 0;//总耗时毫秒数
+                foreach (var albumId in albumIdList)
+                {
+                    Stopwatch stopwatch = new();
+                    stopwatch.Start();
+                    var musics = await GetMusicsFromAlbumIdAsync(albumId);
+                    if (musics != null && musics.Count > 0)
+                    {
+                        var (newCount, existsCount) = await DownloadAndSaveMusicAsync(musics, path);
+                        allCount += musics.Count;
+                        allNewCount += newCount;
+                        allExistsCount += existsCount;
+
+                        stopwatch.Stop();
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        Console.WriteLine($"[{DateTime.Now}] [{albumId}]下载完成，耗时[{FormatMilliseconds(stopwatch.ElapsedMilliseconds)}] [总列表：{musics.Count}]...[已存在：{existsCount}]...[新下载：{newCount}]");
+                        Console.WriteLine();
+                    }
+                    stopwatch.Stop();
+                    totalMilliseconds += stopwatch.ElapsedMilliseconds;
+                }
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"[{DateTime.Now}] 所有专辑下载完成，耗时[{FormatMilliseconds(totalMilliseconds)}] [歌曲总数：{allCount}]...[已存在：{allExistsCount}]...[新下载：{allNewCount}]");
+
+                ReportRepeat(path);
             }
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"[{DateTime.Now}] 所有专辑下载完成，耗时[{FormatMilliseconds(totalMilliseconds)}] [歌曲总数：{allCount}]...[已存在：{allExistsCount}]...[新下载：{allNewCount}]");
             Console.ReadLine();
         }
 
@@ -97,7 +107,7 @@ namespace Newcats.MusicDownloader
         /// </summary>
         /// <param name="albumId"></param>
         /// <returns></returns>
-        public static async Task<List<MusicModel>> GetMusicsFromAlbumIdAsync(string albumId)
+        private static async Task<List<MusicModel>> GetMusicsFromAlbumIdAsync(string albumId)
         {
             try
             {
@@ -255,7 +265,7 @@ namespace Newcats.MusicDownloader
         /// </summary>
         /// <param name="secs"></param>
         /// <returns></returns>
-        public static string FormatMilliseconds(long secs)
+        private static string FormatMilliseconds(long secs)
         {
             if (secs <= 1000)
                 return $"{secs}ms";
@@ -264,5 +274,62 @@ namespace Newcats.MusicDownloader
             else
                 return $"{secs / 1000 / 60}mins";
         }
+
+        /// <summary>
+        /// 报告重复的文件信息
+        /// </summary>
+        /// <param name="basePath"></param>
+        private static void ReportRepeat(string basePath)
+        {
+            var dir = new DirectoryInfo(basePath);
+            var allFiles = dir.GetFiles("*.*", SearchOption.AllDirectories);
+            if (allFiles != null && allFiles.Any())
+            {
+                var musics = new List<MusicFileInfo>();
+                foreach (var file in allFiles)
+                {
+                    if (file.Extension.ToLower() != ".jpg" && file.Extension.ToLower() != ".webp" && file.Extension.ToLower() != ".ini")
+                    {
+                        MusicFileInfo music = new()
+                        {
+                            FileName = file.Name.Replace(file.Extension, ""),
+                            FileSize = file.Length,
+                            FullPath = file.FullName.Replace(basePath, ""),
+                            FileInfo = file
+                        };
+
+                        musics.Add(music);
+                    }
+                }
+
+                var repeat = musics.GroupBy(f => f.FileName).Where(f => f.ToList().Count() > 1);
+                if (repeat != null && repeat.Any())
+                {
+                    int index = 0;
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine($"==========================[{basePath}]存在{repeat.Count()}组重复名称的文件==========================");
+                    foreach (var group in repeat)
+                    {
+                        index++;
+                        Console.WriteLine();
+                        foreach (var item in group.OrderByDescending(f => f.FileSize))
+                        {
+                            Console.WriteLine($"[{DateTime.Now}] {index} ---> {item.FullPath} ---> {item.FileSize}");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public class MusicFileInfo
+    {
+        public string FileName { get; set; }
+
+        public long FileSize { get; set; }
+
+        public string FullPath { get; set; }
+
+        public FileInfo FileInfo { get; set; }
     }
 }
