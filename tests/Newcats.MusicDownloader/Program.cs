@@ -285,6 +285,15 @@ namespace Newcats.MusicDownloader
             var allFiles = dir.GetFiles("*.*", SearchOption.AllDirectories);
             if (allFiles != null && allFiles.Any())
             {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                Console.WriteLine($"合计：{allFiles.Count()} 个文件");
+                var fileGroup = allFiles.GroupBy(f => f.Extension);
+                foreach (var extension in fileGroup)
+                {
+                    Console.WriteLine($"类型：[{extension.Key}] ---> 数量：[{extension.Count()}]");
+                }
+
                 var musics = new List<MusicFileInfo>();
                 foreach (var file in allFiles)
                 {
