@@ -766,3 +766,4 @@
         /// </summary>
         public List<ResourceItem> resource { get; set; }
     }
+}
