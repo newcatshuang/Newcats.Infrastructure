@@ -7,503 +7,201 @@
  *Github: https://github.com/newcatshuang
  *Copyright © NewcatsHuang All rights reserved.
 *****************************************************************************/
-using System.ComponentModel;
 using System.Data;
-using System.Reflection;
-using Microsoft.AspNetCore.Http;
-using NPOI.HSSF.UserModel;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+using MiniExcelLibs;
 
 namespace Newcats.Office
 {
     /// <summary>
-    /// Excel文件帮助类，通过NPOI进行操作
+    /// Excel文件帮助类
     /// </summary>
     public static class Excel
     {
         /// <summary>
-        /// Excel格式
-        /// </summary>
-        public enum ExcelFormatEnum
-        {
-            /// <summary>
-            /// office2003的旧版格式.xls
-            /// </summary>
-            [Description("xls")]
-            xls = 2003,
-
-            /// <summary>
-            /// office2007的新版格式.xlsx
-            /// </summary>
-            [Description("xlsx")]
-            xlsx = 2007
-        }
-
-        /// <summary>
-        /// 重写Npoi流方法
-        /// </summary>
-        public class NpoiMemoryStream : MemoryStream
-        {
-            /// <summary>
-            /// 构造函数
-            /// </summary>
-            public NpoiMemoryStream()
-            {
-                AllowClose = true;
-            }
-
-            /// <summary>
-            /// 是否运行关闭
-            /// </summary>
-            public bool AllowClose { get; set; }
-
-            /// <summary>
-            /// 关闭流
-            /// </summary>
-            public override void Close()
-            {
-                if (AllowClose)
-                    base.Close();
-            }
-        }
-
-        /// <summary>
-        /// 读取Excel到DataTable(NPOI方式)(默认获取第一个Sheet)(第一行为表头,不记录数据)
+        /// 读取Excel到DataTable(默认获取第一个Sheet)(第一行为表头,不记录数据)
         /// </summary>
         /// <param name="fullFilePath">文件的完整物理路径</param>
         /// <returns>DataTable</returns>
         public static DataTable ReadExcelToTable(string fullFilePath)
         {
-            IWorkbook? wk = null;
-            using (FileStream file = new(fullFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))//FileShare.ReadWrite运行读取被占用的文件
-            {
-                file.Position = 0;
-                string fileExtension = Path.GetExtension(file.Name).ToLower();
-                switch (fileExtension)
-                {
-                    case ".xls":
-                        wk = new HSSFWorkbook(file);
-                        break;
-                    case ".xlsx":
-                        wk = new XSSFWorkbook(file);
-                        break;
-                }
-                return GetDataTableFromWorkbook(wk);
-            }
+            return MiniExcel.QueryAsDataTable(fullFilePath);
         }
 
         /// <summary>
-        /// 读取Excel到DataTable(NPOI方式)(默认获取第一个Sheet)(第一行为表头,不记录数据)
+        /// 读取Excel到DataTable(默认获取第一个Sheet)(第一行为表头,不记录数据)
         /// </summary>
         /// <param name="file">含有Excel的文件流</param>
-        /// <param name="format">文件扩展名（.xls,.xlsx）</param>
         /// <returns>DataTable</returns>
-        public static DataTable ReadExcelToTable(Stream file, ExcelFormatEnum format)
+        public static DataTable ReadExcelToTable(Stream file)
         {
-            file.Position = 0;
-            IWorkbook? wk = null;
-            switch (format)
-            {
-                case ExcelFormatEnum.xls:
-                    wk = new HSSFWorkbook(file);
-                    break;
-                case ExcelFormatEnum.xlsx:
-                    wk = new XSSFWorkbook(file);
-                    break;
-            }
-            return GetDataTableFromWorkbook(wk);
+            return MiniExcel.QueryAsDataTable(file);
         }
 
         /// <summary>
-        /// 读取Excel到DataTable(NPOI方式)(默认获取第一个Sheet)(第一行为表头,不记录数据)
-        /// </summary>
-        /// <param name="file">含有Excel的文件</param>
-        /// <returns>DataTable</returns>
-        public static DataTable ReadExcelToTable(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                throw new FileNotFoundException("The excel file do not exist!");
-            IWorkbook? wk = null;
-            using (MemoryStream stream = new())
-            {
-                file.CopyTo(stream);
-                stream.Position = 0;
-                switch (file.ContentType.ToLower())
-                {
-                    case "application/vnd.ms-excel":
-                        wk = new HSSFWorkbook(stream);
-                        break;
-                    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                        wk = new XSSFWorkbook(stream);
-                        break;
-                }
-                return GetDataTableFromWorkbook(wk);
-            }
-        }
-
-        /// <summary>
-        /// 读取DataTable数据源到Excel内存流(NPOI方式)
-        /// 1.写入到Excel文件，2.输出到响应
-        /// 3.用完之后记得释放（using{}）
-        /// </summary>
-        /// <param name="source">数据源</param>
-        /// <param name="format">文件扩展名（.xls,.xlsx）</param>
-        /// <returns>数据流</returns>
-        public static MemoryStream ReadDataTableToExcel(DataTable source, ExcelFormatEnum format = ExcelFormatEnum.xls)
-        {
-            if (source == null || source.Rows.Count == 0)
-                throw new ArgumentNullException(nameof(source));
-
-            IWorkbook? workbook = null;
-            switch (format)
-            {
-                case ExcelFormatEnum.xls:
-                    workbook = new HSSFWorkbook();
-                    break;
-                case ExcelFormatEnum.xlsx:
-                    workbook = new XSSFWorkbook();
-                    break;
-                default:
-                    workbook = new HSSFWorkbook();
-                    break;
-            }
-
-            ISheet sheet = workbook.CreateSheet("Sheet0");//创建一个名称为Sheet0的表  
-            int rowCount = source.Rows.Count;//行数  
-            int columnCount = source.Columns.Count;//列数  
-
-            //设置列头  
-            IRow row = sheet.CreateRow(0);//excel第一行设为列头  
-            for (int c = 0; c < columnCount; c++)
-            {
-                ICell cell = row.CreateCell(c);
-                cell.SetCellValue(source.Columns[c].ColumnName);
-            }
-
-            //设置每行每列的单元格,  
-            for (int i = 0; i < rowCount; i++)
-            {
-                row = sheet.CreateRow(i + 1);
-                for (int j = 0; j < columnCount; j++)
-                {
-                    ICell cell = row.CreateCell(j);//excel第二行开始写入数据
-                    string defaultValue = source.Rows[i][j].ToString();//默认为字符串
-                    switch (source.Columns[j].DataType.ToString())
-                    {
-                        case "System.String"://字符串类型
-                            cell.SetCellValue(defaultValue);
-                            break;
-                        case "System.DateTime"://日期类型
-                            //System.DateTime dateV;
-                            //System.DateTime.TryParse(defaultValue, out dateV);
-                            cell.SetCellValue(defaultValue);
-                            break;
-                        case "System.Boolean"://布尔型
-                            bool boolV = false;
-                            bool.TryParse(defaultValue, out boolV);
-                            cell.SetCellValue(boolV);
-                            break;
-                        case "System.Int16"://整型
-                        case "System.Int32":
-                        case "System.Int64":
-                        case "System.Byte":
-                            int intV = 0;
-                            int.TryParse(defaultValue, out intV);
-                            cell.SetCellValue(intV);
-                            break;
-                        case "System.Decimal"://浮点型
-                        case "System.Double":
-                            double doubV = 0;
-                            double.TryParse(defaultValue, out doubV);
-                            cell.SetCellValue(doubV);
-                            break;
-                        case "System.DBNull"://空值处理
-                            cell.SetCellValue(string.Empty);
-                            break;
-                        default:
-                            cell.SetCellValue(defaultValue);
-                            break;
-                    }
-                }
-            }
-
-            var ms = new NpoiMemoryStream();
-            ms.AllowClose = false;
-            workbook.Write(ms);
-            ms.Flush();
-            ms.Position = 0;
-            ms.AllowClose = false;
-            return ms;
-        }
-
-        /// <summary>
-        /// 读取Excel到List(NPOI方式)
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="fullFilePath">文件的完整物理路径</param>
-        /// <returns>List</returns>
-        public static List<T> ReadExcelToList<T>(string fullFilePath) where T : class, new()
-        {
-            return ReadExcelToTable(fullFilePath).ToList<T>();
-        }
-
-        /// <summary>
-        /// 读取Excel到List(NPOI方式)
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="file">含有Excel的文件流</param>
-        /// <param name="format">文件扩展名（.xls,.xlsx）</param>
-        /// <returns>List</returns>
-        public static List<T> ReadExcelToList<T>(Stream file, ExcelFormatEnum format) where T : class, new()
-        {
-            return ReadExcelToTable(file, format).ToList<T>();
-        }
-
-        /// <summary>
-        /// 读取Excel到List(NPOI方式)
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="file">含有Excel的文件</param>
-        /// <returns>DataTable</returns>
-        public static List<T> ReadExcelToList<T>(IFormFile file) where T : class, new()
-        {
-            return ReadExcelToTable(file).ToList<T>();
-        }
-
-        /// <summary>
-        /// 读取List数据源到Excel内存流(NPOI方式)
+        /// 读取DataTable数据源到Excel内存流
         /// 1.写入到Excel文件，2.输出到响应
         /// 3.用完之后记得释放 using{}
         /// </summary>
         /// <param name="source">数据源</param>
-        /// <param name="format">文件扩展名（.xls,.xlsx）</param>
         /// <returns>数据流</returns>
-        public static MemoryStream ReadListToExcel<T>(List<T> source, ExcelFormatEnum format = ExcelFormatEnum.xls) where T : class, new()
+        public static MemoryStream ReadDataTableToExcel(DataTable source)
         {
-            return ReadDataTableToExcel(source.ToDataTable(), format);
+            var stream = new MemoryStream();
+            stream.SaveAs(source);
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
+
         }
 
         /// <summary>
-        /// 从Excel的一个工作簿获取DataTable(默认获取第一个Sheet)
-        /// </summary>
-        /// <param name="workbook">工作簿</param>
-        /// <param name="sheetIndex">Sheet索引</param>
-        /// <returns>DataTable</returns>
-        private static DataTable GetDataTableFromWorkbook(IWorkbook workbook, int sheetIndex = 0)
-        {
-            if (workbook == null)
-                throw new FileNotFoundException("The excel file do not exist!");
-
-            return GetDataTableFromSheet(workbook.GetSheetAt(sheetIndex));
-        }
-
-        /// <summary>
-        /// 从Excel的一个Sheet获取DataTable(第一行为表头,不记录数据)
-        /// </summary>
-        /// <param name="sheet">Excel的Sheet</param>
-        /// <returns>DataTable</returns>
-        private static DataTable GetDataTableFromSheet(ISheet sheet)
-        {
-            if (sheet == null)
-                throw new FileNotFoundException("The excel file do not exist!");
-
-            DataTable dt = new();
-
-            IRow headerRow = sheet.GetRow(0);
-            int cellCount = headerRow.LastCellNum;
-
-            for (int j = 0; j < cellCount; j++)
-            {
-                ICell cell = headerRow.GetCell(j);
-                dt.Columns.Add(cell?.ToString());
-            }
-
-            for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++)
-            {
-                IRow row = sheet.GetRow(i);
-                if (row == null || row.Cells.Count == 0)//跳过整行为空的情况
-                    continue;
-                DataRow dataRow = dt.NewRow();
-
-                for (int j = row.FirstCellNum; j < cellCount; j++)
-                {
-                    var cell = row.GetCell(j);
-                    if (cell == null)
-                        continue;
-
-                    #region 旧方法
-                    //CellType(Unknown = -1,Numeric = 0,String = 1,Formula = 2,Blank = 3,Boolean = 4,Error = 5,)  
-                    //switch (cell.CellType)
-                    //{
-                    //    case CellType.Blank:
-                    //        dataRow[j] = string.Empty;
-                    //        break;
-                    //    case CellType.Numeric:
-                    //        short cellFormat = cell.CellStyle.DataFormat;
-                    //        //对时间格式（2015.12.5、2015/12/5、2015-12-5等）的处理  
-                    //        if (cellFormat == 14 || cellFormat == 31 || cellFormat == 57 || cellFormat == 58)
-                    //            dataRow[j] = cell.DateCellValue;
-                    //        else
-                    //            dataRow[j] = cell.NumericCellValue;
-                    //        break;
-                    //    case CellType.String:
-                    //        dataRow[j] = cell.StringCellValue;
-                    //        break;
-                    //    default:
-                    //        dataRow[j] = cell.ToString();
-                    //        break;
-                    //} 
-                    #endregion
-
-                    switch (cell.CellType)
-                    {
-                        case CellType.Unknown:
-                            dataRow[j] = cell.ToString();
-                            break;
-                        case CellType.Numeric:
-                            dataRow[j] = DateUtil.IsCellDateFormatted(cell) ? cell.DateCellValue.ToString() : cell.NumericCellValue.ToString();
-                            break;
-                        case CellType.String:
-                            dataRow[j] = cell.StringCellValue;
-                            break;
-                        case CellType.Formula:
-                            try
-                            {
-                                HSSFFormulaEvaluator e = new(cell.Sheet.Workbook);
-                                e.EvaluateInCell(cell);
-                                dataRow[j] = cell.ToString();
-                            }
-                            catch
-                            {
-                                dataRow[j] = cell.NumericCellValue.ToString();
-                            }
-                            break;
-                        case CellType.Blank:
-                            dataRow[j] = string.Empty;
-                            break;
-                        case CellType.Boolean:
-                            dataRow[j] = cell.BooleanCellValue.ToString();
-                            break;
-                        case CellType.Error:
-                            dataRow[j] = cell.ErrorCellValue.ToString();
-                            break;
-                        default:
-                            dataRow[j] = cell.ToString();
-                            break;
-                    }
-                }
-                dt.Rows.Add(dataRow);
-            }
-            return dt;
-        }
-    }
-
-    /// <summary>
-    /// 集合类型扩展方法
-    /// </summary>
-    internal static class CollectionExtensions
-    {
-        /// <summary>
-        /// IEnumerable数据转为DataTable
+        /// 读取Excel到List
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="collection">数据源</param>
-        /// <returns>DataTable数据</returns>
-        public static DataTable ToDataTable<T>(this IEnumerable<T> collection) where T : class, new()
+        /// <param name="fullFilePath">文件的完整物理路径</param>
+        /// <returns>List</returns>
+        public static IEnumerable<T> ReadExcelToList<T>(string fullFilePath) where T : class, new()
         {
-            var tb = new DataTable(typeof(T).Name);
-            if (collection == null || !collection.Any())
-                return tb;
-
-            PropertyInfo[] props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (PropertyInfo prop in props)
-            {
-                Type t = GetCoreType(prop.PropertyType);
-                tb.Columns.Add(prop.Name, t);
-            }
-
-            foreach (T item in collection)
-            {
-                var values = new object[props.Length];
-
-                for (int i = 0; i < props.Length; i++)
-                {
-                    values[i] = props[i].GetValue(item, null);
-                }
-                tb.Rows.Add(values);
-            }
-            return tb;
+            var result = MiniExcel.Query<T>(fullFilePath);
+            return result;
         }
 
         /// <summary>
-        /// DataTable数据转为List
+        /// 读取Excel到List
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="file">含有Excel的文件流</param>
+        /// <returns>List</returns>
+        public static IEnumerable<T> ReadExcelToList<T>(Stream file) where T : class, new()
+        {
+            using (file)
+            {
+                var result = file.Query<T>();
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// 读取List数据源到Excel内存流
+        /// 1.写入到Excel文件，2.输出到响应
+        /// 3.用完之后记得释放 using{}
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="source">数据源</param>
-        /// <returns>List数据</returns>
-        public static List<T> ToList<T>(this DataTable source) where T : class, new()
+        /// <returns>数据流</returns>
+        public static MemoryStream ReadListToExcel<T>(IEnumerable<T> source) where T : class, new()
         {
-            List<T> list = new();
-            if (source == null || source.Rows.Count == 0)
-                return list;
-
-            //获得此模型的类型   
-            Type type = typeof(T);
-            string tempName = "";
-
-            foreach (DataRow dr in source.Rows)
-            {
-                T t = new();
-                //获得此模型的公共属性      
-                PropertyInfo[] propertys = t.GetType().GetProperties();
-                foreach (PropertyInfo pi in propertys)
-                {
-                    tempName = pi.Name;  //检查DataTable是否包含此列    
-                    if (source.Columns.Contains(tempName))
-                    {
-                        //判断此属性是否有Setter      
-                        if (!pi.CanWrite)
-                            continue;
-
-                        object value = dr[tempName];
-                        if (value != DBNull.Value)
-                            pi.SetValue(t, value, null);
-                    }
-                }
-                list.Add(t);
-            }
-            return list;
+            var stream = new MemoryStream();
+            stream.SaveAs(source);
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
         }
 
         /// <summary>
-        /// Determine of specified type is nullable
+        /// 读取List数据源到Excel文件
         /// </summary>
-        private static bool IsNullable(Type t)
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="source">数据源</param>
+        /// <param name="fullFilePath">保存数据的excel文件完整路径</param>
+        public static void ReadListToExcel<T>(IEnumerable<T> source, string fullFilePath) where T : class, new()
         {
-            return !t.IsValueType || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>));
+            MiniExcel.SaveAs(fullFilePath, source);
         }
 
         /// <summary>
-        /// Return underlying type if type is Nullable otherwise return the type
+        /// 读取Excel到List
         /// </summary>
-        private static Type GetCoreType(Type t)
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="path">文件的完整物理路径</param>
+        /// <param name="sheetName">sheetName</param>
+        /// <param name="excelType">excel文件类型</param>
+        /// <param name="startCell">起始单元格</param>
+        /// <param name="configuration">配置</param>
+        /// <returns>List</returns>
+        public static IEnumerable<T> Query<T>(string path, string sheetName = null, ExcelType excelType = ExcelType.UNKNOWN, string startCell = "A1", IConfiguration configuration = null) where T : class, new()
         {
-            if (t != null && IsNullable(t))
+            return MiniExcel.Query<T>(path, sheetName, excelType, startCell, configuration);
+        }
+
+        /// <summary>
+        /// 读取Excel到List
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="stream">包含excel的流</param>
+        /// <param name="sheetName">sheetName</param>
+        /// <param name="excelType">excel文件类型</param>
+        /// <param name="startCell">起始单元格</param>
+        /// <param name="configuration">配置</param>
+        /// <returns>List</returns>
+        public static IEnumerable<T> Query<T>(this Stream stream, string sheetName = null, ExcelType excelType = ExcelType.UNKNOWN, string startCell = "A1", IConfiguration configuration = null) where T : class, new()
+        {
+            using (stream)
             {
-                if (!t.IsValueType)
-                {
-                    return t;
-                }
-                else
-                {
-                    return Nullable.GetUnderlyingType(t);
-                }
+                return stream.Query<T>(sheetName, excelType, startCell, configuration);
             }
-            else
+        }
+
+        /// <summary>
+        /// 读取Excel到List
+        /// </summary>
+        /// <param name="path">文件的完整物理路径</param>
+        /// <param name="useHeaderRow">启用第一行</param>
+        /// <param name="sheetName">sheetName</param>
+        /// <param name="excelType">excel文件类型</param>
+        /// <param name="startCell">起始单元格</param>
+        /// <param name="configuration">配置</param>
+        /// <returns>List</returns>
+        public static IEnumerable<dynamic> Query(string path, bool useHeaderRow = false, string sheetName = null, ExcelType excelType = ExcelType.UNKNOWN, string startCell = "A1", IConfiguration configuration = null)
+        {
+            return MiniExcel.Query(path, useHeaderRow, sheetName, excelType, startCell, configuration);
+        }
+
+        /// <summary>
+        /// 读取Excel到List
+        /// </summary>
+        /// <param name="stream">包含excel的流</param>
+        /// <param name="useHeaderRow">启用第一行</param>
+        /// <param name="sheetName">sheetName</param>
+        /// <param name="excelType">excel文件类型</param>
+        /// <param name="startCell">起始单元格</param>
+        /// <param name="configuration">配置</param>
+        /// <returns></returns>
+        public static IEnumerable<dynamic> Query(this Stream stream, bool useHeaderRow = false, string sheetName = null, ExcelType excelType = ExcelType.UNKNOWN, string startCell = "A1", IConfiguration configuration = null)
+        {
+            using (stream)
             {
-                return t;
+                return stream.Query(useHeaderRow, sheetName, excelType, startCell, configuration);
+            }
+        }
+
+        /// <summary>
+        /// 保存数据到excel
+        /// </summary>
+        /// <param name="path">保存excel文件的完整路径</param>
+        /// <param name="value">数据源</param>
+        /// <param name="printHeader">是否打印表头</param>
+        /// <param name="sheetName">sheetName</param>
+        /// <param name="excelType">excel文件类型</param>
+        /// <param name="configuration">配置</param>
+        /// <param name="overwriteFile">是否覆写文件</param>
+        public static void SaveAs(string path, object value, bool printHeader = true, string sheetName = "Sheet1", ExcelType excelType = ExcelType.UNKNOWN, IConfiguration configuration = null, bool overwriteFile = false)
+        {
+            MiniExcel.SaveAs(path, value, printHeader, sheetName, excelType, configuration, overwriteFile);
+        }
+
+        /// <summary>
+        /// 保存数据到excel流
+        /// </summary>
+        /// <param name="stream">excel流</param>
+        /// <param name="value">数据源</param>
+        /// <param name="printHeader">是否打印表头</param>
+        /// <param name="sheetName">sheetName</param>
+        /// <param name="excelType">excel文件类型</param>
+        /// <param name="configuration">配置</param>
+        public static void SaveAs(this Stream stream, object value, bool printHeader = true, string sheetName = "Sheet1", ExcelType excelType = ExcelType.XLSX, IConfiguration configuration = null)
+        {
+            using (stream)
+            {
+                stream.SaveAs(value, printHeader, sheetName, excelType, configuration);
             }
         }
     }
