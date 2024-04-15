@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Newcats.Utils</PackageId>
-		<Version>1.0.17</Version>
+		<Version>1.0.18</Version>
 		<Authors>NewcatsHuang</Authors>
 		<Company>newcats.xyz</Company>
 		<copyright>Copyright 2021 © newcats.xyz</copyright>
@@ -17,6 +17,10 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReleaseNotes>
+			2024-4-15
+			1.增加8位短字符串Id生成的方法
+			2.移除返回日期前缀雪花Id的重载
+
 			2022-10-16
 			1.增加对象实例深度克隆的扩展方法
 
@@ -42,10 +46,6 @@
 			2021-9-04
 			1.new Random()改为Random.Shared
 			2.增加可返回日期前缀雪花Id的重载
-
-			2024-4-15
-			1.增加8位短字符串Id生成的方法
-			2.移除返回日期前缀雪花Id的重载
 		</PackageReleaseNotes>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
