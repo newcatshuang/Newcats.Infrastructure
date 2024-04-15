@@ -11,8 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newcats.Utils.Extensions;
 using Newcats.Utils.Models;
 
@@ -23,9 +21,11 @@ namespace T1_ConsoleTests
         public static void Run()
         {
             //1.IEnumerable数据转为DataTable
-            List<UserInfo> users = new List<UserInfo>();
-            users.Add(new UserInfo() { Id = 1, Name = "Newcats" });
-            users.Add(new UserInfo() { Id = 2, Name = "Huang" });
+            List<UserInfo> users = new()
+            {
+                new UserInfo() { Id = 1, Name = "Newcats" },
+                new UserInfo() { Id = 2, Name = "Huang" }
+            };
             DataTable r1 = users.ToDataTable();
 
             //2.DataTable数据转为List
@@ -148,7 +148,7 @@ namespace T1_ConsoleTests
             long r26 = Newcats.Utils.Helpers.IdHelper.Create();//=>3962686302872276996
 
             //38.拼接了日期的雪花算法Id
-            string r27 = Newcats.Utils.Helpers.IdHelper.Create(true);//=>202112303962686561048465409
+            //string r27 = Newcats.Utils.Helpers.IdHelper.Create(true);//=>202112303962686561048465409
 
             //39.Lambda表达式帮助类 Newcats.Utils.Helpers.LambdaHelper
 

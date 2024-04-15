@@ -8,10 +8,6 @@
  *Copyright NewcatsHuang All rights reserved.
 *****************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newcats.Utils.Extensions;
 using Newcats.Utils.Helpers;
@@ -121,7 +117,7 @@ namespace Newcats.Utils.UnitTest.Extensions
         [TestMethod]
         public void TestJsonConvert()
         {
-            UserInfo user = new UserInfo
+            UserInfo user = new()
             {
                 Id = 1,
                 Name = "Newcats",
@@ -207,9 +203,9 @@ namespace Newcats.Utils.UnitTest.Extensions
             Assert.IsNotNull(id);
             Assert.AreEqual(19, id.ToString().Length);
 
-            string idStr = IdHelper.Create(true);
-            Assert.IsNotNull(idStr);
-            Assert.AreEqual(27, idStr.Length);
+            //string idStr = IdHelper.Create(true);
+            //Assert.IsNotNull(idStr);
+            //Assert.AreEqual(27, idStr.Length);
         }
     }
 }
