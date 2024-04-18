@@ -371,7 +371,7 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 补充0的长度
         /// </summary>
-        private static int ZeroLength
+        private int ZeroLength
         {
             get
             {
@@ -382,7 +382,7 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// Code长度位数下能达到的最大值
         /// </summary>
-        private static long MaxValue
+        private long MaxValue
         {
             get
             {
