@@ -34,7 +34,7 @@ namespace Newcats.Utils.Helpers
         /// <returns>8位随机字符串</returns>
         public static string Create(long id)
         {
-            return StringIdConverter.Create(id);
+            return StringIdGenerator.Current.Create(id);
         }
 
         /// <summary>
@@ -44,10 +44,11 @@ namespace Newcats.Utils.Helpers
         /// <returns>数字Id</returns>
         public static long Reverse(string key)
         {
-            return StringIdConverter.Reverse(key);
+            return StringIdGenerator.Current.Reverse(key);
         }
     }
 
+    #region 雪花Id
     /// <summary>
     /// 雪花算法ID 生成器
     /// </summary>
@@ -317,18 +318,55 @@ namespace Newcats.Utils.Helpers
             }
         }
     }
+    #endregion
+
+    #region 短位StringId
+    /// <summary>
+    /// StringId 生成器
+    /// </summary>
+    internal class StringIdGenerator
+    {
+        const string _62Seq = "KL01GptV82QYdAX7ujWi9fsIcHDla4TvUJNqPnROhgF3kEmxbe6SZr5BoMywCz";//62位序列
+        const int _codeLength = 8;//8位长度
+
+        private readonly StringId _id = new(_62Seq, _codeLength);//初始化
+
+        //当前实例
+        public static StringIdGenerator Current { get; } = new StringIdGenerator();
+
+        /// <summary>
+        /// 生成8位随机字符串
+        /// </summary>
+        /// <param name="id">数字id</param>
+        /// <returns>8位随机字符串</returns>
+        /// <exception cref="ArgumentOutOfRangeException">传入的id值大于可转换的最大值</exception>
+        public string Create(long id)
+        {
+            return _id.Create(id);
+        }
+
+        /// <summary>
+        /// 解析到数字id
+        /// </summary>
+        /// <param name="idKey">通过 <see cref="StringId.Create(long)"/> 方法生成的字符串</param>
+        /// <returns>数字id</returns>
+        public long Reverse(string idKey)
+        {
+            return _id.Reverse(idKey);
+        }
+    }
 
     /// <summary>
     /// 数字Id和8位随机字符串转换器
     /// </summary>
-    internal class StringIdConverter
+    public class StringId
     {
         //参考
         //https://www.cnblogs.com/xmlnode/p/4544302.html
         //https://github.com/Bryan-Cyf/SuperShortLink/blob/55d57d8678e48129b0aeb9e437d44cb9710023ac/src/SuperShortLink.Core/Service/Base62Converter.cs
 
-        private const string _62Seq = "KL01GptV82QYdAX7ujWi9fsIcHDla4TvUJNqPnROhgF3kEmxbe6SZr5BoMywCz";//62位序列
-        private const int _codeLength = 8;//随机字符串长度
+        private readonly string _62Seq;//= "KL01GptV82QYdAX7ujWi9fsIcHDla4TvUJNqPnROhgF3kEmxbe6SZr5BoMywCz";//62位序列
+        private readonly int _codeLength; //= 8;//随机字符串长度
 
         /// <summary>
         /// 补充0的长度
@@ -354,12 +392,23 @@ namespace Newcats.Utils.Helpers
         }
 
         /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="seq">62位的序列，生成和解析要使用相同的序列，可以使用 <see cref="StringId.Generate62Sequence()"/> 生成一个62位随机序列</param>
+        /// <param name="codeLength">生成的字符串长度</param>
+        public StringId(string seq, int codeLength)
+        {
+            _62Seq = seq;
+            _codeLength = codeLength;
+        }
+
+        /// <summary>
         /// 生成8位随机字符串
         /// </summary>
         /// <param name="id">数字id</param>
         /// <returns>8位随机字符串</returns>
         /// <exception cref="ArgumentOutOfRangeException">传入的id值大于可转换的最大值</exception>
-        internal static string Create(long id)
+        public string Create(long id)
         {
             // 1、根据自增主键id前面补0，如：00000123
             // 2、倒转32100000
@@ -383,19 +432,19 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 解析到数字id
         /// </summary>
-        /// <param name="key">通过 StringIdConverter.Create() 方法生成的字符串</param>
+        /// <param name="idKey">通过 <see cref="StringId.Create(long)"/> 方法生成的字符串</param>
         /// <returns>数字id</returns>
-        internal static long Reverse(string key)
+        public long Reverse(string idKey)
         {
             // 1、六十二进制转十进制，得到如：32100000
             // 2、倒转00000123，得到123
 
-            if (key.Length != _codeLength)
+            if (idKey.Length != _codeLength)
             {
                 return 0;
             }
 
-            var confuseId = Convert62To10(key);
+            var confuseId = Convert62To10(idKey);
             var idChars = confuseId.ToString()
                 .PadLeft(ZeroLength, '0')
                 .ToCharArray()
@@ -409,7 +458,7 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 十进制 -> 62进制
         /// </summary>
-        private static string Convert10To62(long value)
+        private string Convert10To62(long value)
         {
             if (value < 0)
                 throw new ArgumentOutOfRangeException("value", "value must be greater or equal to zero");
@@ -427,7 +476,7 @@ namespace Newcats.Utils.Helpers
         /// <summary>
         /// 62进制 -> 10进制
         /// </summary>
-        private static long Convert62To10(string value)
+        private long Convert62To10(string value)
         {
             long result = 0;
             for (int i = 0; i < value.Length; i++)
@@ -446,7 +495,7 @@ namespace Newcats.Utils.Helpers
         /// 生成随机的0-9a-zA-Z的62位字符串
         /// </summary>
         /// <returns>62位字符串</returns>
-        private static string Generate62Sequence()
+        public static string Generate62Sequence()
         {
             string[] Chars = "0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z".Split(',');
             int SeekSeek = unchecked((int)DateTime.Now.Ticks);
@@ -461,4 +510,5 @@ namespace Newcats.Utils.Helpers
             return string.Join("", Chars);
         }
     }
+    #endregion
 }
