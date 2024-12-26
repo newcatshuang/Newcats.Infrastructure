@@ -45,9 +45,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Newcats.MusicDownloader", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CalculateDirectorySize", "tests\CalculateDirectorySize\CalculateDirectorySize.csproj", "{9EDE0DC4-B415-4271-A1C0-E2F1B8078937}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostApp", "tests\HostApp\HostApp.csproj", "{D99140C9-E1F6-4B5B-986E-B8AE1CB1650D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostApp", "tests\HostApp\HostApp.csproj", "{D99140C9-E1F6-4B5B-986E-B8AE1CB1650D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneratorApp", "tests\GeneratorApp\GeneratorApp.csproj", "{759CA8EC-7487-401E-9F55-98C003A3D223}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeneratorApp", "tests\GeneratorApp\GeneratorApp.csproj", "{759CA8EC-7487-401E-9F55-98C003A3D223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PasswordGenerator", "tests\PasswordGenerator\PasswordGenerator.csproj", "{64CC5CAB-414B-4BD5-A218-633018492AD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,10 @@ Global
 		{759CA8EC-7487-401E-9F55-98C003A3D223}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{759CA8EC-7487-401E-9F55-98C003A3D223}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{759CA8EC-7487-401E-9F55-98C003A3D223}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64CC5CAB-414B-4BD5-A218-633018492AD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64CC5CAB-414B-4BD5-A218-633018492AD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64CC5CAB-414B-4BD5-A218-633018492AD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64CC5CAB-414B-4BD5-A218-633018492AD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +166,7 @@ Global
 		{9EDE0DC4-B415-4271-A1C0-E2F1B8078937} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 		{D99140C9-E1F6-4B5B-986E-B8AE1CB1650D} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 		{759CA8EC-7487-401E-9F55-98C003A3D223} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
+		{64CC5CAB-414B-4BD5-A218-633018492AD2} = {925BBD03-1936-4358-B353-BFA2E6511D0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B820ECAE-681C-4186-91AF-AA66A4EF0FB2}
