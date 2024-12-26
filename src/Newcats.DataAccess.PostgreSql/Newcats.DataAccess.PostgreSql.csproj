@@ -49,7 +49,7 @@
 	<ItemGroup>
 		<None Include="LICENSE" Pack="true" PackagePath="" />
 		<PackageReference Include="Newcats.DataAccess.Core" Version="2.0.0" />
-		<PackageReference Include="Npgsql" Version="6.0.2" />
+		<PackageReference Include="Npgsql" Version="6.0.11" />
 		<None Update="README.md">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
