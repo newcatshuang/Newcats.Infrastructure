@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Disassemblers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using Newcats.DataAccess.Core;
@@ -21,10 +22,38 @@ using NpgsqlTypes;
 
 namespace T1_ConsoleTests
 {
+    public class BillInfo
+    {
+        public string BillCode { get; set; }
+
+        public DateTime DueDate { get; set; }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(Newcats.Utils.Helpers.IdHelper.Create());
+
+
+            string prefix = "Newcats-";
+            Console.WriteLine($"{prefix}{(0):000}");
+            Console.WriteLine($"{prefix}{(10 + 1):000}");
+            Console.WriteLine($"{prefix}{(100 + 1):000}");
+            Console.WriteLine($"{prefix}{(1000 + 1):000}");
+            Console.WriteLine($"{prefix}{(10000 + 1):000}");
+            Console.WriteLine($"{prefix}{(100000 + 1):000}");
+
+            return;
+
+
+            var bills = Newcats.Office.Excel.ReadExcelToList<BillInfo>("C:\\Users\\Newcats\\Desktop\\Duedate.xlsx");
+            foreach (var item in bills)
+            {
+                Console.WriteLine($"update bms.fin_bill set due_date='{item.DueDate}',updated_time=now() where is_delete=false and belong_company_id=16 and bill_code='{item.BillCode}';");
+            }
+
+            return;
             int[] IntArr = new int[] { 1, 2, 3, 4 }; //整型数组
             List<int[]> ListCombination = PermutationAndCombination<int>.GetPermutation(IntArr, 2); //求全部的5取3排列
             foreach (int[] arr in ListCombination)
@@ -513,5 +542,14 @@ namespace T1_ConsoleTests
             GetCombination(ref list, t, t.Length, n, temp, n);
             return list;
         }
+    }
+
+    public class TestCode
+    {
+        public int Id { get; set; }
+
+        public string BillCode { get; set; }
+
+        public string PreCode { get; set; }
     }
 }
