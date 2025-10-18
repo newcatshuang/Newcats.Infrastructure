@@ -14,7 +14,7 @@ namespace Newcats.DependencyInjection
     [Generator(LanguageNames.CSharp)]
     public class DependencyInjectionGenerator : IIncrementalGenerator
     {
-        private const string ATTRIBUTENAME = "GeneratorApp.DependencyInjectionAttribute";//特性名
+        private const string ATTRIBUTENAME = "Newcats.DependencyInjection.DependencyInjectionAttribute";//特性名
 
         /// <summary>
         /// 跳过的程序集
