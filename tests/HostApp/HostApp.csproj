@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Newcats.DependencyInjection\Newcats.DependencyInjection.csproj" />
+    <ProjectReference Include="..\GeneratorApp\GeneratorApp.csproj" />
   </ItemGroup>
 
 </Project>

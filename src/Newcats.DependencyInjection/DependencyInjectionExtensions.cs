@@ -13,7 +13,7 @@ namespace Newcats.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors</param>
         /// <returns>collection of service descriptors</returns>
-        public static IServiceCollection AddReflectionDependencies(this IServiceCollection services)
+        public static IServiceCollection AddDependencyInjection(this IServiceCollection services)
         {
             //要排除的接口类型
             Type[] exceptTypes = new Type[] { typeof(ISingletonDependency), typeof(IScopedDependency), typeof(ITransientDependency), typeof(IDisposable) };

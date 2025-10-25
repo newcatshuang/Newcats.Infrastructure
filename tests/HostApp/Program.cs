@@ -1,4 +1,4 @@
-﻿using Newcats.DependencyInjection;
+﻿using GeneratorApp;
 
 namespace HostApp
 {
