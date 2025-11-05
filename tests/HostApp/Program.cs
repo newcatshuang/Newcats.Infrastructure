@@ -10,7 +10,7 @@ namespace HostApp
         }
     }
 
-    [DependencyInjectionAttribute(LifetimeEnum.Scoped)]
+    [DependencyInjection]
     public class SendMessage : ISendMessage
     {
         public string Message { get; set; }

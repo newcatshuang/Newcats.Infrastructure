@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Newcats.DependencyInjection
 {
@@ -92,9 +92,9 @@ namespace Newcats.DependencyInjection
         {
             var obj = Activator.CreateInstance(type, parameters);
             if (obj == null)
-                return default(T);
+                return default;
             if (obj is string && string.IsNullOrWhiteSpace(obj.ToString()))
-                return default(T);
+                return default;
             Type tType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
             try
             {
@@ -104,7 +104,7 @@ namespace Newcats.DependencyInjection
             }
             catch
             {
-                return default(T);
+                return default;
             }
         }
     }

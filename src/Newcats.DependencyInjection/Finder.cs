@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.PlatformAbstractions;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Newcats.DependencyInjection
@@ -19,7 +18,17 @@ namespace Newcats.DependencyInjection
         /// </summary>
         public virtual List<Assembly> GetAssemblies()
         {
-            LoadAssemblies(PlatformServices.Default.Application.ApplicationBasePath);
+            // 首选方案：AppDomain.CurrentDomain.BaseDirectory
+            // 这在大多数情况下都能正常工作
+            string basePath = AppDomain.CurrentDomain.BaseDirectory;
+
+            // 对于某些特殊情况（如测试环境），可以添加备用方案
+            if (string.IsNullOrEmpty(basePath) || !Directory.Exists(basePath))
+            {
+                // 备用方案：使用当前执行程序集的目录
+                basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            }
+            LoadAssemblies(basePath);
             return GetAssembliesFromCurrentAppDomain();
         }
 
@@ -65,9 +74,11 @@ namespace Newcats.DependencyInjection
         /// </summary>
         protected virtual bool Match(string assemblyName)
         {
-            if (assemblyName.StartsWith($"{PlatformServices.Default.Application.ApplicationName}.Views"))
+            // 获取入口程序集的名称
+            string appName = Assembly.GetEntryAssembly()?.GetName().Name;
+            if (assemblyName.StartsWith($"{appName}.Views"))
                 return false;
-            if (assemblyName.StartsWith($"{PlatformServices.Default.Application.ApplicationName}.PrecompiledViews"))
+            if (assemblyName.StartsWith($"{appName}.PrecompiledViews"))
                 return false;
             return !Regex.IsMatch(assemblyName, SkipAssemblies, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }

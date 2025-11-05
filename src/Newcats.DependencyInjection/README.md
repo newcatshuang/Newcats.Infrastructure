@@ -15,7 +15,7 @@
 * 注1：具体需要哪个标记接口，看需求，一般Web项目用IScopedDependency
 * 注2：程序启动时会扫描bin目录下的所有自己项目的dll文件，查找上述3个标记接口，然后注册依赖关系
 * 注3：对于不会自动生成在bin下的项目dll,请直接引用
-* 注4：推荐使用使用构造函数注入
+* 注4：推荐使用构造函数注入
 * 注5：对于不能使用构造函数注入的，可以使用HttpContext.RequestServices.GetService<IService>();
 
 ## 2.注册服务
